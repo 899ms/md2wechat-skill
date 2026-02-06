@@ -52,7 +52,7 @@ Your assistant. Your machine. Your rules.
 
 ## 安装方式
 
-### 方式一：ClawHub 安装（推荐）
+### 方式一：ClawHub 安装（推荐，还在实践中，很快能上架到官方）
 
 如果你已安装 `clawhub` CLI，这是最简单的方式：
 
