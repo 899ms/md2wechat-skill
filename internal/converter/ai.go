@@ -2,9 +2,12 @@ package converter
 
 import (
 	"fmt"
+	"strings"
 
 	"go.uber.org/zap"
 )
+
+const aiModePrefix = "AI_MODE_REQUEST:"
 
 // AIConvertRequest AI 转换请求（用于传递给 Claude）
 type AIConvertRequest struct {
@@ -62,7 +65,7 @@ func (c *converter) convertViaAI(req *ConvertRequest) *ConvertResult {
 	// 4. 调用 CompleteAIConversion 填充结果
 
 	// 为了保持接口一致性，这里返回一个包含提示词的特殊结果
-	result.Error = "AI_MODE_REQUEST:" + prompt
+	result.Error = aiModePrefix + prompt
 	result.Images = images
 
 	c.log.Info("AI conversion request prepared",
@@ -165,13 +168,13 @@ func CompleteAIConversion(html string, images []ImageRef, theme string) *Convert
 
 // IsAIRequest 检查结果是否是 AI 请求
 func IsAIRequest(result *ConvertResult) bool {
-	return result.Error != "" && len(result.Error) > 14 && result.Error[:14] == "AI_MODE_REQUEST"
+	return strings.HasPrefix(result.Error, aiModePrefix)
 }
 
 // ExtractAIRequest 从结果中提取 AI 请求
 func ExtractAIRequest(result *ConvertResult) string {
 	if IsAIRequest(result) {
-		return result.Error[14:] // 去掉前缀
+		return strings.TrimPrefix(result.Error, aiModePrefix)
 	}
 	return ""
 }

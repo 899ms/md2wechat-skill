@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2026-03-12
+
+### Fixed
+- **IsAIRequest 函数修复**: 修复了 `IsAIRequest` 始终返回 `false` 的 bug
+  - 原代码使用魔法数字 `14` 进行字符串切片比较，但前缀 `"AI_MODE_REQUEST:"` 实际长度为 16，导致比较永远不匹配
+  - `ExtractAIRequest` 同样因切片偏移错误 (`[14:]`) 会在结果中保留 `"T:"` 残留前缀
+  - 改用 `strings.HasPrefix` / `strings.TrimPrefix`，与 `generator.go` 中的现有模式保持一致
+
+### Changed
+- **aiModePrefix 常量**: 引入包级常量 `aiModePrefix = "AI_MODE_REQUEST:"` 消除魔法数字，所有引用统一使用该常量
+
+### Technical Details
+- **Modified Files**: `internal/converter/ai.go`
+
+### Migration Guide
+No migration required.
+
 ## [1.10.0] - 2025-02-10
 
 ### Added
