@@ -49,6 +49,11 @@ Backup domain:
 https://md2wechat.app
 ```
 
+Default conversion mode:
+
+- If the user does not explicitly pass `--mode`, `convert` should be treated as `api`
+- Only use AI mode when the user explicitly asks for `--mode ai` or clearly requests AI themed conversion
+
 ### Natural Language Image Generation
 
 You can also ask me to generate images using natural language:

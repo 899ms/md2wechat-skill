@@ -115,6 +115,29 @@ export MD2WECHAT_BASE_URL="https://md2wechat.app"
 - CI / Agent 自动化
 - 不想修改全局配置文件的场景
 
+### 关于默认转换模式
+
+当前 CLI 的默认行为是固定的：
+
+- 不传 `--mode` 时，`md2wechat convert ...` 始终默认走 `api`
+- 只有显式传入 `--mode ai` 时，才会走 AI 模式
+
+也就是说，下面这个命令：
+
+```bash
+md2wechat convert article.md
+```
+
+当前一定等价于：
+
+```bash
+md2wechat convert article.md --mode api
+```
+
+所以如果用户没有填写配置，或者没有显式传 `--mode`，默认也是 `api`。
+
+`api.convert_mode` / `CONVERT_MODE` 当前主要用于配置展示、校验和兼容字段；**不会覆盖 `convert` 命令在未传 `--mode` 时的默认行为**。
+
 ---
 
 ## 配置文件搜索顺序

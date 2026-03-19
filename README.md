@@ -814,7 +814,7 @@ wechat:
 api:
   md2wechat_key: "md2wechat.cn 的 API Key"  # API 模式需要
   md2wechat_base_url: "https://www.md2wechat.cn"  # 可改成 https://md2wechat.app
-  convert_mode: "api"                       # 默认模式：api 或 ai
+  convert_mode: "api"                       # 配置展示/兼容字段；不传 --mode 时 CLI 仍默认 api
   default_theme: "default"                  # 默认主题
   http_timeout: 30                          # 超时时间（秒）
 
@@ -835,6 +835,11 @@ image:
 - [配置指南](docs/CONFIG.md)
 - [示例配置](docs/examples/config.yaml.example)
 - [真实烟雾测试记录](docs/SMOKE.md)
+
+需要明确一点：
+
+- `md2wechat convert article.md` 在未显式传 `--mode` 时，始终默认走 `api`
+- 只有显式传 `--mode ai` 才会走 AI 模式
 
 ---
 
