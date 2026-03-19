@@ -20,7 +20,7 @@
 
 ```bash
 # 检查所有文档中的命令示例是否与实际 CLI 一致
-grep -r "md2wechat" docs/ README.md QUICKSTART.md skills/md2wechat/SKILL.md
+grep -r "md2wechat" docs/ README.md skills/md2wechat/SKILL.md
 
 # 检查目录结构描述是否与实际一致
 tree -L 3 --dirsfirst
@@ -212,7 +212,7 @@ ClawHub 发布跳过。如需手动发布，请稍后执行：
 
 ### 文档
 - `README.md` - 项目主文档
-- `QUICKSTART.md` - 快速入门
+- `docs/QUICKSTART.md` - 快速入门
 - `CHANGELOG.md` - 版本变更记录
 - `docs/` - 详细文档目录
 

@@ -75,11 +75,13 @@ clawhub login
 适合没有安装 clawhub 的用户：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/geekjourneyx/md2wechat-skill/main/scripts/install-openclaw.sh | bash
+export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/v1.11.1
+curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install-openclaw.sh" | bash
 ```
 
 **脚本功能：**
-- 自动下载最新技能文件
+- 自动下载当前 release 对应的技能包
+- 自动校验 `checksums.txt`
 - 安装到 `~/.openclaw/skills/md2wechat/`
 - 显示配置说明
 
@@ -88,12 +90,17 @@ curl -fsSL https://raw.githubusercontent.com/geekjourneyx/md2wechat-skill/main/s
 ### 方式三：手动安装
 
 ```bash
-# 1. 克隆仓库
-git clone https://github.com/geekjourneyx/md2wechat-skill.git
+# 1. 下载固定版本 release 资产
+VERSION=1.11.1
+curl -LO https://github.com/geekjourneyx/md2wechat-skill/releases/download/v${VERSION}/md2wechat-openclaw-skill.tar.gz
+curl -LO https://github.com/geekjourneyx/md2wechat-skill/releases/download/v${VERSION}/checksums.txt
+sha256sum -c checksums.txt --ignore-missing
 
-# 2. 复制技能目录
+# 2. 解压并复制技能目录
+mkdir -p /tmp/md2wechat-openclaw
+tar -xzf md2wechat-openclaw-skill.tar.gz -C /tmp/md2wechat-openclaw
 mkdir -p ~/.openclaw/skills
-cp -r md2wechat-skill/skills/md2wechat ~/.openclaw/skills/
+cp -r /tmp/md2wechat-openclaw/skills/md2wechat ~/.openclaw/skills/
 
 # 3. 设置执行权限
 chmod +x ~/.openclaw/skills/md2wechat/scripts/*.sh
@@ -223,7 +230,8 @@ ls ~/.cache/md2wechat/bin/
 clawhub update md2wechat
 
 # 脚本方式（会覆盖安装）
-curl -fsSL https://raw.githubusercontent.com/geekjourneyx/md2wechat-skill/main/scripts/install-openclaw.sh | bash
+export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/v1.11.1
+curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install-openclaw.sh" | bash
 ```
 
 ### Q: 配置没生效？

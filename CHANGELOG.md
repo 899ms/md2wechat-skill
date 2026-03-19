@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.1] - 2026-03-19
+
+### Changed
+- Tightened the Markdown-to-WeChat pipeline around shared metadata parsing, image placeholder回填, and remote image download boundaries.
+- Expanded command-level and module-level tests across `cmd/md2wechat`, `internal/converter`, `internal/draft`, `internal/humanizer`, `internal/wechat`, and `internal/writer`.
+- Promoted checksum-verified, version-pinned release assets and installer scripts as the primary install path.
+- Moved the OpenClaw installer to the same version-pinned release + checksum flow as the main CLI installer.
+- Added build-once, smoke-same-artifact, release-same-artifact flow to the release workflow.
+- Hardened installation and execution docs so fixed-version release assets are the primary install path.
+- Added repository execution guidance in `docs/AGENTS.md` for development, validation, and release discipline.
+
 ## [1.11.0] - 2026-03-12
 
 ### Fixed
@@ -400,7 +411,7 @@ No migration required. The write command is a new feature and doesn't affect exi
 - Installation steps for Windows, Mac, and Linux users
 
 ### Changed
-- Updated QUICKSTART.md with Claude Code section at the beginning
+- Updated docs/QUICKSTART.md with Claude Code section at the beginning
 - Enhanced docs/USAGE.md with Claude Code integration guide
 - Improved download table with installation locations
 - Added collapsible installation steps for each platform

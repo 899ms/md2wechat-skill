@@ -12,7 +12,7 @@ import (
 // Theme 主题定义
 type Theme struct {
 	Name        string            `yaml:"name"`
-	Type        string            `yaml:"type"`         // "api" | "ai"
+	Type        string            `yaml:"type"` // "api" | "ai"
 	Description string            `yaml:"description"`
 	Version     string            `yaml:"version"`
 	StyleInfo   ThemeStyleInfo    `yaml:"style_info,omitempty"`

@@ -88,9 +88,7 @@ func (c *Compressor) CompressImage(filePath string) (string, bool, error) {
 	}
 
 	// 创建临时文件保存压缩结果
-	tempDir := os.TempDir()
 	ext := filepath.Ext(filePath)
-	baseName := strings.TrimSuffix(filepath.Base(filePath), ext)
 
 	// 根据扩展名确定输出格式
 	var outputFormat string
@@ -105,7 +103,15 @@ func (c *Compressor) CompressImage(filePath string) (string, bool, error) {
 		ext = ".jpg"
 	}
 
-	tempPath := filepath.Join(tempDir, "compressed_"+baseName+ext)
+	tmpFile, err := os.CreateTemp("", "md2wechat-compressed-*"+ext)
+	if err != nil {
+		return "", false, fmt.Errorf("create temp file: %w", err)
+	}
+	tempPath := tmpFile.Name()
+	if err := tmpFile.Close(); err != nil {
+		os.Remove(tempPath)
+		return "", false, fmt.Errorf("close temp file: %w", err)
+	}
 
 	// 保存压缩后的图片
 	if err := c.saveImage(processedImg, tempPath, outputFormat); err != nil {

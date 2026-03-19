@@ -10,6 +10,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const writersDirEnvVar = "MD2WECHAT_WRITERS_DIR"
+
 // StyleManager 风格管理器
 type StyleManager struct {
 	styles      map[string]*WriterStyle
@@ -95,6 +97,10 @@ func (sm *StyleManager) loadStyle(path string) error {
 
 // getWritersDir 获取 writers 目录路径
 func (sm *StyleManager) getWritersDir() string {
+	if explicitDir := strings.TrimSpace(os.Getenv(writersDirEnvVar)); explicitDir != "" {
+		return explicitDir
+	}
+
 	// 优先级顺序：
 	// 1. 当前目录的 writers/
 	// 2. 用户配置目录 ~/.config/md2wechat/writers/
@@ -141,10 +147,10 @@ func (sm *StyleManager) mapToEnglishName(name string) string {
 	// 名称映射表
 	nameMap := map[string]string{
 		// Dan Koe 别名
-		"dan-koe":   "dan-koe",
-		"dankoe":    "dan-koe",
-		"dan":       "dan-koe",
-		"koe":       "dan-koe",
+		"dan-koe": "dan-koe",
+		"dankoe":  "dan-koe",
+		"dan":     "dan-koe",
+		"koe":     "dan-koe",
 		// 未来可以添加更多映射
 	}
 

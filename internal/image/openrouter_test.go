@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
 
@@ -120,11 +119,11 @@ func TestMapSizeToOpenRouter(t *testing.T) {
 
 func TestParseDataURL(t *testing.T) {
 	tests := []struct {
-		name       string
-		dataURL    string
-		wantExt    string
-		wantLen    int
-		wantErr    bool
+		name    string
+		dataURL string
+		wantExt string
+		wantLen int
+		wantErr bool
 	}{
 		{
 			name:    "valid PNG",
@@ -193,7 +192,17 @@ func TestOpenRouterProvider_Generate(t *testing.T) {
 	b64 := base64.StdEncoding.EncodeToString(pngData)
 	dataURL := "data:image/png;base64," + b64
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	cfg := &config.Config{
+		ImageAPIKey:  "test-key",
+		ImageAPIBase: "https://mock.local",
+		ImageModel:   "google/gemini-3-pro-image-preview",
+	}
+
+	p, err := NewOpenRouterProvider(cfg)
+	if err != nil {
+		t.Fatalf("NewOpenRouterProvider() error = %v", err)
+	}
+	p.client = newMockHTTPClient(func(r *http.Request) (*http.Response, error) {
 		// 验证请求
 		if r.Method != "POST" {
 			t.Errorf("Method = %v, want POST", r.Method)
@@ -221,7 +230,6 @@ func TestOpenRouterProvider_Generate(t *testing.T) {
 			t.Errorf("modalities = %v, want [image]", reqBody["modalities"])
 		}
 
-		// 返回模拟响应
 		response := map[string]any{
 			"choices": []map[string]any{
 				{
@@ -238,21 +246,8 @@ func TestOpenRouterProvider_Generate(t *testing.T) {
 			},
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
-	}))
-	defer server.Close()
-
-	cfg := &config.Config{
-		ImageAPIKey:  "test-key",
-		ImageAPIBase: server.URL,
-		ImageModel:   "google/gemini-3-pro-image-preview",
-	}
-
-	p, err := NewOpenRouterProvider(cfg)
-	if err != nil {
-		t.Fatalf("NewOpenRouterProvider() error = %v", err)
-	}
+		return jsonResponse(http.StatusOK, response), nil
+	})
 
 	result, err := p.Generate(context.Background(), "a test image prompt")
 	if err != nil {
@@ -277,8 +272,13 @@ func TestOpenRouterProvider_Generate(t *testing.T) {
 }
 
 func TestOpenRouterProvider_Generate_NoImage(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// 返回没有图片的响应
+	cfg := &config.Config{
+		ImageAPIKey:  "test-key",
+		ImageAPIBase: "https://mock.local",
+	}
+
+	p, _ := NewOpenRouterProvider(cfg)
+	p.client = newMockHTTPClient(func(r *http.Request) (*http.Response, error) {
 		response := map[string]any{
 			"choices": []map[string]any{
 				{
@@ -290,17 +290,8 @@ func TestOpenRouterProvider_Generate_NoImage(t *testing.T) {
 			},
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
-	}))
-	defer server.Close()
-
-	cfg := &config.Config{
-		ImageAPIKey:  "test-key",
-		ImageAPIBase: server.URL,
-	}
-
-	p, _ := NewOpenRouterProvider(cfg)
+		return jsonResponse(http.StatusOK, response), nil
+	})
 	_, err := p.Generate(context.Background(), "test")
 
 	if err == nil {
@@ -364,18 +355,15 @@ func TestOpenRouterProvider_HandleErrorResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(tt.statusCode)
-				w.Write([]byte(tt.body))
-			}))
-			defer server.Close()
-
 			cfg := &config.Config{
 				ImageAPIKey:  "test-key",
-				ImageAPIBase: server.URL,
+				ImageAPIBase: "https://mock.local",
 			}
 
 			p, _ := NewOpenRouterProvider(cfg)
+			p.client = newMockHTTPClient(func(r *http.Request) (*http.Response, error) {
+				return jsonResponse(tt.statusCode, tt.body), nil
+			})
 			_, err := p.Generate(context.Background(), "test")
 
 			if err == nil {

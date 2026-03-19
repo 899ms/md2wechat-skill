@@ -14,11 +14,11 @@ import (
 
 // OpenAIProvider OpenAI 图片生成服务提供者
 type OpenAIProvider struct {
-	apiKey    string
-	baseURL   string
-	model     string
-	size      string
-	client    *http.Client
+	apiKey  string
+	baseURL string
+	model   string
+	size    string
+	client  *http.Client
 }
 
 // NewOpenAIProvider 创建 OpenAI Provider

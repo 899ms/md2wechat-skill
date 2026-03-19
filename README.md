@@ -15,26 +15,10 @@
 
 ---
 
-> ### ⚠️ 重要提示：API 模式需要 md2wechat.cn API 服务
-> **本工具使用 md2wechat.cn API 服务，使用 API 模式前需要先获取 API Key**
->
-> - 📖 **API 文档**：https://www.md2wechat.cn/api-docs
-> - 📧 **联系获取**：通过 [官网](https://www.md2wechat.cn/api-docs) 联系获取 API Key
-> - 💡 **AI 模式**：不需要 API Key，直接使用 Claude 即可
-
----
-
-> ### 🎉 API 服务重磅升级
-> **YouMind 内置主题，全新分类系统，重塑内容创作体验**
->
-> md2wechat API 服务即将迎来重大升级，带来 **YouMind 内置主题库**和**全新主题分类**：
-> - 🎨 **丰富主题库**：精选 YouMind 内置主题，覆盖科技、生活、商业等多元场景
-> - 📂 **全新分类**：智能分类系统，快速定位最匹配的主题风格
-> - ⚡ **一键应用**：API 模式下直接调用主题，创作更高效
->
-> 📚 **主题预览**: [https://md2wechat.app/theme-gallery](https://md2wechat.app/theme-gallery)
->
-> 📩 **如需咨询，扫描底部公众号二维码联系，备注「API内测」**
+> ### 当前说明
+> - `API` 模式需要你自己的 `md2wechat.cn` API Key
+> - `AI` 模式直接使用 Claude，不需要 API Key
+> - 安装与校验步骤以 [安装指南](docs/INSTALL.md) 为准
 
 ---
 
@@ -169,127 +153,23 @@ flowchart LR
 
 ## 🚀 5分钟快速上手
 
-### 第一步：下载软件
+### 第一步：安装工具
 
-> 💡 **最新版本**：访问 [Releases 页面](https://github.com/geekjourneyx/md2wechat-skill/releases) 下载
+推荐先看 [安装指南](docs/INSTALL.md)。如果你只想快速开始，优先使用安装脚本：
 
-| 你的系统 | 下载链接 | 安装位置 |
-|----------|----------|----------|
-| 🪟 **Windows** | [下载 .exe](https://github.com/geekjourneyx/md2wechat-skill/releases/latest/download/md2wechat-windows-amd64.exe) | 任意文件夹（或 `C:\Windows\System32\`） |
-| 🍎 **Mac Intel 芯片** | [下载](https://github.com/geekjourneyx/md2wechat-skill/releases/latest/download/md2wechat-darwin-amd64) | `/usr/local/bin/` 或 `~/.local/bin/` |
-| 🍎 **Mac Apple Silicon (M1/M2/M3/M4)** | [下载](https://github.com/geekjourneyx/md2wechat-skill/releases/latest/download/md2wechat-darwin-arm64) | `/usr/local/bin/` 或 `~/.local/bin/` |
-| 🐧 **Linux (Intel/AMD)** | [下载](https://github.com/geekjourneyx/md2wechat-skill/releases/latest/download/md2wechat-linux-amd64) | `/usr/local/bin/` 或 `~/.local/bin/` |
-| 🐧 **Linux (ARM/树莓派)** | [下载](https://github.com/geekjourneyx/md2wechat-skill/releases/latest/download/md2wechat-linux-arm64) | `/usr/local/bin/` 或 `~/.local/bin/` |
-
-> 🔍 **如何确认 Mac 芯片类型？**
-> - 点击屏幕左上角 **苹果图标** → **关于本机**
-> - 查看「芯片」或「处理器」信息：
->   - 显示 `Apple M1/M2/M3/M4` → 下载 **Apple Silicon** 版本
->   - 显示 `Intel` → 下载 **Intel** 版本
-
-**安装步骤**：
-
-<details>
-<summary><b>Windows 安装方法</b></summary>
-
-1. 下载 `md2wechat-windows-amd64.exe`
-2. 重命名为 `md2wechat.exe`（可选）
-3. 放到任意文件夹，或复制到 `C:\Windows\System32\`（全局可用）
-4. 打开 CMD 或 PowerShell，输入 `md2wechat --help` 测试
-
-</details>
-
-<details>
-<summary><b>Mac 安装方法</b></summary>
-
-**请根据你的芯片类型选择对应命令：**
-
-**Apple Silicon (M1/M2/M3/M4)：**
 ```bash
-# 下载并移动到系统目录
-curl -Lo md2wechat https://github.com/geekjourneyx/md2wechat-skill/releases/latest/download/md2wechat-darwin-arm64
-chmod +x md2wechat
-sudo mv md2wechat /usr/local/bin/
-
-# 测试
-md2wechat --help
+export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/v1.11.1
+curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install.sh" | bash
 ```
 
-**Intel 芯片：**
-```bash
-# 下载并移动到系统目录
-curl -Lo md2wechat https://github.com/geekjourneyx/md2wechat-skill/releases/latest/download/md2wechat-darwin-amd64
-chmod +x md2wechat
-sudo mv md2wechat /usr/local/bin/
+Windows PowerShell：
 
-# 测试
-md2wechat --help
+```powershell
+$env:MD2WECHAT_RELEASE_BASE_URL = "https://github.com/geekjourneyx/md2wechat-skill/releases/download/v1.11.1"
+iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BASE_URL/install.ps1"))
 ```
 
-**用户目录安装（无需 sudo）：**
-```bash
-# Apple Silicon
-mkdir -p ~/.local/bin
-curl -Lo ~/.local/bin/md2wechat https://github.com/geekjourneyx/md2wechat-skill/releases/latest/download/md2wechat-darwin-arm64
-chmod +x ~/.local/bin/md2wechat
-
-# Intel 芯片（将上面 URL 中的 arm64 改为 amd64）
-
-# 添加到 PATH（如果还没有）
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-
-# 测试
-md2wechat --help
-```
-
-</details>
-
-<details>
-<summary><b>Linux 安装方法</b></summary>
-
-**请根据你的架构选择对应命令：**
-
-**Intel/AMD (x86_64)：**
-```bash
-# 下载并移动到系统目录
-curl -Lo md2wechat https://github.com/geekjourneyx/md2wechat-skill/releases/latest/download/md2wechat-linux-amd64
-chmod +x md2wechat
-sudo mv md2wechat /usr/local/bin/
-
-# 测试
-md2wechat --help
-```
-
-**ARM/树莓派 (aarch64)：**
-```bash
-# 下载并移动到系统目录
-curl -Lo md2wechat https://github.com/geekjourneyx/md2wechat-skill/releases/latest/download/md2wechat-linux-arm64
-chmod +x md2wechat
-sudo mv md2wechat /usr/local/bin/
-
-# 测试
-md2wechat --help
-```
-
-**用户目录安装（无需 sudo）：**
-```bash
-mkdir -p ~/.local/bin
-# Intel/AMD 用 amd64，ARM 用 arm64
-curl -Lo ~/.local/bin/md2wechat https://github.com/geekjourneyx/md2wechat-skill/releases/latest/download/md2wechat-linux-amd64
-chmod +x ~/.local/bin/md2wechat
-
-# 添加到 PATH（如果还没有）
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc  # 或 ~/.zshrc
-source ~/.bashrc
-
-# 测试
-md2wechat --help
-```
-
-</details>
-
-> ⚠️ **Mac 用户**：下载后如果提示「无法打开」，右键点击 → 打开 → 仍要打开
+手动下载 release 资产时，请同时校验 `checksums.txt`。主路径应始终指向固定版本的 release，不要使用 `latest` 或 `main` 作为安装入口。
 
 ### 第二步：配置微信（只需一次）
 
@@ -964,28 +844,33 @@ md2wechat-skill/
 
 ## 🔧 高级安装
 
-### 方式一：Go 工具链
-
-```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@latest
-```
-
-### 方式二：一键安装脚本
+### 方式一：一键安装脚本（推荐）
 
 **Mac/Linux：**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/geekjourneyx/md2wechat-skill/main/scripts/install.sh | bash
+export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/v1.11.1
+curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install.sh" | bash
 ```
-
-> 💡 脚本会自动检测你的系统架构并下载对应版本
 
 **Windows PowerShell：**
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force
-iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/geekjourneyx/md2wechat-skill/main/scripts/install.ps1'))
+$env:MD2WECHAT_RELEASE_BASE_URL = "https://github.com/geekjourneyx/md2wechat-skill/releases/download/v1.11.1"
+iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BASE_URL/install.ps1"))
 ```
 
-### 方式三：从源码编译
+> 🔒 脚本会下载 release 资产并验证 `checksums.txt`，这是当前推荐路径。
+
+### 方式二：手动下载 release 资产
+
+如果你需要固定版本或离线安装，请按 [安装指南](docs/INSTALL.md) 的 release + checksum 步骤操作。
+
+### 方式三：Go 工具链
+
+```bash
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v1.11.1
+```
+
+### 方式四：从源码编译
 
 ```bash
 git clone https://github.com/geekjourneyx/md2wechat-skill.git
@@ -1097,14 +982,22 @@ clawhub install md2wechat
 #### 方式二：一键脚本安装
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/geekjourneyx/md2wechat-skill/main/scripts/install-openclaw.sh | bash
+export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/v1.11.1
+curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install-openclaw.sh" | bash
 ```
+
+脚本会下载同一版本的 `md2wechat-openclaw-skill.tar.gz` 并校验 `checksums.txt`。
 
 #### 方式三：手动安装
 
 ```bash
-git clone https://github.com/geekjourneyx/md2wechat-skill.git
-cp -r md2wechat-skill/skills/md2wechat ~/.openclaw/skills/
+VERSION=v1.11.1
+curl -LO https://github.com/geekjourneyx/md2wechat-skill/releases/download/v${VERSION}/md2wechat-openclaw-skill.tar.gz
+curl -LO https://github.com/geekjourneyx/md2wechat-skill/releases/download/v${VERSION}/checksums.txt
+sha256sum -c checksums.txt --ignore-missing
+mkdir -p ~/.openclaw/skills
+tar -xzf md2wechat-openclaw-skill.tar.gz -C /tmp
+cp -r /tmp/skills/md2wechat ~/.openclaw/skills/
 ```
 
 ### 配置
@@ -1241,7 +1134,8 @@ md2wechat write --style dan-koe --cover-only
 - 也可以使用一键安装脚本，会自动检测系统架构
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/geekjourneyx/md2wechat-skill/main/scripts/install.sh | bash
+export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/v1.11.1
+curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install.sh" | bash
 ```
 </details>
 
@@ -1456,8 +1350,10 @@ EOF
 
 | 文档 | 说明 |
 |------|------|
-| [新手入门指南](QUICKSTART.md) | **强烈推荐！** 详细的图文教程 |
+| [文档索引](docs/README.md) | `docs/` 目录导航 |
+| [新手入门指南](docs/QUICKSTART.md) | **强烈推荐！** 详细的图文教程 |
 | [完整使用说明](docs/USAGE.md) | 所有命令和选项 |
+| [架构说明](docs/ARCHITECTURE.md) | 当前代码边界与主线 |
 | [OpenClaw 安装指南](docs/OPENCLAW.md) | OpenClaw 平台安装配置指南 |
 | [图片服务配置](docs/IMAGE_PROVISIONERS.md) | AI 图片生成服务完整配置指南 |
 | [写作功能指南](writers/README.md) | 如何使用和自定义写作风格 |

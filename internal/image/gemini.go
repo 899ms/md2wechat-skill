@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/geekjourneyx/md2wechat-skill/internal/config"
 	"google.golang.org/genai"
@@ -158,10 +156,30 @@ func (p *GeminiProvider) saveInlineData(data *genai.Blob) (string, error) {
 	}
 
 	// 保存到临时文件
-	tmpPath := filepath.Join(os.TempDir(), fmt.Sprintf("md2wechat_gemini_%d%s", time.Now().UnixNano(), ext))
+	tmpFile, err := os.CreateTemp("", "md2wechat-gemini-*"+ext)
+	if err != nil {
+		return "", &GenerateError{
+			Provider: p.Name(),
+			Code:     "write_error",
+			Message:  "图片保存失败",
+			Original: err,
+		}
+	}
+	tmpPath := tmpFile.Name()
 
 	// data.Data 已经是解码后的字节，直接写入
-	if err := os.WriteFile(tmpPath, data.Data, 0644); err != nil {
+	if _, err := tmpFile.Write(data.Data); err != nil {
+		tmpFile.Close()
+		os.Remove(tmpPath)
+		return "", &GenerateError{
+			Provider: p.Name(),
+			Code:     "write_error",
+			Message:  "图片保存失败",
+			Original: err,
+		}
+	}
+	if err := tmpFile.Close(); err != nil {
+		os.Remove(tmpPath)
 		return "", &GenerateError{
 			Provider: p.Name(),
 			Code:     "write_error",
@@ -314,8 +332,8 @@ func (p *GeminiProvider) Close() error {
 // GetGeminiSupportedModels 返回 Gemini 支持的图片生成模型列表
 func GetGeminiSupportedModels() []string {
 	return []string{
-		"gemini-3-pro-image-preview",        // Gemini 3 Pro 图片预览版（推荐）
-		"gemini-2.5-flash-preview-image",    // Gemini 2.5 Flash 图片版
+		"gemini-3-pro-image-preview",            // Gemini 3 Pro 图片预览版（推荐）
+		"gemini-2.5-flash-preview-image",        // Gemini 2.5 Flash 图片版
 		"gemini-2.0-flash-exp-image-generation", // Gemini 2.0 Flash 实验版
 	}
 }
@@ -335,4 +353,3 @@ func GetGeminiSupportedAspectRatios() []string {
 		"21:9", // 超宽横版
 	}
 }
-

@@ -233,11 +233,11 @@ func ParseFocusPattern(patterns []string) []FocusPattern {
 		"filler":        PatternFiller,
 		"collaboration": PatternCollaboration,
 		// 中文别名
-		"内容":   PatternContent,
-		"语言":   PatternLanguage,
-		"风格":   PatternStyle,
-		"填充":   PatternFiller,
-		"协作":   PatternCollaboration,
+		"内容": PatternContent,
+		"语言": PatternLanguage,
+		"风格": PatternStyle,
+		"填充": PatternFiller,
+		"协作": PatternCollaboration,
 	}
 
 	for _, p := range patterns {

@@ -1,0 +1,102 @@
+# 新手快速开始
+
+这份指南只保留当前仓库已经支持、并且文档路径稳定的主流程。
+
+如果你需要完整安装说明，请先看 [安装指南](INSTALL.md)。
+
+## 5 分钟主路径
+
+### 1. 安装
+
+推荐使用固定版本 release 资产：
+
+```bash
+export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/v1.11.1
+curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install.sh" | bash
+```
+
+Windows PowerShell：
+
+```powershell
+$env:MD2WECHAT_RELEASE_BASE_URL = "https://github.com/geekjourneyx/md2wechat-skill/releases/download/v1.11.1"
+iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BASE_URL/install.ps1"))
+```
+
+安装后验证：
+
+```bash
+md2wechat version --json
+```
+
+### 2. 初始化配置
+
+```bash
+md2wechat config init
+```
+
+如果你要创建微信草稿，至少需要配置：
+
+- `wechat.appid`
+- `wechat.secret`
+
+### 3. 预览 Markdown
+
+```bash
+md2wechat convert article.md --preview
+```
+
+### 4. 创建微信草稿
+
+创建草稿时需要显式提供封面：
+
+```bash
+md2wechat convert article.md --draft --cover cover.jpg
+```
+
+### 5. 使用 AI 模式
+
+AI 模式会生成可交给外部 AI 的结构化输出：
+
+```bash
+md2wechat convert article.md --mode ai --theme autumn-warm --json
+```
+
+如果你更关注稳定性和直接转换，优先使用 API 模式。
+
+## 两条常用路径
+
+### 图文文章
+
+```bash
+md2wechat convert article.md --preview
+md2wechat convert article.md -o article.html
+md2wechat convert article.md --draft --cover cover.jpg
+```
+
+### 图片帖子（小绿书 / newspic）
+
+```bash
+md2wechat create_image_post --title "Weekend Trip" --images a.jpg,b.jpg
+```
+
+预览：
+
+```bash
+md2wechat create_image_post --title "Weekend Trip" --images a.jpg,b.jpg --dry-run --json
+```
+
+## 建议阅读顺序
+
+1. [安装指南](INSTALL.md)
+2. [完整使用说明](USAGE.md)
+3. [故障排查](TROUBLESHOOTING.md)
+4. [架构说明](ARCHITECTURE.md)
+
+## 不再作为主路径的内容
+
+以下内容不再作为推荐主路径：
+
+- `latest` 下载链接
+- `main` 分支上的原始安装脚本
+- 不带 `--cover` 的 `convert --draft`
+- 过时的“命令层直接编排所有业务”描述
