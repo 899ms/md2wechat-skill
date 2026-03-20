@@ -154,3 +154,53 @@ func TestPromptsListCommandSupportsArchetypeAndTagFilters(t *testing.T) {
 		t.Fatalf("unexpected prompt archetype: %#v", first)
 	}
 }
+
+func TestPromptsListIncludesFlatVectorPanoramaInfographic(t *testing.T) {
+	oldJSON := jsonOutput
+	oldPromptKind := promptKind
+	oldPromptArchetype := promptArchetype
+	oldPromptTag := promptTag
+	t.Cleanup(func() {
+		jsonOutput = oldJSON
+		promptKind = oldPromptKind
+		promptArchetype = oldPromptArchetype
+		promptTag = oldPromptTag
+		promptcatalog.ResetDefaultCatalogForTests()
+	})
+
+	jsonOutput = true
+	promptcatalog.ResetDefaultCatalogForTests()
+	promptKind = "image"
+	promptArchetype = "infographic"
+	promptTag = "flat-vector"
+
+	stdout := captureStdout(t, func() {
+		if err := promptsListCmd.RunE(promptsListCmd, nil); err != nil {
+			t.Fatalf("RunE() error = %v", err)
+		}
+	})
+
+	var response map[string]any
+	if err := json.Unmarshal(stdout, &response); err != nil {
+		t.Fatalf("unmarshal response: %v\n%s", err, stdout)
+	}
+	data, _ := response["data"].(map[string]any)
+	prompts, _ := data["prompts"].([]any)
+	if len(prompts) == 0 {
+		t.Fatalf("expected filtered prompts in response: %#v", response)
+	}
+
+	found := false
+	for _, item := range prompts {
+		prompt, _ := item.(map[string]any)
+		if prompt["name"] == "infographic-flat-vector-panorama" {
+			found = true
+			if prompt["archetype"] != "infographic" {
+				t.Fatalf("unexpected prompt archetype: %#v", prompt)
+			}
+		}
+	}
+	if !found {
+		t.Fatalf("expected infographic-flat-vector-panorama in response: %#v", prompts)
+	}
+}

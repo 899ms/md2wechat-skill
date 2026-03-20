@@ -139,4 +139,34 @@ func TestBuiltinImagePromptIncludesArchetypeMetadata(t *testing.T) {
 	if len(spec.Examples) == 0 {
 		t.Fatalf("Examples = %#v", spec.Examples)
 	}
+	if spec.Metadata["author"] != "geekjourneyx" {
+		t.Fatalf("Metadata = %#v", spec.Metadata)
+	}
+}
+
+func TestBuiltinImagePromptSupportsAttributionMetadata(t *testing.T) {
+	ResetDefaultCatalogForTests()
+	t.Chdir(t.TempDir())
+
+	cat, err := DefaultCatalog()
+	if err != nil {
+		t.Fatalf("DefaultCatalog() error = %v", err)
+	}
+
+	spec, err := cat.Get("image", "infographic-flat-vector-panorama")
+	if err != nil {
+		t.Fatalf("Get(image, infographic-flat-vector-panorama) error = %v", err)
+	}
+	if spec.Archetype != "infographic" {
+		t.Fatalf("Archetype = %q", spec.Archetype)
+	}
+	if spec.Metadata["author"] != "geekjourneyx" {
+		t.Fatalf("author metadata = %#v", spec.Metadata)
+	}
+	if spec.Metadata["inspired_by"] != "op7418" {
+		t.Fatalf("inspired_by metadata = %#v", spec.Metadata)
+	}
+	if spec.Metadata["provenance"] != "adapted" {
+		t.Fatalf("provenance metadata = %#v", spec.Metadata)
+	}
 }

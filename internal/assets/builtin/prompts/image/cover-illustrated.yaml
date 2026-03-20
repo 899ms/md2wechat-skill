@@ -3,6 +3,9 @@ kind: image
 description: 插画感更强、更亲和的文章封面
 version: "1.0"
 archetype: cover
+metadata:
+  author: geekjourneyx
+  provenance: original
 tags:
   - cover
   - illustration
