@@ -3,6 +3,7 @@ package image
 import (
 	"context"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -59,6 +60,103 @@ func TestNewModelScopeProviderDefaults(t *testing.T) {
 
 	if p.maxPollTime != 120*time.Second {
 		t.Errorf("maxPollTime = %v, want 120s", p.maxPollTime)
+	}
+}
+
+func TestParseModelScopeSize(t *testing.T) {
+	tests := []struct {
+		name       string
+		size       string
+		wantWidth  int
+		wantHeight int
+		wantErr    string
+	}{
+		{
+			name:       "square",
+			size:       "1024x1024",
+			wantWidth:  1024,
+			wantHeight: 1024,
+		},
+		{
+			name:       "portrait",
+			size:       "1536x2048",
+			wantWidth:  1536,
+			wantHeight: 2048,
+		},
+		{
+			name:       "landscape",
+			size:       "1920x1080",
+			wantWidth:  1920,
+			wantHeight: 1080,
+		},
+		{
+			name:    "aspect ratio not supported",
+			size:    "16:9",
+			wantErr: "expected WIDTHxHEIGHT",
+		},
+		{
+			name:    "ultrawide aspect ratio not supported",
+			size:    "21:9",
+			wantErr: "expected WIDTHxHEIGHT",
+		},
+		{
+			name:    "invalid text",
+			size:    "foo",
+			wantErr: "expected WIDTHxHEIGHT",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotWidth, gotHeight, err := parseSize(tt.size)
+			if tt.wantErr != "" {
+				if err == nil {
+					t.Fatalf("parseSize(%q) should return error", tt.size)
+				}
+				if !strings.Contains(err.Error(), tt.wantErr) {
+					t.Fatalf("parseSize(%q) error = %v, want substring %q", tt.size, err, tt.wantErr)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("parseSize(%q) error = %v", tt.size, err)
+			}
+			if gotWidth != tt.wantWidth || gotHeight != tt.wantHeight {
+				t.Fatalf("parseSize(%q) = %dx%d, want %dx%d", tt.size, gotWidth, gotHeight, tt.wantWidth, tt.wantHeight)
+			}
+		})
+	}
+}
+
+func TestModelScopeProvider_CreateTask_InvalidSize(t *testing.T) {
+	cfg := &config.Config{
+		ImageAPIKey:  "test-key",
+		ImageAPIBase: "https://mock.local",
+		ImageSize:    "16:9",
+	}
+
+	p, err := NewModelScopeProvider(cfg)
+	if err != nil {
+		t.Fatalf("NewModelScopeProvider() error = %v", err)
+	}
+
+	_, err = p.createTask(context.Background(), "test prompt")
+	if err == nil {
+		t.Fatal("createTask() should return error for aspect ratio size")
+	}
+
+	genErr, ok := err.(*GenerateError)
+	if !ok {
+		t.Fatalf("Error type = %T, want *GenerateError", err)
+	}
+
+	if genErr.Code != "invalid_size" {
+		t.Fatalf("Error code = %v, want invalid_size", genErr.Code)
+	}
+
+	if !strings.Contains(genErr.Message, "WIDTHxHEIGHT") {
+		t.Fatalf("Error message = %q, want WIDTHxHEIGHT hint", genErr.Message)
 	}
 }
 

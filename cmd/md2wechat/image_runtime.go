@@ -1,14 +1,22 @@
 package main
 
 import (
+	"github.com/geekjourneyx/md2wechat-skill/internal/config"
 	"github.com/geekjourneyx/md2wechat-skill/internal/image"
 	"github.com/geekjourneyx/md2wechat-skill/internal/wechat"
 )
 
 func newRuntimeImageProcessor() *image.Processor {
-	svc := wechat.NewService(cfg, log)
+	return newRuntimeImageProcessorWithConfig(cfg)
+}
+
+func newRuntimeImageProcessorWithConfig(runtimeCfg *config.Config) *image.Processor {
+	if runtimeCfg == nil {
+		runtimeCfg = cfg
+	}
+	svc := wechat.NewService(runtimeCfg, log)
 	return image.NewProcessor(
-		cfg,
+		runtimeCfg,
 		log,
 		image.WithDownloadFunc(wechat.DownloadFile),
 		image.WithUploadFunc(func(filePath string) (*image.UploadResult, error) {

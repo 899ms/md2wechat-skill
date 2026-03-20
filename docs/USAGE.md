@@ -177,6 +177,9 @@ md2wechat generate_infographic --article article.md --preset infographic-timelin
 
 # 通用入口也支持 preset 模式
 md2wechat generate_image --preset cover-hero --article article.md
+
+# 单次覆盖图片模型
+md2wechat generate_image --preset cover-hero --article article.md --model gemini-3-pro-image-preview
 ```
 
 输出示例：

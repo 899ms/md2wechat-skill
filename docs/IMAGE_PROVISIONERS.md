@@ -109,6 +109,60 @@ api:
 
 ---
 
+### ModelScope
+
+ModelScope 使用异步任务接口生成图片，当前项目默认模型是 `Tongyi-MAI/Z-Image-Turbo`。
+
+#### 配置示例
+
+```yaml
+api:
+  image_provider: "modelscope"
+  image_key: "ms-..."
+  image_base_url: "https://api-inference.modelscope.cn/"
+  image_model: "Tongyi-MAI/Z-Image-Turbo"
+  image_size: "1024x1024"
+```
+
+或使用环境变量：
+
+```bash
+export IMAGE_PROVIDER="modelscope"
+export IMAGE_API_KEY="ms-..."
+export IMAGE_API_BASE="https://api-inference.modelscope.cn/"
+export IMAGE_MODEL="Tongyi-MAI/Z-Image-Turbo"
+export IMAGE_SIZE="1024x1024"
+```
+
+#### 支持的模型
+
+| 模型 | 说明 |
+|------|------|
+| `Tongyi-MAI/Z-Image-Turbo` | 默认模型，当前项目已验证可用 |
+
+#### 支持的尺寸
+
+ModelScope 当前 **只支持 `WIDTHxHEIGHT` 格式**，不支持 `16:9`、`3:4`、`21:9` 这类比例字符串。
+
+支持示例：
+
+| 尺寸 | 比例 | 说明 |
+|------|------|------|
+| `1024x1024` | 1:1 | 默认尺寸 |
+| `1536x2048` | 3:4 | 竖版信息图 |
+| `1920x1080` | 16:9 | 横版图片 |
+
+不支持示例：
+
+| 写法 | 结果 |
+|------|------|
+| `16:9` | 直接报错，需改成 `1920x1080` 等具体尺寸 |
+| `21:9` | 直接报错，需改成具体宽高 |
+
+> **注意**：ModelScope 这条链路当前不会把比例字符串自动映射成宽高。如果你想要某个比例，请自己提供准确的 `WIDTHxHEIGHT`。
+
+---
+
 ### OpenRouter
 
 OpenRouter 提供统一的 API 接口，支持多种图片生成模型（如 Gemini、Flux 等）。
@@ -159,6 +213,8 @@ md2wechat generate_image "A cute cat"
 md2wechat generate_image --size "16:9" "A landscape photo"
 md2wechat generate_image --size "1920x1080" "A landscape photo"
 ```
+
+同理，`--model` 可单次覆盖当前调用使用的图片模型，优先级高于 `IMAGE_MODEL` 和 `api.image_model`。
 
 **方式一：使用宽高比（推荐）**
 
@@ -360,7 +416,27 @@ md2wechat convert article.md --preview
 **A:** 请检查：
 1. `image_provider` 是否为 `openai`、`tuzi`、`modelscope`、`openrouter` 或 `gemini`
 2. `image_model` 是否在支持的模型列表中
-3. `image_size` 是否在支持的尺寸列表中（OpenRouter 也支持比例格式如 `16:9`）
+3. `image_size` 是否在支持的尺寸列表中
+4. **ModelScope 只支持 `WIDTHxHEIGHT`**
+5. **OpenRouter / Gemini 支持比例格式如 `16:9`**
+
+---
+
+### Q: 为什么 ModelScope 用 `16:9` 会直接失败？
+
+**A:** 这是当前项目的真实契约，不是临时 bug。ModelScope provider 只接受 `WIDTHxHEIGHT`，例如：
+
+- `1024x1024`
+- `1536x2048`
+- `1920x1080`
+
+如果你传：
+
+- `16:9`
+- `3:4`
+- `21:9`
+
+项目会在本地直接报格式错误，不会继续发请求。请改成对应的像素尺寸。
 
 ---
 

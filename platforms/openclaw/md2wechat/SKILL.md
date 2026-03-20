@@ -41,6 +41,7 @@ metadata: {"openclaw":{"emoji":"📝","homepage":"https://github.com/geekjourney
    - `convert <file.md> --draft --cover <cover.jpg>`
    - `generate_cover --article <file.md>`
    - `generate_infographic --article <file.md> --preset infographic-comparison`
+   - `generate_image --preset cover-hero --article <file.md> --model <image-model>`
    - `create_image_post -m <file.md> -t "<title>"`
 4. 如果要使用 AI 转换或 AI 图片，再补齐图像服务配置。
 

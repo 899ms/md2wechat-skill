@@ -11,6 +11,7 @@ var (
 	generateCoverCmdStyle    string
 	generateCoverCmdAspect   string
 	generateCoverCmdSize     string
+	generateCoverCmdModel    string
 
 	generateInfographicCmdPreset   string
 	generateInfographicCmdArticle  string
@@ -20,6 +21,7 @@ var (
 	generateInfographicCmdStyle    string
 	generateInfographicCmdAspect   string
 	generateInfographicCmdSize     string
+	generateInfographicCmdModel    string
 )
 
 var generateCoverCmd = &cobra.Command{
@@ -39,6 +41,7 @@ var generateCoverCmd = &cobra.Command{
 			Style:    generateCoverCmdStyle,
 			Aspect:   generateCoverCmdAspect,
 			Size:     generateCoverCmdSize,
+			Model:    generateCoverCmdModel,
 		})
 	},
 }
@@ -60,16 +63,17 @@ var generateInfographicCmd = &cobra.Command{
 			Style:    generateInfographicCmdStyle,
 			Aspect:   generateInfographicCmdAspect,
 			Size:     generateInfographicCmdSize,
+			Model:    generateInfographicCmdModel,
 		})
 	},
 }
 
 func init() {
-	addPresetImageFlags(generateCoverCmd, &generateCoverCmdPreset, &generateCoverCmdArticle, &generateCoverCmdTitle, &generateCoverCmdSummary, &generateCoverCmdKeywords, &generateCoverCmdStyle, &generateCoverCmdAspect, &generateCoverCmdSize)
-	addPresetImageFlags(generateInfographicCmd, &generateInfographicCmdPreset, &generateInfographicCmdArticle, &generateInfographicCmdTitle, &generateInfographicCmdSummary, &generateInfographicCmdKeywords, &generateInfographicCmdStyle, &generateInfographicCmdAspect, &generateInfographicCmdSize)
+	addPresetImageFlags(generateCoverCmd, &generateCoverCmdPreset, &generateCoverCmdArticle, &generateCoverCmdTitle, &generateCoverCmdSummary, &generateCoverCmdKeywords, &generateCoverCmdStyle, &generateCoverCmdAspect, &generateCoverCmdSize, &generateCoverCmdModel)
+	addPresetImageFlags(generateInfographicCmd, &generateInfographicCmdPreset, &generateInfographicCmdArticle, &generateInfographicCmdTitle, &generateInfographicCmdSummary, &generateInfographicCmdKeywords, &generateInfographicCmdStyle, &generateInfographicCmdAspect, &generateInfographicCmdSize, &generateInfographicCmdModel)
 }
 
-func addPresetImageFlags(cmd *cobra.Command, preset, article, title, summary, keywords, style, aspect, size *string) {
+func addPresetImageFlags(cmd *cobra.Command, preset, article, title, summary, keywords, style, aspect, size, model *string) {
 	cmd.Flags().StringVar(preset, "preset", "", "Prompt preset from the image prompt catalog")
 	cmd.Flags().StringVarP(article, "article", "a", "", "Article markdown file used to render a preset prompt")
 	cmd.Flags().StringVar(title, "title", "", "Article title used to render a preset prompt")
@@ -78,4 +82,5 @@ func addPresetImageFlags(cmd *cobra.Command, preset, article, title, summary, ke
 	cmd.Flags().StringVar(style, "style", "", "Visual style used to render a preset prompt")
 	cmd.Flags().StringVar(aspect, "aspect", "", "Aspect ratio hint used to render a preset prompt, e.g. 16:9 or 3:4")
 	cmd.Flags().StringVarP(size, "size", "s", "", "Image size (e.g., 2560x1440 for 16:9)")
+	cmd.Flags().StringVar(model, "model", "", "Image model to use for this command (overrides IMAGE_MODEL and api.image_model)")
 }

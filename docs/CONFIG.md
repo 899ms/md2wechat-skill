@@ -307,6 +307,13 @@ image:
 | `MD2WECHAT_THEMES_DIR` | `themes` 覆盖目录 |
 | `MD2WECHAT_WRITERS_DIR` | `writers` 覆盖目录 |
 
+图片生成相关命令还支持 `--model`，用于单次覆盖当前调用的图片模型。优先级顺序为：
+
+1. `--model`
+2. `IMAGE_MODEL`
+3. `api.image_model`
+4. provider 默认模型
+
 ---
 
 ## 常见场景怎么配

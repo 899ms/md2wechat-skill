@@ -11,6 +11,7 @@ import (
 
 var (
 	generateImageCmdSize     string
+	generateImageCmdModel    string
 	generateImageCmdPreset   string
 	generateImageCmdArticle  string
 	generateImageCmdTitle    string
@@ -30,6 +31,7 @@ type generateImageInput struct {
 	Style             string
 	Aspect            string
 	Size              string
+	Model             string
 	RequiredArchetype string
 }
 
@@ -50,6 +52,7 @@ func runGenerateImage(args []string) error {
 		Style:    generateImageCmdStyle,
 		Aspect:   generateImageCmdAspect,
 		Size:     generateImageCmdSize,
+		Model:    generateImageCmdModel,
 	}
 	if len(args) > 0 {
 		input.RawPrompt = args[0]
@@ -75,7 +78,7 @@ func runGenerateImageWithInput(input generateImageInput) error {
 		return newCLIError(codeConfigInvalid, err.Error())
 	}
 
-	processor := newImageProcessor()
+	processor := resolveImageProcessor(input.Model)
 	if input.Size != "" {
 		result, err := processor.GenerateAndUploadWithSize(prompt, input.Size)
 		if err != nil {
@@ -91,6 +94,17 @@ func runGenerateImageWithInput(input generateImageInput) error {
 	}
 	responseSuccess(result)
 	return nil
+}
+
+func resolveImageProcessor(model string) imageProcessor {
+	model = strings.TrimSpace(model)
+	if model == "" {
+		return newImageProcessor()
+	}
+
+	cfgCopy := *cfg
+	cfgCopy.ImageModel = model
+	return newImageProcessorWithConfig(&cfgCopy)
 }
 
 func resolveGenerateImagePrompt(input generateImageInput) (string, error) {

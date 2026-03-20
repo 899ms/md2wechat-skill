@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/geekjourneyx/md2wechat-skill/internal/config"
 	"github.com/geekjourneyx/md2wechat-skill/internal/converter"
 	"github.com/geekjourneyx/md2wechat-skill/internal/draft"
 	"github.com/geekjourneyx/md2wechat-skill/internal/image"
@@ -28,6 +29,9 @@ var (
 	}
 	newImageProcessor = func() imageProcessor {
 		return newRuntimeImageProcessor()
+	}
+	newImageProcessorWithConfig = func(runtimeCfg *config.Config) imageProcessor {
+		return newRuntimeImageProcessorWithConfig(runtimeCfg)
 	}
 	newDraftCreator = func() publish.DraftCreator {
 		return draft.NewArtifactDraftCreator(cfg, log)

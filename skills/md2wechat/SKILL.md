@@ -98,6 +98,7 @@ bash skills/md2wechat/scripts/run.sh generate_infographic --article article.md -
 bash skills/md2wechat/scripts/run.sh generate_infographic --article article.md --preset infographic-handdrawn-sketchnote
 bash skills/md2wechat/scripts/run.sh generate_infographic --article article.md --preset infographic-apple-keynote-premium
 bash skills/md2wechat/scripts/run.sh generate_infographic --article article.md --preset infographic-victorian-engraving-banner --aspect 21:9
+bash skills/md2wechat/scripts/run.sh generate_image --preset cover-hero --article article.md --model gemini-3-pro-image-preview
 ```
 
 ### Natural Language Image Generation

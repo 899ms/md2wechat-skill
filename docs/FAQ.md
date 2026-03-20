@@ -298,6 +298,12 @@ md2wechat generate_infographic --article article.md --preset infographic-apple-k
 md2wechat generate_infographic --article article.md --preset infographic-victorian-engraving-banner --aspect 21:9
 ```
 
+如需只在本次调用切换模型，可直接加 `--model`：
+
+```bash
+md2wechat generate_cover --article article.md --model gemini-3-pro-image-preview
+```
+
 如果你不确定某个图片 preset 更偏封面还是信息图，先运行：
 
 ```bash

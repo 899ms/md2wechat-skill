@@ -233,6 +233,7 @@ Examples:
 	generateImageCmd.Flags().StringVar(&generateImageCmdKeywords, "keywords", "", "Keywords used to render a preset prompt")
 	generateImageCmd.Flags().StringVar(&generateImageCmdStyle, "style", "", "Visual style used to render a preset prompt")
 	generateImageCmd.Flags().StringVar(&generateImageCmdAspect, "aspect", "", "Aspect ratio hint used to render a preset prompt, e.g. 16:9 or 3:4")
+	generateImageCmd.Flags().StringVar(&generateImageCmdModel, "model", "", "Image model to use for this command (overrides IMAGE_MODEL and api.image_model)")
 	rootCmd.AddCommand(generateImageCmd)
 	rootCmd.AddCommand(generateCoverCmd)
 	rootCmd.AddCommand(generateInfographicCmd)

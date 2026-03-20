@@ -788,6 +788,9 @@ md2wechat generate_infographic --article article.md --preset infographic-victori
 
 # 生成 16:9 比例的封面图（推荐，适配公众号封面）
 md2wechat generate_image --preset cover-hero --article article.md --size 2560x1440
+
+# 单次覆盖本次调用使用的图片模型
+md2wechat generate_infographic --article article.md --preset infographic-comparison --model gemini-3-pro-image-preview
 ```
 
 > 💡 **公众号封面图建议**：使用 16:9 横向比例（2560x1440）作为文章封面，在微信 feed 流和文章列表中显示效果更好。方形图片（2048x2048）在预览时会被裁剪。
@@ -821,6 +824,8 @@ api:
   image_model: Tongyi-MAI/Z-Image-Turbo
   image_size: 1024x1024
 ```
+
+> `--model` 可覆盖当前命令的图片模型；未传时，优先使用 `IMAGE_MODEL`，再回退到 `api.image_model`，最后才是 provider 默认模型。
 
 **ModelScope 特点**：
 - ✅ 有免费额度，适合测试

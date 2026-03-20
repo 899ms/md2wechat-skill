@@ -133,6 +133,7 @@ md2wechat generate_infographic --article article.md --preset infographic-dark-ti
 md2wechat generate_infographic --article article.md --preset infographic-handdrawn-sketchnote
 md2wechat generate_infographic --article article.md --preset infographic-apple-keynote-premium
 md2wechat generate_infographic --article article.md --preset infographic-victorian-engraving-banner --aspect 21:9
+md2wechat generate_image --preset cover-hero --article article.md --model gemini-3-pro-image-preview
 ```
 
 高频图片命令和 prompt catalog 的关系是：
@@ -140,6 +141,7 @@ md2wechat generate_infographic --article article.md --preset infographic-victori
 - `generate_image`: 通用入口，可直接传 raw prompt，也可用 `--preset`
 - `generate_cover`: `cover` archetype 的薄包装命令
 - `generate_infographic`: `infographic` archetype 的薄包装命令
+- 三个图片命令都支持 `--model`，用于单次覆盖本次调用的图片模型
 
 如果某个图片 preset 的 `compatible_use_cases` 包含 `cover`，那么它也可以被 `generate_cover` 使用；默认画幅优先跟随 prompt 自身声明的 `default_aspect_ratio`。
 

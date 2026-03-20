@@ -67,8 +67,8 @@ func TestRunGenerateImageUsesPresetPrompt(t *testing.T) {
 	oldPreset, oldArticle := generateImageCmdPreset, generateImageCmdArticle
 	oldTitle, oldSummary := generateImageCmdTitle, generateImageCmdSummary
 	oldKeywords, oldStyle := generateImageCmdKeywords, generateImageCmdStyle
-	oldAspect, oldSize := generateImageCmdAspect, generateImageCmdSize
-	oldNewImageProcessor := newImageProcessor
+	oldAspect, oldSize, oldModel := generateImageCmdAspect, generateImageCmdSize, generateImageCmdModel
+	oldNewImageProcessor, oldNewImageProcessorWithConfig := newImageProcessor, newImageProcessorWithConfig
 	t.Cleanup(func() {
 		cfg = oldCfg
 		generateImageCmdPreset = oldPreset
@@ -79,7 +79,9 @@ func TestRunGenerateImageUsesPresetPrompt(t *testing.T) {
 		generateImageCmdStyle = oldStyle
 		generateImageCmdAspect = oldAspect
 		generateImageCmdSize = oldSize
+		generateImageCmdModel = oldModel
 		newImageProcessor = oldNewImageProcessor
+		newImageProcessorWithConfig = oldNewImageProcessorWithConfig
 	})
 
 	cfg = &config.Config{
@@ -113,6 +115,7 @@ func TestRunGenerateImageUsesPresetPrompt(t *testing.T) {
 		},
 	}
 	newImageProcessor = func() imageProcessor { return processor }
+	newImageProcessorWithConfig = func(runtimeCfg *config.Config) imageProcessor { return processor }
 
 	stdout := captureStdout(t, func() {
 		if err := runGenerateImage(nil); err != nil {
@@ -137,6 +140,74 @@ func TestRunGenerateImageUsesPresetPrompt(t *testing.T) {
 	data, _ := response["data"].(map[string]any)
 	if data["media_id"] != "media-123" {
 		t.Fatalf("unexpected response data: %#v", data)
+	}
+}
+
+func TestRunGenerateImageUsesModelOverride(t *testing.T) {
+	oldCfg := cfg
+	oldNewImageProcessor := newImageProcessor
+	oldNewImageProcessorWithConfig := newImageProcessorWithConfig
+	t.Cleanup(func() {
+		cfg = oldCfg
+		newImageProcessor = oldNewImageProcessor
+		newImageProcessorWithConfig = oldNewImageProcessorWithConfig
+	})
+
+	cfg = &config.Config{
+		WechatAppID:  "appid",
+		WechatSecret: "secret",
+		ImageAPIKey:  "image-key",
+		ImageModel:   "default-model",
+	}
+
+	processor := &fakeImageProcessor{
+		generateResults: map[string]*image.GenerateAndUploadResult{
+			"test prompt": {
+				Prompt:      "test prompt",
+				OriginalURL: "https://provider.example/image.png",
+				MediaID:     "media-override",
+				WechatURL:   "https://wechat.local/media-override",
+			},
+		},
+	}
+
+	newImageProcessor = func() imageProcessor {
+		t.Fatal("newImageProcessor should not be used when --model is set")
+		return nil
+	}
+
+	newImageProcessorWithConfig = func(runtimeCfg *config.Config) imageProcessor {
+		if runtimeCfg == cfg {
+			t.Fatal("expected model override to use a config copy")
+		}
+		if runtimeCfg.ImageModel != "override-model" {
+			t.Fatalf("ImageModel = %q, want override-model", runtimeCfg.ImageModel)
+		}
+		if cfg.ImageModel != "default-model" {
+			t.Fatalf("original cfg.ImageModel mutated = %q", cfg.ImageModel)
+		}
+		return processor
+	}
+
+	stdout := captureStdout(t, func() {
+		if err := runGenerateImageWithInput(generateImageInput{
+			RawPrompt: "test prompt",
+			Model:     "override-model",
+		}); err != nil {
+			t.Fatalf("runGenerateImageWithInput() error = %v", err)
+		}
+	})
+
+	if len(processor.generateCalls) != 1 || processor.generateCalls[0] != "test prompt" {
+		t.Fatalf("generateCalls = %#v", processor.generateCalls)
+	}
+
+	var response map[string]any
+	if err := json.Unmarshal(stdout, &response); err != nil {
+		t.Fatalf("unmarshal response: %v\n%s", err, stdout)
+	}
+	if response["success"] != true {
+		t.Fatalf("unexpected response: %#v", response)
 	}
 }
 
