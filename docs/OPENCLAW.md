@@ -90,7 +90,7 @@ curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install-openclaw.sh" | bash
 - 自动校验 `checksums.txt`
 - 安装到 `~/.openclaw/skills/md2wechat/`
 - 安装 runtime 到 `~/.openclaw/tools/md2wechat/md2wechat`
-- 提示后续执行 `md2wechat config init`
+- 提示后续直接执行 `~/.openclaw/tools/md2wechat/md2wechat config init`
 - 运行时会校验 runtime 版本是否与当前 skill 版本一致
 
 ---
@@ -132,8 +132,8 @@ chmod +x ~/.openclaw/skills/md2wechat/scripts/*.sh
 ### 初始化配置文件
 
 ```bash
-md2wechat config init
-md2wechat config validate
+~/.openclaw/tools/md2wechat/md2wechat config init
+~/.openclaw/tools/md2wechat/md2wechat config validate
 ```
 
 默认配置文件路径：
