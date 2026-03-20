@@ -77,6 +77,10 @@ sudo mv md2wechat /usr/local/bin/
 
 **解决步骤**：
 
+更完整的新手版说明见：
+
+- [微信凭证与 IP 白名单指南](WECHAT-CREDENTIALS.md)
+
 1. **获取微信凭证**
    - 打开 https://developers.weixin.qq.com/platform
    - 登录后选择公众号 → 开发接口管理

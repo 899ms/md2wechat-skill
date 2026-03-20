@@ -19,6 +19,8 @@
 - [安装指南](INSTALL.md)
 - [新手快速开始](QUICKSTART.md)
 - [配置指南](CONFIG.md)
+- [微信凭证与 IP 白名单指南](WECHAT-CREDENTIALS.md)
+- [能力发现与 Prompt Catalog](DISCOVERY.md)
 - [示例配置](examples/config.yaml.example)
 - [完整使用说明](USAGE.md)
 - [真实烟雾测试记录](SMOKE.md)
@@ -35,6 +37,8 @@
 ## 能力专题
 
 - [配置说明](CONFIG.md)
+- [微信凭证与 IP 白名单指南](WECHAT-CREDENTIALS.md)
+- [能力发现与 Prompt Catalog](DISCOVERY.md)
 - [内置资产](CONFIG.md#内置资产)
 - [真实烟雾测试记录](SMOKE.md)
 - [图片服务配置](IMAGE_PROVISIONERS.md)

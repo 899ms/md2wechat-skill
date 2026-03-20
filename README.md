@@ -184,6 +184,17 @@ md2wechat config init
 | AppID | 公众号唯一标识 | [微信开发者平台](https://developers.weixin.qq.com/platform) → 开发接口管理 |
 | Secret | API 密钥 | 同上，需要管理员权限 |
 
+第一次接微信开发，建议直接看：
+
+- [微信凭证与 IP 白名单指南](docs/WECHAT-CREDENTIALS.md)
+
+里面单独讲清楚了：
+
+- AppID / AppSecret 去哪里拿
+- IP 白名单怎么配
+- 为什么白名单没配时会报错
+- 配好后怎么一步步验证
+
 ### 第三步：开始使用
 
 ```bash
@@ -214,6 +225,45 @@ md2wechat convert article.md -o output.html
 # 使用 AI 模式生成精美排版
 md2wechat convert article.md --mode ai --theme autumn-warm --preview
 ```
+
+### Agent 可发现命令
+
+如果你是 Agent、自动化脚本，或者想先确认当前实例支持哪些能力，先执行这些命令：
+
+```bash
+# 总览当前 CLI 能力、默认模式、可用资源
+md2wechat capabilities --json
+
+# 查看图片 provider
+md2wechat providers list --json
+
+# 查看可用主题
+md2wechat themes list --json
+
+# 查看内置 Prompt Catalog
+md2wechat prompts list --json
+md2wechat prompts list --kind image --json
+```
+
+需要查看具体资源时，可继续用：
+
+```bash
+md2wechat providers show openrouter --json
+md2wechat themes show autumn-warm --json
+md2wechat prompts show cover-default --kind image --json
+```
+
+Prompt 模板也可以直接渲染：
+
+```bash
+md2wechat prompts render cover-default \
+  --kind image \
+  --var article_title='从 0 到 1 做好公众号封面' \
+  --var article_summary='一份关于封面图策略的实战清单' \
+  --json
+```
+
+详细说明见 [docs/DISCOVERY.md](docs/DISCOVERY.md)。
 
 ### 风格写作 🆕
 
@@ -246,6 +296,29 @@ md2wechat write --style dan-koe --cover
 **如何添加自定义风格：**
 
 在 `writers/` 目录下创建 YAML 文件即可，格式参考 `writers/dan-koe.yaml`。
+
+### Prompt Catalog
+
+除了 `themes/` 和 `writers/`，项目现在还提供内置 Prompt Catalog，用于承载：
+
+- `humanize` 的强度模板
+- `write` 的润色模板
+- 后续扩展的图片 archetype，例如封面图、信息图、配图
+
+当前内置 prompt kind：
+
+- `humanizer`
+- `refine`
+- `image`
+
+Prompt 覆盖顺序：
+
+- `MD2WECHAT_PROMPTS_DIR`
+- `./prompts`
+- `~/.config/md2wechat/prompts`
+- 内置 prompt 资产
+
+这意味着纯二进制安装也能用默认 prompt，而用户和平台仍然可以覆盖。
 
 ### 风格写作工作原理
 
