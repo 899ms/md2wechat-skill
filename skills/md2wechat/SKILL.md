@@ -89,12 +89,14 @@ bash skills/md2wechat/scripts/run.sh prompts show cover-default --kind image --j
 bash skills/md2wechat/scripts/run.sh prompts show cover-hero --kind image --archetype cover --tag hero --json
 bash skills/md2wechat/scripts/run.sh prompts show infographic-dark-ticket-cn --kind image --archetype infographic --tag ticket --json
 bash skills/md2wechat/scripts/run.sh prompts show infographic-handdrawn-sketchnote --kind image --archetype infographic --tag sketchnote --json
+bash skills/md2wechat/scripts/run.sh prompts show infographic-apple-keynote-premium --kind image --archetype infographic --tag apple --json
 bash skills/md2wechat/scripts/run.sh prompts show infographic-victorian-engraving-banner --kind image --archetype infographic --tag victorian --json
 bash skills/md2wechat/scripts/run.sh prompts render cover-default --kind image --var article_title='Example' --json
 bash skills/md2wechat/scripts/run.sh generate_cover --article article.md
 bash skills/md2wechat/scripts/run.sh generate_infographic --article article.md --preset infographic-comparison
 bash skills/md2wechat/scripts/run.sh generate_infographic --article article.md --preset infographic-dark-ticket-cn --aspect 21:9
 bash skills/md2wechat/scripts/run.sh generate_infographic --article article.md --preset infographic-handdrawn-sketchnote
+bash skills/md2wechat/scripts/run.sh generate_infographic --article article.md --preset infographic-apple-keynote-premium
 bash skills/md2wechat/scripts/run.sh generate_infographic --article article.md --preset infographic-victorian-engraving-banner --aspect 21:9
 ```
 

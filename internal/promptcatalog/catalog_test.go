@@ -251,3 +251,87 @@ func TestBuiltinVictorianEngravingBannerPromptIsDiscoverable(t *testing.T) {
 		t.Fatalf("Template = %q", spec.Template)
 	}
 }
+
+func TestBuiltinImagePromptsHaveConsistentUseCaseAndAspectMetadata(t *testing.T) {
+	ResetDefaultCatalogForTests()
+	t.Chdir(t.TempDir())
+
+	cat, err := DefaultCatalog()
+	if err != nil {
+		t.Fatalf("DefaultCatalog() error = %v", err)
+	}
+
+	prompts := cat.List("image")
+	if len(prompts) == 0 {
+		t.Fatal("expected builtin image prompts")
+	}
+
+	for _, spec := range prompts {
+		if spec.PrimaryUseCase == "" {
+			t.Fatalf("%s missing primary_use_case", spec.Name)
+		}
+		if spec.DefaultAspectRatio == "" {
+			t.Fatalf("%s missing default_aspect_ratio", spec.Name)
+		}
+		if len(spec.RecommendedAspectRatios) == 0 {
+			t.Fatalf("%s missing recommended_aspect_ratios", spec.Name)
+		}
+		if !containsAspectRatio(spec.RecommendedAspectRatios, spec.DefaultAspectRatio) {
+			t.Fatalf("%s default_aspect_ratio %q not found in recommended_aspect_ratios %#v", spec.Name, spec.DefaultAspectRatio, spec.RecommendedAspectRatios)
+		}
+		if spec.Metadata["author"] == "" {
+			t.Fatalf("%s missing metadata.author", spec.Name)
+		}
+		if spec.Metadata["provenance"] == "" {
+			t.Fatalf("%s missing metadata.provenance", spec.Name)
+		}
+		if !SupportsUseCase(&spec, spec.PrimaryUseCase) {
+			t.Fatalf("%s primary_use_case %q not supported by SupportsUseCase", spec.Name, spec.PrimaryUseCase)
+		}
+	}
+}
+
+func containsAspectRatio(ratios []string, target string) bool {
+	for _, ratio := range ratios {
+		if strings.EqualFold(strings.TrimSpace(ratio), strings.TrimSpace(target)) {
+			return true
+		}
+	}
+	return false
+}
+
+func TestBuiltinAppleKeynotePremiumPromptIsDiscoverable(t *testing.T) {
+	ResetDefaultCatalogForTests()
+	t.Chdir(t.TempDir())
+
+	cat, err := DefaultCatalog()
+	if err != nil {
+		t.Fatalf("DefaultCatalog() error = %v", err)
+	}
+
+	spec, err := cat.Get("image", "infographic-apple-keynote-premium")
+	if err != nil {
+		t.Fatalf("Get(image, infographic-apple-keynote-premium) error = %v", err)
+	}
+	if spec.Archetype != "infographic" {
+		t.Fatalf("Archetype = %q", spec.Archetype)
+	}
+	if spec.PrimaryUseCase != "infographic" {
+		t.Fatalf("PrimaryUseCase = %q", spec.PrimaryUseCase)
+	}
+	if spec.DefaultAspectRatio != "3:4" {
+		t.Fatalf("DefaultAspectRatio = %q", spec.DefaultAspectRatio)
+	}
+	if !containsTag(spec.Tags, "apple") || !containsTag(spec.Tags, "keynote") {
+		t.Fatalf("Tags = %#v", spec.Tags)
+	}
+	if !SupportsUseCase(spec, "cover") {
+		t.Fatalf("expected preset to support cover use case: %#v", spec.CompatibleUseCases)
+	}
+	if spec.Metadata["author"] != "geekjourneyx" || spec.Metadata["provenance"] != "original" {
+		t.Fatalf("Metadata = %#v", spec.Metadata)
+	}
+	if !strings.Contains(spec.Template, "Apple keynote aesthetic") || !strings.Contains(spec.Template, "3:4") {
+		t.Fatalf("Template = %q", spec.Template)
+	}
+}

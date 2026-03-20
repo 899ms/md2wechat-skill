@@ -780,6 +780,9 @@ md2wechat generate_infographic --article article.md --preset infographic-dark-ti
 # 生成手绘 sketchnote 信息图
 md2wechat generate_infographic --article article.md --preset infographic-handdrawn-sketchnote
 
+# 生成苹果发布会风格信息图（默认 3:4，也可兼作封面）
+md2wechat generate_infographic --article article.md --preset infographic-apple-keynote-premium
+
 # 生成维多利亚黑白版画横幅信息图（也可兼作封面，推荐 21:9）
 md2wechat generate_infographic --article article.md --preset infographic-victorian-engraving-banner --aspect 21:9
 

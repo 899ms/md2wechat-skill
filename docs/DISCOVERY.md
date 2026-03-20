@@ -131,6 +131,7 @@ md2wechat generate_cover --article article.md
 md2wechat generate_infographic --article article.md --preset infographic-comparison
 md2wechat generate_infographic --article article.md --preset infographic-dark-ticket-cn --aspect 21:9
 md2wechat generate_infographic --article article.md --preset infographic-handdrawn-sketchnote
+md2wechat generate_infographic --article article.md --preset infographic-apple-keynote-premium
 md2wechat generate_infographic --article article.md --preset infographic-victorian-engraving-banner --aspect 21:9
 ```
 
@@ -172,6 +173,7 @@ md2wechat generate_infographic --article article.md --preset infographic-victori
 - `infographic-flat-vector-panorama`
 - `infographic-dark-ticket-cn`
 - `infographic-handdrawn-sketchnote`
+- `infographic-apple-keynote-premium`
 - `infographic-victorian-engraving-banner`
 
 ## Prompt 资产覆盖顺序

@@ -67,6 +67,54 @@ Treat these commands as the source of truth for:
    - `docs/USAGE.md`
    - `docs/OPENCLAW.md` when platform behavior changes
 8. Do not stop at “updated one doc”. Re-audit the highest-signal entry points so user-facing docs, agent-facing docs, and CLI behavior stay aligned.
+9. When image prompts change, treat both skill entry points as mandatory review targets:
+   - `skills/md2wechat/SKILL.md`
+   - `platforms/openclaw/md2wechat/SKILL.md`
+
+## Image Prompt Discipline
+
+When adding or changing `internal/assets/builtin/prompts/image/*.yaml`, treat the change as a product contract update, not just a content tweak.
+
+Minimum required fields for builtin image prompts:
+
+- `name`
+- `kind: image`
+- `description`
+- `version`
+- `archetype`
+- `primary_use_case`
+- `recommended_aspect_ratios`
+- `default_aspect_ratio`
+- `metadata.author`
+- `metadata.provenance`
+- `template`
+
+Use these when applicable:
+
+- `compatible_use_cases`
+- `tags`
+- `examples`
+- `metadata.inspired_by`
+
+Required constraints:
+
+1. `default_aspect_ratio` must appear in `recommended_aspect_ratios`.
+2. If a preset can serve both cover and infographic scenarios, express that through `compatible_use_cases` rather than duplicating the preset.
+3. Do not move long image prompts back into Go code when the prompt catalog can carry them.
+
+Required verification after image prompt changes:
+
+1. `gofmt -l .`
+2. `GOCACHE=/tmp/md2wechat-go-build go test ./internal/promptcatalog ./cmd/md2wechat`
+3. `GOCACHE=/tmp/md2wechat-go-build go test ./...`
+4. Re-audit:
+   - `README.md`
+   - `docs/DISCOVERY.md`
+   - `docs/FAQ.md`
+   - `skills/md2wechat/SKILL.md`
+   - `platforms/openclaw/md2wechat/SKILL.md`
+
+The repository should fail closed on prompt drift: missing primary use case, default aspect ratio, or attribution metadata should be blocked by tests rather than caught manually later.
 
 ## Escalation
 

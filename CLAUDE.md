@@ -226,8 +226,54 @@ ClawHub 发布跳过。如需手动发布，请稍后执行：
    - 必须同步审校 `README.md`
    - 必须同步审校 `docs/DISCOVERY.md`
    - 必须同步审校 `docs/FAQ.md`
-   - 必须同步审校相关 `SKILL.md`
+   - 必须同步审校两套 `SKILL.md`
+     - `skills/md2wechat/SKILL.md`
+     - `platforms/openclaw/md2wechat/SKILL.md`
 5. 这类任务不以“代码改完”为完成标准，必须完成高价值入口文档校准，防止代码和文档漂移
+
+### 新增图片 Prompt 后
+
+新增 `internal/assets/builtin/prompts/image/*.yaml` 时，必须把它视为完整产品变更，而不是单纯加一个模板。
+
+**最小字段要求：**
+- `name`
+- `kind: image`
+- `description`
+- `version`
+- `archetype`
+- `primary_use_case`
+- `recommended_aspect_ratios`
+- `default_aspect_ratio`
+- `metadata.author`
+- `metadata.provenance`
+- `template`
+
+**按需补充：**
+- `compatible_use_cases`
+- `tags`
+- `examples`
+- `metadata.inspired_by`
+
+**结构约束：**
+- `default_aspect_ratio` 必须包含在 `recommended_aspect_ratios` 中
+- 如果 prompt 可兼作封面/信息图，必须显式写 `compatible_use_cases`
+- 不要把长 prompt 直接写进 Go 代码，优先落到 YAML 资产
+
+**新增图片 prompt 后必须执行：**
+1. `gofmt -l .`
+2. `GOCACHE=/tmp/md2wechat-go-build go test ./internal/promptcatalog ./cmd/md2wechat`
+3. `GOCACHE=/tmp/md2wechat-go-build go test ./...`
+4. 必须校准高信号入口：
+   - `README.md`
+   - `docs/DISCOVERY.md`
+   - `docs/FAQ.md`
+   - `skills/md2wechat/SKILL.md`
+   - `platforms/openclaw/md2wechat/SKILL.md`
+
+**防漂移原则：**
+- 如果漏了主用途、默认比例、来源字段，测试应直接拦住
+- 如果新增了高频 preset，但两套 skill 没同步，这次任务不能算完成
+- 用户、Agent、CLI 三个层面的说法必须一致
 
 ### 目录变更后
 
