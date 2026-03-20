@@ -166,6 +166,16 @@ jobs:
           test -x "${home_dir}/.openclaw/tools/md2wechat/md2wechat"
           HOME="${home_dir}" "${home_dir}/.openclaw/skills/md2wechat/scripts/run.sh" version --json | grep -q "\"version\": \"${VERSION}\""
 
+  smoke-release-windows:
+    needs: build-release
+    runs-on: windows-latest
+    steps:
+      - name: Download release bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: md2wechat-release-${{ needs.build-release.outputs.version }}
+          path: release-artifact
+
       - name: Smoke PowerShell installer against same artifact
         env:
           VERSION: ${{ needs.build-release.outputs.version }}
@@ -192,6 +202,7 @@ jobs:
     needs:
       - build-release
       - smoke-release
+      - smoke-release-windows
     runs-on: ubuntu-latest
     steps:
       - name: Download release bundle
