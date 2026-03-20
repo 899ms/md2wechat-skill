@@ -90,7 +90,7 @@ func LoadWithDefaults(configPath string) (*Config, error) {
 		HTTPTimeout:           30,
 		ImageProvider:         "openai",
 		ImageAPIBase:          "https://api.openai.com/v1",
-		ImageModel:            "dall-e-3",
+		ImageModel:            "gpt-image-1.5",
 		ImageSize:             "1024x1024",
 	}
 

@@ -25,7 +25,7 @@ type OpenAIProvider struct {
 func NewOpenAIProvider(cfg *config.Config) (*OpenAIProvider, error) {
 	model := cfg.ImageModel
 	if model == "" {
-		model = "dall-e-3" // 默认模型
+		model = "gpt-image-1.5" // 默认模型
 	}
 
 	size := cfg.ImageSize

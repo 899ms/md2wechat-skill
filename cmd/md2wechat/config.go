@@ -177,7 +177,7 @@ func initConfigFile(outputFile string) error {
 		ImageProvider:         "openai",
 		ImageAPIKey:           "your_image_api_key",
 		ImageAPIBase:          "https://api.openai.com/v1",
-		ImageModel:            "dall-e-3",
+		ImageModel:            "gpt-image-1.5",
 		ImageSize:             "1024x1024",
 		DefaultConvertMode:    "api",
 		DefaultTheme:          "default",

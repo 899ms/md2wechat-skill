@@ -229,7 +229,7 @@ api:
   image_key: "your_image_api_key"
   image_base_url: "https://api.openai.com/v1"
   image_provider: "openai"
-  image_model: "dall-e-3"
+  image_model: "gpt-image-1.5"
   image_size: "1024x1024"
   convert_mode: "api"
   default_theme: "default"
@@ -271,7 +271,7 @@ image:
 | `api.image_key` | AI 图片时需要 | 图片生成 API Key | - |
 | `api.image_provider` | 否 | 图片服务提供方 | `openai` |
 | `api.image_base_url` | 否 | 图片服务地址 | `https://api.openai.com/v1` |
-| `api.image_model` | 否 | 图片模型 | `dall-e-3` |
+| `api.image_model` | 否 | 图片模型 | `gpt-image-1.5` |
 | `api.image_size` | 否 | 默认图片执行尺寸/宽高比 | `1024x1024` |
 
 ### 图片处理配置

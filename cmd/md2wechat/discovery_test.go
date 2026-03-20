@@ -27,10 +27,45 @@ func TestBuildProviderViewsIncludesBuiltinProviders(t *testing.T) {
 			if !provider.SupportsSize {
 				t.Fatalf("expected openai SupportsSize")
 			}
+			if provider.DefaultModel != "gpt-image-1.5" {
+				t.Fatalf("openai default model = %q, want gpt-image-1.5", provider.DefaultModel)
+			}
 		}
 	}
 	if !found {
 		t.Fatal("expected openai provider")
+	}
+}
+
+func TestBuildProviderViewsUsesCurrentRuntimeDefaults(t *testing.T) {
+	oldCfg := cfg
+	t.Cleanup(func() { cfg = oldCfg })
+
+	cfg = nil
+	providers, err := buildProviderViews()
+	if err != nil {
+		t.Fatalf("buildProviderViews() error = %v", err)
+	}
+
+	defaults := map[string]string{
+		"openrouter": "google/gemini-3-pro-image-preview",
+		"gemini":     "gemini-3.1-flash-image-preview",
+	}
+
+	for name, wantModel := range defaults {
+		found := false
+		for _, provider := range providers {
+			if provider.Name != name {
+				continue
+			}
+			found = true
+			if provider.DefaultModel != wantModel {
+				t.Fatalf("%s default model = %q, want %q", name, provider.DefaultModel, wantModel)
+			}
+		}
+		if !found {
+			t.Fatalf("expected %s provider", name)
+		}
 	}
 }
 

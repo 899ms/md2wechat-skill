@@ -8,7 +8,7 @@ api:
   image_key: "your_image_api_key"
   image_base_url: "https://api.openai.com/v1"
   image_provider: "openai"
-  image_model: "dall-e-3"
+  image_model: "gpt-image-1.5"
   image_size: "1024x1024"
   convert_mode: "api"
   default_theme: "default"

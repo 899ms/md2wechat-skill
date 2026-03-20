@@ -27,7 +27,7 @@ var providerRegistry = []ProviderMeta{
 		RequiredConfig: []string{"IMAGE_API_KEY"},
 		OptionalConfig: []string{"IMAGE_API_BASE", "IMAGE_MODEL", "IMAGE_SIZE"},
 		DefaultBaseURL: "https://api.openai.com/v1",
-		DefaultModel:   "dall-e-3",
+		DefaultModel:   "gpt-image-1.5",
 		SupportsSize:   true,
 	},
 	{
@@ -55,7 +55,7 @@ var providerRegistry = []ProviderMeta{
 		RequiredConfig: []string{"IMAGE_API_KEY"},
 		OptionalConfig: []string{"IMAGE_API_BASE", "IMAGE_MODEL", "IMAGE_SIZE"},
 		DefaultBaseURL: "https://openrouter.ai/api/v1",
-		DefaultModel:   "google/gemini-2.5-flash-image-preview",
+		DefaultModel:   "google/gemini-3-pro-image-preview",
 		SupportsSize:   true,
 	},
 	{
@@ -64,7 +64,7 @@ var providerRegistry = []ProviderMeta{
 		Description:    "Google Gemini image generation provider",
 		RequiredConfig: []string{"IMAGE_API_KEY"},
 		OptionalConfig: []string{"IMAGE_MODEL", "IMAGE_SIZE"},
-		DefaultModel:   "gemini-2.5-flash-image-preview",
+		DefaultModel:   "gemini-3.1-flash-image-preview",
 		SupportsSize:   true,
 	},
 }

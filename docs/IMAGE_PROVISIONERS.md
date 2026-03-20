@@ -88,7 +88,7 @@ api:
   image_provider: "openai"
   image_key: "sk-..."
   image_base_url: "https://api.openai.com/v1"
-  image_model: "dall-e-3"
+  image_model: "gpt-image-1.5"
   image_size: "1024x1024"
 ```
 
@@ -96,16 +96,21 @@ api:
 
 | 模型 | 说明 |
 |------|------|
-| `dall-e-3` | DALL-E 3（最新） |
-| `dall-e-2` | DALL-E 2 |
+| `gpt-image-1.5` | OpenAI 当前最新主图片模型（推荐） |
+| `gpt-image-1` | 上一代通用图片模型 |
+| `gpt-image-1-mini` | 低成本图片模型 |
+| `dall-e-3` | 旧默认模型，兼容保留 |
+| `dall-e-2` | 旧模型，兼容保留 |
 
 #### 支持的尺寸
 
 | 尺寸 | 模型 |
 |------|------|
-| `1024x1024` | dall-e-2, dall-e-3 |
-| `1792x1024` | dall-e-3 |
-| `1024x1792` | dall-e-3 |
+| `1024x1024` | gpt-image-1.5, gpt-image-1, gpt-image-1-mini, dall-e-2, dall-e-3 |
+| `1536x1024` | gpt-image-1.5, gpt-image-1, gpt-image-1-mini |
+| `1024x1536` | gpt-image-1.5, gpt-image-1, gpt-image-1-mini |
+
+> 当前项目的 OpenAI provider 仍以 `model + prompt + size` 的最小参数集接入图片生成。`quality`、`background`、`output_format` 等 OpenAI 新参数能力还没有在 CLI 中暴露。
 
 ---
 

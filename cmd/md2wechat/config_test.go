@@ -194,7 +194,7 @@ func TestConfigInitWritesSampleAPIBaseURLAndImageSettings(t *testing.T) {
 	expectedSnippets := []string{
 		"md2wechat_base_url: https://www.md2wechat.cn",
 		"image_provider: openai",
-		"image_model: dall-e-3",
+		"image_model: gpt-image-1.5",
 		"image_size: 1024x1024",
 	}
 	for _, snippet := range expectedSnippets {
