@@ -1,8 +1,11 @@
-# md2wechat
-
 <div align="center">
 
-<img src="assets/readme-cover.webp" alt="md2wechat" width="360" />
+<h1>
+  <img src="assets/favicon.ico" alt="md2wechat logo" width="28" />
+  md2wechat
+</h1>
+
+<img src="assets/readme-cover.webp" alt="md2wechat" width="520" />
 
 **用 Markdown 写公众号文章，像发朋友圈一样简单**
 
