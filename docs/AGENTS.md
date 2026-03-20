@@ -9,6 +9,29 @@ This repository is a Go CLI project in stabilization. Treat documentation and ex
 3. Prefer `apply_patch` for edits and avoid destructive commands.
 4. Keep changes scoped; if a task crosses file boundaries, state the boundary before editing.
 5. Preserve CLI and documentation compatibility unless the task explicitly calls for a breaking change.
+6. When a task depends on providers, themes, or prompt templates, prefer CLI discovery output over guessing or stale docs.
+
+## Discovery-First Workflow
+
+Before assuming a feature, resource, or prompt exists, inspect the running CLI:
+
+1. `md2wechat capabilities --json`
+2. `md2wechat providers list --json`
+3. `md2wechat themes list --json`
+4. `md2wechat prompts list --json`
+
+Use `show` or `render` only when a task depends on a specific resource:
+
+1. `md2wechat providers show <name> --json`
+2. `md2wechat themes show <name> --json`
+3. `md2wechat prompts show <name> --kind <kind> --json`
+4. `md2wechat prompts render <name> --kind <kind> --var KEY=VALUE --json`
+
+Treat these commands as the source of truth for:
+
+- currently supported image providers
+- currently visible themes after override resolution
+- bundled and overridden prompt catalog entries
 
 ## Verification Order
 
@@ -32,6 +55,7 @@ This repository is a Go CLI project in stabilization. Treat documentation and ex
 2. Label aspirational or not-yet-shipped paths clearly.
 3. If a feature is not backed by current code or release assets, do not describe it as shipped.
 4. Prefer short, operational instructions over marketing copy.
+5. When new discovery commands or prompt assets are added, update `README.md`, `docs/DISCOVERY.md`, the relevant `SKILL.md`, and this file in the same change.
 
 ## Escalation
 

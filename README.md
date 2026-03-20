@@ -17,7 +17,7 @@
 
 > ### 当前说明
 > - `API` 模式需要你自己的 `md2wechat.cn` API Key
-> - `AI` 模式直接使用 Claude，不需要 API Key
+> - `AI` 模式不需要 `md2wechat.cn` API Key，但当前 CLI 默认返回 `AI request / prompt`
 > - 安装与校验步骤以 [安装指南](docs/INSTALL.md) 为准
 
 ---
@@ -54,6 +54,20 @@
 | 👨‍💻 程序员 | 习惯 Markdown，讨厌微信编辑器 | 保持你的写作习惯 |
 | 🤖 AI 用户 | 用 AI 生成内容，但要手动复制粘贴 | AI 生成 → 微信草稿，无缝衔接 |
 
+### 站点入口
+
+- 国际站: [md2wechat.com](https://www.md2wechat.com/)
+- 国内站 / API 主站: [md2wechat.cn](https://md2wechat.cn)
+- GitHub 项目: [geekjourneyx/md2wechat-skill](https://github.com/geekjourneyx/md2wechat-skill)
+
+### 关于作者
+
+这个项目由 [geekjourneyx](https://github.com/geekjourneyx/geekjourneyx) 维护。
+
+- 大厂后端工程师 / 独立开发者 / AI Builder / AI 科技领域博主
+- 持续打磨面向 AI Agent 的 CLI、API 与自动化工作流
+- 相关项目和长期方向可见 GitHub 主页: [github.com/geekjourneyx/geekjourneyx](https://github.com/geekjourneyx/geekjourneyx)
+
 ---
 
 ## 🎯 核心功能
@@ -65,8 +79,8 @@ flowchart LR
     B -->|API 模式| C[调用 md2wechat.cn API]
     C --> D[获取 HTML]
 
-    B -->|AI 模式 ⭐| E[Claude AI 生成 HTML]
-    E --> F[精美排版]
+    B -->|AI 模式 ⭐| E[生成 AI request]
+    E --> F[由 Claude 等继续生成 HTML]
 
     D --> G[预览效果]
     F --> G
@@ -116,7 +130,7 @@ flowchart LR
 | 模式 | 适合谁 | 特点 | 样式 |
 |------|--------|------|------|
 | **API 模式** | 追求稳定、快速 | 调用 md2wechat.cn API，秒级响应 | 简洁专业 |
-| **AI 模式** ⭐ | 追求精美排版 | Claude AI 生成，样式更丰富 | 秋日暖光 / 春日清新 / 深海静谧 |
+| **AI 模式** ⭐ | 追求精美排版 | 生成 AI request / prompt，样式更丰富 | 秋日暖光 / 春日清新 / 深海静谧 |
 
 ### 完整工作流程
 
@@ -126,10 +140,10 @@ flowchart LR
     A2 --> B1{选择模式}
 
     B1 -->|API| B2[md2wechat.cn]
-    B1 -->|AI| B3[Claude AI]
+    B1 -->|AI| B3[生成 AI request]
 
     B2 --> B4[HTML 生成]
-    B3 --> B4
+    B3 --> B4[由 Claude 等继续生成 HTML]
 
     B4 --> C1[预览效果]
     C1 --> C2{满意吗}
@@ -382,22 +396,20 @@ flowchart LR
 
 **输出说明：**
 
-```bash
-# AI 模式输出（默认）
+```json
 {
   "success": true,
-  "mode": "ai",
-  "action": "ai_write_request",
-  "style": "Dan Koe",
-  "prompt": "结构化的写作提示词..."
-}
-
-# 带封面的输出
-{
-  "success": true,
-  "prompt": "文章提示词...",
-  "cover_prompt": "封面提示词...",
-  "cover_explanation": "封面设计思路..."
+  "code": "WRITE_AI_REQUEST_READY",
+  "schema_version": "v1",
+  "status": "action_required",
+  "retryable": false,
+  "data": {
+    "mode": "ai",
+    "action": "ai_write_request",
+    "style": "Dan Koe",
+    "prompt": "结构化的写作提示词...",
+    "cover_prompt": "封面提示词..."
+  }
 }
 ```
 
@@ -603,7 +615,13 @@ md2wechat convert article.md --draft --cover cover.jpg
 
 ### API 模式主题选择 🆕
 
-**v2 API 现已支持 38 个精美主题！**
+精确主题清单以运行时 discovery 输出为准：
+
+```bash
+md2wechat themes list --json
+```
+
+下面内容主要用于帮助理解主题分组和风格差异。
 
 #### 主题预览
 📚 **完整主题预览**: [https://md2wechat.app/theme-gallery](https://md2wechat.app/theme-gallery)
@@ -700,7 +718,7 @@ md2wechat convert article.md --theme minimal-blue --draft --cover cover.jpg
 md2wechat convert article.md --theme bold-red
 ```
 
-> 💡 **提示**: v2.0 新主题需要配置 `md2wechat_base_url: https://md2wechat.app`
+> 💡 **提示**: 某些 API 主题能力依赖当前 API 域名与服务版本，先看 `md2wechat themes list --json` 的实际输出。
 
 #### 背景类型选择 🆕
 
@@ -814,7 +832,7 @@ api:
 
 ### 什么是 AI 模式？
 
-**AI 模式**使用 Claude 大模型来生成精美的公众号排版，而不是简单的 API 转换。
+**AI 模式**当前会生成用于外部大模型继续处理的排版请求，而不是像 API 模式那样直接在本地返回最终 HTML。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -827,9 +845,9 @@ api:
 │              ↓                                               │
 │   3. 构建专业的排版提示词 (Prompt)                           │
 │              ↓                                               │
-│   4. Claude AI 根据提示词生成 HTML                          │
+│   4. 输出 AI request / Prompt                              │
 │              ↓                                               │
-│   5. 返回符合微信规范的 HTML                                 │
+│   5. 在 Claude Code 等环境中继续生成 HTML                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -838,15 +856,15 @@ api:
 
 | 对比项 | API 模式 | AI 模式 |
 |--------|----------|----------|
-| 响应速度 | ⚡ 秒级 | 🐢 10-30秒 |
+| 响应速度 | ⚡ 秒级 | 🐢 需要额外 AI 步骤 |
 | 排版质量 | 👍 标准规范 | 🌟 精美多样 |
-| 样式选择 | 2-3 种 | 无限可能 |
-| 成本 | 低 | 使用 Claude AI |
+| 样式选择 | 2-3 种 | 更灵活 |
+| 成本 | 低 | 取决于外部 AI |
 | 适合场景 | 日常文章 | 重要文章、品牌内容 |
 
 ### 在 Claude Code 中使用 AI 模式
 
-如果你使用 **Claude Code**，AI 模式会自动调用内置的 Claude，无需额外配置：
+如果你使用 **Claude Code**，AI 模式生成的 request / prompt 可以继续由 Claude 自动接力处理：
 
 ```bash
 # 在 Claude Code 中直接运行
@@ -1181,15 +1199,15 @@ md2wechat convert my-tech-post.md --draft --cover cover.jpg
 ### 示例 2：产品经理发公告
 
 ```bash
-# AI 生成产品公告内容，然后
-md2wechat convert announcement.md --mode ai --theme ocean-calm --draft --cover product-logo.png
+# 生成 AI 排版请求，再交给 Claude Code 等环境继续处理
+md2wechat convert announcement.md --mode ai --theme ocean-calm
 ```
 
 ### 示例 3：生活方式博主
 
 ```bash
 # 使用春日清新主题
-md2wechat travel-diary.md --mode ai --theme spring-fresh --preview
+md2wechat convert travel-diary.md --mode ai --theme spring-fresh --preview
 ```
 
 ### 示例 4：写作小白用观点生成文章 🆕

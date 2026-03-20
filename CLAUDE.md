@@ -10,6 +10,41 @@
 
 **核心原则：用户阅读体验和使用体验第一**
 
+## Agent 发现优先
+
+当任务依赖以下资源时，不要先猜：
+
+- 图片 provider
+- 可用主题
+- Prompt 模板
+- 当前实例支持的 CLI 能力
+
+先执行：
+
+```bash
+md2wechat capabilities --json
+md2wechat providers list --json
+md2wechat themes list --json
+md2wechat prompts list --json
+```
+
+需要具体资源时，再执行：
+
+```bash
+md2wechat providers show <name> --json
+md2wechat themes show <name> --json
+md2wechat prompts show <name> --kind <kind> --json
+md2wechat prompts render <name> --kind <kind> --var KEY=VALUE --json
+```
+
+当前 prompt catalog 主要承载：
+
+- `humanizer`
+- `refine`
+- `image`
+
+扩展封面图、信息图、润色策略时，优先新增 YAML prompt 资产，不要直接把大段提示词继续写进 Go 代码。
+
 ---
 
 ## 版本发布流程
@@ -42,16 +77,16 @@ grep -r "config" internal/config/
 
 | 文件 | 位置 | 格式 |
 |------|------|------|
-| `skills/md2wechat/scripts/run.sh` | 第 13 行 | `VERSION="x.y.z"` |
-| `.claude-plugin/marketplace.json` | `plugins[0].version` | `"x.y.z"` |
+| `VERSION` | 文件内容 | `x.y.z` |
+| `skills/md2wechat/scripts/run.sh` | 默认版本回退值 | `x.y.z` |
 | `CHANGELOG.md` | 新版本章节标题 | `## [x.y.z] - YYYY-MM-DD` |
 | `CHANGELOG.md` | 版本历史表格 | 新增一行 |
 
 ```bash
 # 快速检查版本号一致性
 echo "=== 版本号检查 ==="
-echo "run.sh: $(grep 'VERSION=' skills/md2wechat/scripts/run.sh | head -1)"
-echo "marketplace.json: $(grep '"version"' .claude-plugin/marketplace.json)"
+echo "VERSION: $(cat VERSION)"
+echo "run.sh fallback: $(grep 'fallbackVersion' skills/md2wechat/scripts/run.sh | head -1)"
 echo "CHANGELOG.md: $(grep '## \[' CHANGELOG.md | head -1)"
 ```
 
@@ -156,7 +191,7 @@ clawhub whoami
 clawhub login
 
 # 发布技能
-clawhub publish ./skills/md2wechat \
+clawhub publish ./platforms/openclaw/md2wechat \
   --slug md2wechat \
   --name "md2wechat" \
   --version {VERSION} \
@@ -170,7 +205,7 @@ clawhub publish ./skills/md2wechat \
 ```
 ClawHub 发布跳过。如需手动发布，请稍后执行：
   clawhub login
-  clawhub publish ./skills/md2wechat --slug md2wechat --version {VERSION} --tags latest
+  clawhub publish ./platforms/openclaw/md2wechat --slug md2wechat --version {VERSION} --tags latest
 ```
 
 **ClawHub 发布注意事项：**
@@ -200,15 +235,17 @@ ClawHub 发布跳过。如需手动发布，请稍后执行：
 2. 更新 SKILL.md 使用说明
 3. 添加 FAQ 条目（如适用）
 4. 更新 references/ 参考文档
+5. 如果新增 provider/theme/prompt/discovery 命令，同步更新 `docs/DISCOVERY.md`
 
 ---
 
 ## 文件索引
 
 ### 核心配置
-- `.claude-plugin/marketplace.json` - Claude Code Plugin 配置
 - `skills/md2wechat/SKILL.md` - 技能定义文件
-- `skills/md2wechat/scripts/run.sh` - 二进制下载器
+- `skills/md2wechat/scripts/run.sh` - coding-agent 技能启动器
+- `platforms/openclaw/md2wechat/SKILL.md` - OpenClaw 专用 skill
+- `docs/DISCOVERY.md` - 发现命令与 Prompt Catalog 说明
 
 ### 文档
 - `README.md` - 项目主文档
@@ -236,7 +273,7 @@ go vet ./...
 gofmt -l .
 
 # 查看当前版本
-grep 'VERSION=' skills/md2wechat/scripts/run.sh
+cat VERSION
 
 # 创建 GitHub Release
 git tag v1.x.x
@@ -246,7 +283,7 @@ gh release create v1.x.x --generate-notes
 # ClawHub 发布
 clawhub login                           # 首次使用需登录
 clawhub whoami                          # 检查登录状态
-clawhub publish ./skills/md2wechat \    # 发布技能
+clawhub publish ./platforms/openclaw/md2wechat \    # 发布 OpenClaw 技能
   --slug md2wechat \
   --name "md2wechat" \
   --version 1.x.x \

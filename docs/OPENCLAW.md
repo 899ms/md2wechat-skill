@@ -210,6 +210,15 @@ md2wechat --help
 bash ~/.openclaw/skills/md2wechat/scripts/run.sh --help
 ```
 
+建议再执行一轮发现命令，确认当前 runtime 和资源都可见：
+
+```bash
+md2wechat capabilities --json
+md2wechat providers list --json
+md2wechat themes list --json
+md2wechat prompts list --json
+```
+
 ### 在 OpenClaw 中使用
 
 启动 OpenClaw 后，直接用自然语言交互：
