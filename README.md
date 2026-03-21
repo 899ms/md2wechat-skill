@@ -16,7 +16,7 @@
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Compatible-00b0aa)](#-openclaw-支持)
 [![zread](https://img.shields.io/badge/Ask_Zread-_.svg?style=flat&color=00b0aa&labelColor=000000&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQuOTYxNTYgMS42MDAxSDIuMjQxNTZDMS44ODgxIDEuNjAwMSAxLjYwMTU2IDEuODg2NjQgMS42MDE1NiAyLjI0MDFWNC45NjAxQzEuNjAxNTYgNS4zMTM1NiAxLjg4ODEgNS42MDAxIDIuMjQxNTYgNS42MDAxSDQuOTYxNTZDNS4zMTUwMiA1LjYwMDEgNS42MDE1NiA1LjMxMzU2IDUuNjAxNTYgNC45NjAxVjIuMjQwMUM1LjYwMTU2IDEuODg2NjQgNS4zMTUwMiAxLjYwMDEgNC45NjE1NiAxLjYwMDFaIiBmaWxsPSIjZmZmIi8%2BCjxwYXRoIGQ9Ik00Ljk2MTU2IDEwLjM5OTlIMi4yNDE1NkMxLjg4ODEgMTAuMzk5OSAxLjYwMTU2IDEwLjY4NjQgMS42MDE1NiAxMS4wMzk5VjEzLjc1OTlDMS42MDE1NiAxNC4xMTM0IDEuODg4MSAxNC4zOTk5IDIuMjQxNTYgMTQuMzk5OUg0Ljk2MTU2QzUuMzE1MDIgMTQuMzk5OSA1LjYwMTU2IDE0LjExMzQgNS42MDE1NiAxMy43NTk5VjExLjAzOTlDNS42MDE1NiAxMC42ODY0IDUuMzE1MDIgMTAuMzk5OSA0Ljk2MTU2IDEwLjM5OTlaIiBmaWxsPSIjZmZmIi8%2BCjxwYXRoIGQ9Ik0xMy43NTg0IDEuNjAwMUgxMS4wMzg0QzEwLjY4NSAxLjYwMDEgMTAuMzk4NCAxLjg4NjY0IDEwLjM5ODQgMi4yNDAxVjQuOTYwMUMxMC4zOTg0IDUuMzEzNTYgMTAuNjg1IDUuNjAwMSAxMS4wMzg0IDUuNjAwMUgxMy43NTg0QzE0LjExMTkgNS42MDAxIDE0LjM5ODQgNS4zMTM1NiAxNC4zOTg0IDQuOTYwMVYyLjI0MDFDMTQuMzk4NCAxLjg4NjY0IDE0LjExMTkgMS42MDAxIDEzLjc1ODQgMS42MDAxWiIgZmlsbD0iI2ZmZiIvPgo8cGF0aCBkPSJNNCAxMkwxMiA0TDQgMTJaIiBmaWxsPSIjZmZmIi8%2BCjxwYXRoIGQ9Ik00IDEyTDEyIDQiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K&logoColor=ffffff)](https://zread.ai/geekjourneyx/md2wechat-skill)
 
-[快速开始](#-5分钟快速上手) • [Coding Agent](#-coding-agent-集成) • [OpenClaw](#-openclaw-支持) • [功能介绍](#-核心功能) • [使用说明](#-使用方法) • [常见问题](#-常见问题)
+[快速开始](#-5分钟快速上手) • [Coding Agent](#-coding-agent-集成) • [Obsidian / Claudian](#-obsidian--claudian-支持) • [OpenClaw](#-openclaw-支持) • [功能介绍](#-核心功能) • [使用说明](#-使用方法) • [常见问题](#-常见问题)
 
 ---
 
@@ -24,11 +24,13 @@
 
 如果你第一次接触 `md2wechat`，先按这个顺序走：
 
-- 想用 Homebrew 安装 CLI：运行 `brew install geekjourneyx/tap/md2wechat`
+- 如果你是 mac 用户，优先用 Homebrew 安装 CLI：`brew install geekjourneyx/tap/md2wechat`
+- 如果你已经有稳定可用的 Go 环境，也可以选 `go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.3`
 - 想直接安装 CLI：看 [安装指南](docs/INSTALL.md)
 - 想申请 API 服务或咨询：扫描文末公众号二维码联系，备注「API内测」
 - 想先看支持的主题 / 图片 prompt / provider：执行 discovery 命令
 - 想在 Claude Code / Codex / OpenCode 等 Coding Agent 里使用：先安装 CLI，再执行 `npx skills add`
+- 想在 Obsidian 的 Claudian 插件里使用：先安装 CLI，再执行 `npx skills add`，然后看 [Obsidian / Claudian 指南](docs/OBSIDIAN.md)
 
 ```bash
 # 查看当前实例支持什么
@@ -88,7 +90,11 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 
 ### 第一步：安装工具
 
-推荐先看 [安装指南](docs/INSTALL.md)。如果你只想快速开始，优先使用安装脚本：
+推荐先看 [安装指南](docs/INSTALL.md)。如果你只想快速开始：
+
+- mac 用户：优先使用 Homebrew
+- 已有 Go 环境：也可以使用 `go install`
+- 其他环境：优先使用固定版本 `install.sh`
 
 ```bash
 brew install geekjourneyx/tap/md2wechat
@@ -119,10 +125,16 @@ $env:MD2WECHAT_RELEASE_BASE_URL = "https://github.com/geekjourneyx/md2wechat-ski
 iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BASE_URL/install.ps1"))
 ```
 
-如果你主要在 Claude Code / Codex / OpenCode 等 Coding Agent 中使用，推荐先安装 CLI，再安装 skill：
+如果你主要在 Claude Code / Codex / OpenCode 等 Coding Agent 中使用，推荐先安装 CLI，再安装 skill。mac 用户优先用 Homebrew：
 
 ```bash
-curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.3/install.sh | bash
+brew install geekjourneyx/tap/md2wechat
+```
+
+如果你已经有 Go 环境，也可以改成：
+
+```bash
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.3
 ```
 
 然后安装 skill：
@@ -1080,7 +1092,21 @@ md2wechat-skill/
 
 ## 高级安装
 
-### 方式一：一键安装脚本（推荐）
+### 方式一：Homebrew（macOS 优先推荐）
+
+如果你在 macOS 上，并且已经装了 Homebrew，优先执行：
+
+```bash
+brew install geekjourneyx/tap/md2wechat
+```
+
+升级：
+
+```bash
+brew upgrade geekjourneyx/tap/md2wechat
+```
+
+### 方式二：一键安装脚本（其他环境推荐）
 
 **Mac/Linux：**
 ```bash
@@ -1138,12 +1164,14 @@ skill 不再在正常执行路径中自动下载并执行远程二进制。
 ```text
 请先安装 md2wechat CLI，再安装 md2wechat skill，并验证版本和能力发现都正常。
 执行：
-1. curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.3/install.sh | bash
-2. npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
-3. export PATH="$HOME/.local/bin:$PATH"
-4. md2wechat version --json
-5. md2wechat capabilities --json
-6. md2wechat config init
+1. 如果我是 mac 用户，先运行：brew install geekjourneyx/tap/md2wechat
+2. 如果我已经有稳定可用的 Go 环境，也可以改成：go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.3
+3. 如果以上两种都不适合，再运行：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.3/install.sh | bash
+4. 运行：npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+5. 如果我是通过 install.sh 安装的，再运行：export PATH="$HOME/.local/bin:$PATH"
+6. 运行：md2wechat version --json
+7. 运行：md2wechat capabilities --json
+8. 运行：md2wechat config init
 如果失败，请继续排查，不要只停止在报错信息。
 ```
 
@@ -1165,7 +1193,45 @@ skill 不再在正常执行路径中自动下载并执行远程二进制。
 请用秋日暖光主题将 article.md 转换为微信公众号格式
 ```
 
-#### 方式三：项目内使用
+#### 方式三：Claudian / Obsidian
+
+如果你在 Obsidian 里使用 [Claudian](https://github.com/YishenTu/claudian)，也可以直接复用同一套 skill。
+
+Claudian 官方说明里已经明确：
+- 它兼容 Claude Code skill 格式
+- 会从 `~/.claude/skills/` 或 `{vault}/.claude/skills/` 发现 skill
+- 支持 slash commands 和 skills
+
+所以对 `md2wechat` 来说，最稳的路径是：
+
+```bash
+brew install geekjourneyx/tap/md2wechat
+md2wechat version --json
+npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+```
+
+如果你不用 Homebrew，再改用固定版本安装脚本：
+
+```bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.3/install.sh | bash
+export PATH="$HOME/.local/bin:$PATH"
+md2wechat version --json
+npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+```
+
+然后在 Claudian 里：
+- 直接输入 `/md2wechat`
+- 或直接让 Agent 调用 `md2wechat` skill
+
+如果 Obsidian 图形界面里仍然找不到 `md2wechat`，优先去 Claudian：
+- `Settings -> Environment -> Custom variables`
+- 添加：
+  - `PATH=/Users/你的用户名/.local/bin:...`
+
+保姆级说明见：
+- [Obsidian / Claudian 指南](docs/OBSIDIAN.md)
+
+#### 方式四：项目内使用
 
 克隆项目后，Skill 自动可用：
 
@@ -1175,7 +1241,7 @@ cd md2wechat-skill
 # 在 Claude Code 中直接使用
 ```
 
-#### 方式四：全局安装
+#### 方式五：全局安装
 
 将 Skill 复制到全局目录：
 
@@ -1184,7 +1250,7 @@ cd md2wechat-skill
 cp -r skills/md2wechat ~/.claude/skills/
 ```
 
-#### 方式五：创建符号链接
+#### 方式六：创建符号链接
 
 ```bash
 ln -s /path/to/md2wechat-skill/skills/md2wechat ~/.claude/skills/md2wechat
@@ -1219,6 +1285,46 @@ md2wechat-skill/
 
 ---
 
+## Obsidian / Claudian 支持
+
+如果你在 Obsidian 里使用 [Claudian](https://github.com/YishenTu/claudian)，`md2wechat` 现在也能直接接进去。
+
+Claudian 官方 README 说明它：
+- 是一个把 Claude Code 嵌入 Obsidian 的插件
+- 兼容 Claude Code skill 格式
+- 会从 `~/.claude/skills/` 或 `{vault}/.claude/skills/` 发现 skills
+- 支持 slash commands
+
+这意味着：
+- 先安装 `md2wechat` CLI
+- 再执行 `npx skills add ...`
+- 之后你可以在 Claudian 里直接用 `/md2wechat` 或自然语言调用 skill
+
+推荐直接发给 Claudian / Obsidian 用户的脚本：
+
+```text
+请帮我在当前电脑上安装 md2wechat，并让 Claudian 可以在 Obsidian 里通过 /md2wechat 使用它。按这个顺序执行：
+1. 如果我是 mac 用户，先运行：brew install geekjourneyx/tap/md2wechat
+2. 如果我已经有稳定可用的 Go 环境，也可以改成：go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.3
+3. 如果以上两种都不适合，再运行：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.3/install.sh | bash
+4. 如果我是通过 install.sh 安装的，再运行：export PATH="$HOME/.local/bin:$PATH"
+5. 运行：md2wechat version --json
+6. 运行：npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+7. 如果我在 Obsidian 里仍然找不到 md2wechat，请提醒我去 Claudian 的 Settings -> Environment -> Custom variables，把 PATH 补上 ~/.local/bin
+8. 最后告诉我如何在 Claudian 里输入 /md2wechat 或直接调用 md2wechat skill
+如果某一步失败，请继续排查，不要只返回报错原文。
+```
+
+适合谁：
+- 已经在 Obsidian 里用 Claudian 写作
+- 想在笔记库里直接把 Markdown 转公众号格式
+- 想在 Obsidian 里直接生成封面图、信息图或推送草稿
+
+单独文档：
+- [Obsidian / Claudian 指南](docs/OBSIDIAN.md)
+
+---
+
 ## OpenClaw 支持
 
 md2wechat 现已支持 [OpenClaw](https://openclaw.ai/) 平台！
@@ -1246,7 +1352,7 @@ clawhub install md2wechat
 
 当前 ClawHub 路径只会安装 skill 壳到 OpenClaw workspace，**不保证自动安装 `md2wechat` CLI**。完整、可验证的安装主线仍建议使用下一种固定版本 installer。
 
-#### 方式二：先安装 CLI（brew / go install）
+#### 方式二：先安装 CLI（优先 Homebrew）
 
 如果你已经装好了 OpenClaw skill 壳，或者只需要先把 CLI 装到环境里，可以先执行：
 
@@ -1254,13 +1360,15 @@ clawhub install md2wechat
 brew install geekjourneyx/tap/md2wechat
 ```
 
-或者：
+这个方式只安装 `md2wechat` CLI，不会自动写入 `~/.openclaw/skills/md2wechat/`。如果你还没装 skill 壳，请继续执行 `clawhub install md2wechat`，或者直接用下一种一键脚本。
+
+如果你已经有 Go 环境，也可以执行：
 
 ```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@latest
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.3
 ```
 
-这两种方式只安装 `md2wechat` CLI，不会自动写入 `~/.openclaw/skills/md2wechat/`。如果你还没装 skill 壳，请继续执行 `clawhub install md2wechat`，或者直接用下一种一键脚本。
+它同样只安装 CLI，不会自动写入 `~/.openclaw/skills/md2wechat/`。
 
 #### 方式三：一键脚本安装
 

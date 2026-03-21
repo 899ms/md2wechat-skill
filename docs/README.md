@@ -11,6 +11,7 @@
 仓库里有两条 skill 路径，文档分别按平台维护：
 
 - `skills/md2wechat/`：面向 Claude Code / Codex / OpenCode 的 coding-agent skill
+- [Obsidian / Claudian 指南](OBSIDIAN.md)：在 Obsidian 的 Claudian 插件里使用 `md2wechat`
 - `platforms/openclaw/md2wechat/`：面向 OpenClaw / ClawHub 的专用 skill 包
 - [OpenClaw 指南](OPENCLAW.md)：OpenClaw 安装、验证与配置说明
 
@@ -43,4 +44,5 @@
 - [真实烟雾测试记录](SMOKE.md)
 - [图片服务配置](IMAGE_PROVISIONERS.md)
 - [OpenClaw 指南](OPENCLAW.md)
+- [Obsidian / Claudian 指南](OBSIDIAN.md)
 - [写作功能问答](WRITING_FAQ.md)

@@ -6,9 +6,10 @@
 
 - [系统要求](#系统要求)
 - [方式一：Homebrew tap](#方式一homebrew-tapmacos--linux)
-- [方式二：安装脚本](#方式二安装脚本固定版本-release-资产)
-- [方式三：预编译二进制](#方式三预编译二进制)
-- [方式四：从源码编译](#方式四从源码编译)
+- [方式二：Go install（已有 Go 环境时可选）](#方式二go-install已有-go-环境时可选)
+- [方式三：安装脚本](#方式三安装脚本固定版本-release-资产)
+- [方式四：预编译二进制](#方式四预编译二进制)
+- [方式五：从源码编译](#方式五从源码编译)
 - [验证安装](#验证安装)
 - [卸载](#卸载)
 
@@ -40,7 +41,27 @@ brew upgrade geekjourneyx/tap/md2wechat
 
 ---
 
-## 方式二：安装脚本（固定版本 release 资产）
+## 方式二：Go install（已有 Go 环境时可选）
+
+如果你的机器上已经有稳定可用的 Go 环境，也可以直接执行：
+
+```bash
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.3
+```
+
+这是一个可选路径，不是默认推荐路径。
+
+更适合：
+- 已经长期使用 Go 工具链
+- 希望直接用 Go 模块安装 CLI
+- 不依赖 Homebrew
+
+如果你只是普通 mac 用户，仍然优先使用 Homebrew。
+如果你更关心固定版本 release 资产和 checksum，可继续使用下面的安装脚本。
+
+---
+
+## 方式三：安装脚本（固定版本 release 资产）
 
 ### macOS / Linux
 
@@ -74,7 +95,7 @@ md2wechat version --json
 
 ---
 
-## 方式三：预编译二进制
+## 方式四：预编译二进制
 
 ### 下载地址
 
@@ -124,7 +145,7 @@ md2wechat.exe version --json
 
 ---
 
-## 方式四：从源码编译
+## 方式五：从源码编译
 
 ```bash
 git clone https://github.com/geekjourneyx/md2wechat-skill.git

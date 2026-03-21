@@ -10,6 +10,14 @@
 
 推荐使用固定版本 release 资产：
 
+mac 用户优先：
+
+```bash
+brew install geekjourneyx/tap/md2wechat
+```
+
+如果你不用 Homebrew，再执行：
+
 ```bash
 curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.3/install.sh | bash
 ```

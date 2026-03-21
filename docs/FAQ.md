@@ -38,7 +38,21 @@ md2wechat --help
 
 如果 `command -v` 没输出，说明系统找不到二进制。
 
-**解决方案 A：重新用安装脚本安装**
+**解决方案 A：重新安装 CLI**
+
+如果你在 macOS 上，优先：
+
+```bash
+brew install geekjourneyx/tap/md2wechat
+```
+
+如果你已经有稳定可用的 Go 环境，也可以：
+
+```bash
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.3
+```
+
+如果以上都不适合，再走固定版本安装脚本：
 
 ```bash
 curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.3/install.sh | bash
@@ -67,7 +81,7 @@ md2wechat version --json
 - `skills/md2wechat/`：给 Claude Code / Codex / OpenCode 的 coding-agent skill
 - `platforms/openclaw/md2wechat/`：给 OpenClaw / ClawHub 的专用 skill
 
-**OpenClaw 路径**还需要先安装 `md2wechat` CLI，不是只把 `SKILL.md` 放进去就够了。CLI 可以通过 `brew`、`go install` 或固定版本 installer 安装；skill 壳则继续通过 `clawhub` 或 OpenClaw installer 安装。优先看：
+**OpenClaw 路径**还需要先安装 `md2wechat` CLI，不是只把 `SKILL.md` 放进去就够了。CLI 优先通过 `brew` 安装；如果你已有 Go 环境，也可以用 `go install`；否则再用固定版本 installer。skill 壳则继续通过 `clawhub` 或 OpenClaw installer 安装。优先看：
 
 - [OPENCLAW.md](OPENCLAW.md)
 
@@ -75,11 +89,23 @@ md2wechat version --json
 
 对 `skills/md2wechat/` 这条 coding-agent 路径，skill 现在直接依赖 `PATH` 里的 `md2wechat`。如果命令不存在，先安装 CLI，再安装 skill。
 
-推荐先安装固定版本 CLI，再安装 skill：
+推荐先安装 CLI，再安装 skill。mac 用户优先 Homebrew：
+
+```bash
+brew install geekjourneyx/tap/md2wechat
+npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+```
+
+如果你已经有 Go 环境，再把第一步改成：
+
+```bash
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.3
+```
+
+如果以上都不适合，再把第一步改成：
 
 ```bash
 curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.3/install.sh | bash
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 ```
 
 如果你懒得自己操作，也可以直接把下面的话发给 Claude Code / Codex / OpenCode：
@@ -87,12 +113,14 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 ```text
 请先安装 md2wechat CLI，再安装 md2wechat skill，并验证版本和能力发现都正常。
 执行：
-1. curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.3/install.sh | bash
-2. npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
-3. 先执行：export PATH="$HOME/.local/bin:$PATH"
-4. md2wechat version --json
-5. md2wechat capabilities --json
-6. md2wechat config init
+1. 如果我是 mac 用户，先运行：brew install geekjourneyx/tap/md2wechat
+2. 如果我已经有稳定可用的 Go 环境，也可以改成：go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.3
+3. 如果以上两种都不适合，再运行：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.3/install.sh | bash
+4. 运行：npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+5. 如果我是通过 install.sh 安装的，再执行：export PATH="$HOME/.local/bin:$PATH"
+6. md2wechat version --json
+7. md2wechat capabilities --json
+8. md2wechat config init
 如果失败，请继续排查，不要只返回错误原文。
 ```
 
@@ -110,9 +138,55 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 如果失败，请继续排查 ~/.openclaw/skills/md2wechat/ 和 `command -v md2wechat`，不要只给我报错。
 ```
 
+### Q3：我在 Obsidian 的 Claudian 里怎么用 `/md2wechat`？
+
+先做这几步：
+
+```bash
+brew install geekjourneyx/tap/md2wechat
+md2wechat version --json
+npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+```
+
+如果你已经有 Go 环境，再改成：
+
+```bash
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.3
+md2wechat version --json
+npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+```
+
+如果以上都不适合，再改成：
+
+```bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.3/install.sh | bash
+export PATH="$HOME/.local/bin:$PATH"
+md2wechat version --json
+npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+```
+
+然后回到 Claudian：
+
+- 直接输入 `/md2wechat`
+- 或直接让 Agent 调用 `md2wechat` skill
+
+如果终端里有 `md2wechat`，但 Claudian 里还是找不到，优先去：
+
+- `Settings -> Environment -> Custom variables`
+
+补上你的 CLI 路径，例如：
+
+```text
+PATH=/Users/你的用户名/.local/bin:原来的PATH
+```
+
+完整说明见：
+
+- [Obsidian / Claudian 指南](OBSIDIAN.md)
+
 ---
 
-### Q3：macOS 提示“无法打开，因为无法验证开发者”
+### Q4：macOS 提示“无法打开，因为无法验证开发者”
 
 这是 macOS 的安全提示，不是 `md2wechat` 特有问题。
 
@@ -128,7 +202,7 @@ sudo xattr -cr /Applications/md2wechat
 
 ## 配置与默认行为
 
-### Q4：配置文件到底在哪？
+### Q5：配置文件到底在哪？
 
 主路径是：
 
@@ -151,7 +225,7 @@ md2wechat config show --format json
 
 ---
 
-### Q5：提示 `WECHAT_APPID is required`
+### Q6：提示 `WECHAT_APPID is required`
 
 **原因**：你还没配置微信凭证，或者当前生效的配置文件里没有它们。
 
@@ -182,7 +256,7 @@ md2wechat config show --format json
 
 ---
 
-### Q6：我没传 `--mode`，默认到底走 API 还是 AI？
+### Q7：我没传 `--mode`，默认到底走 API 还是 AI？
 
 **默认一定是 API。**
 
@@ -208,7 +282,7 @@ md2wechat convert article.md --mode ai
 
 ---
 
-### Q7：我改了配置，但感觉没生效
+### Q8：我改了配置，但感觉没生效
 
 最常见原因有 3 个：
 
