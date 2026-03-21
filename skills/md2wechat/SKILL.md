@@ -782,19 +782,13 @@ A: The `run.sh` wrapper does not assume the repository is the only runtime sourc
 1. cached `md2wechat`
 2. repository-local development binary
 3. `md2wechat` already on `PATH`, but only if its version matches the current skill version
-4. fixed-version GitHub Releases download as the final fallback
+4. otherwise stop and ask you to install the CLI first
 
-If you want to install manually:
+Install the CLI first, then rerun the skill:
 ```bash
-# Use the script first
-bash skills/md2wechat/scripts/run.sh --help
-
-# Or install md2wechat globally and put it on PATH
-# Or download from releases:
-# https://github.com/geekjourneyx/md2wechat-skill/releases
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install.sh | bash
+npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 ```
-
-If your network cannot access GitHub Releases CDN, install `md2wechat` first or set `MD2WECHAT_SKILL_RELEASE_BASE_URL` to a reachable mirror before using the skill.
 
 **Q: AI mode very slow**
 A: AI mode requires Claude API call and takes 10-30 seconds. For faster results, use API mode.
@@ -803,7 +797,7 @@ A: AI mode requires Claude API call and takes 10-30 seconds. For faster results,
 
 ## CLI Commands Reference
 
-All commands go through the `run.sh` wrapper, which handles runtime discovery first and only downloads as a last resort:
+All commands go through the `run.sh` wrapper, which discovers an already-installed runtime first and refuses to auto-install one during normal execution:
 
 ```bash
 # Show help

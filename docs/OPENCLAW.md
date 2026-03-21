@@ -81,8 +81,7 @@ clawhub login
 适合没有安装 clawhub 的用户：
 
 ```bash
-export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.1
-curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install-openclaw.sh" | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install-openclaw.sh | bash
 ```
 
 **脚本功能：**
@@ -99,7 +98,7 @@ curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install-openclaw.sh" | bash
 
 ```bash
 # 1. 下载固定版本 release 资产
-VERSION=2.0.1
+VERSION=2.0.2
 # 按你的平台选择对应二进制，这里以 Linux amd64 为例
 curl -LO https://github.com/geekjourneyx/md2wechat-skill/releases/download/v${VERSION}/md2wechat-openclaw-skill.tar.gz
 curl -LO https://github.com/geekjourneyx/md2wechat-skill/releases/download/v${VERSION}/md2wechat-linux-amd64
@@ -257,8 +256,7 @@ md2wechat --help
 clawhub update md2wechat
 
 # 脚本方式（会覆盖安装）
-export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.1
-curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install-openclaw.sh" | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install-openclaw.sh | bash
 ```
 
 ### Q: 配置没生效？

@@ -7,8 +7,7 @@
 - [系统要求](#系统要求)
 - [方式一：安装脚本](#方式一安装脚本推荐)
 - [方式二：预编译二进制](#方式二预编译二进制)
-- [方式三：Go 工具链安装](#方式三go-工具链安装适合开发者)
-- [方式四：从源码编译](#方式四从源码编译)
+- [方式三：从源码编译](#方式三从源码编译)
 - [验证安装](#验证安装)
 - [卸载](#卸载)
 
@@ -27,14 +26,13 @@
 ### macOS / Linux
 
 ```bash
-export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.1
-curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install.sh" | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install.sh | bash
 ```
 
 ### Windows PowerShell
 
 ```powershell
-$env:MD2WECHAT_RELEASE_BASE_URL = "https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.1"
+$env:MD2WECHAT_RELEASE_BASE_URL = "https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2"
 iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BASE_URL/install.ps1"))
 ```
 
@@ -63,7 +61,7 @@ iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BA
 #### Linux / macOS
 
 ```bash
-VERSION=v2.0.1
+VERSION=v2.0.2
 ASSET=md2wechat-linux-amd64
 # macOS 请改成 md2wechat-darwin-amd64 或 md2wechat-darwin-arm64
 curl -LO https://github.com/geekjourneyx/md2wechat-skill/releases/download/${VERSION}/${ASSET}
@@ -92,19 +90,7 @@ md2wechat.exe version --json
 
 ---
 
-## 方式三：Go 工具链安装（适合开发者）
-
-如果你正在本地开发、调试或需要最新源码，可以使用 `go install`：
-
-```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.1
-```
-
-如果你只是要稳定使用，仍然建议优先使用上面的安装脚本或 release 资产。
-
----
-
-## 方式四：从源码编译
+## 方式三：从源码编译
 
 ```bash
 git clone https://github.com/geekjourneyx/md2wechat-skill.git

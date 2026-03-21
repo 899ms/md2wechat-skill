@@ -3,8 +3,7 @@
 # md2wechat OpenClaw Skill Installer
 #
 # Usage:
-#   export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/vX.Y.Z
-#   curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install-openclaw.sh" | bash
+#   curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/vX.Y.Z/install-openclaw.sh | bash
 #
 
 set -euo pipefail

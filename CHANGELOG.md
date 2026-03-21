@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-03-21
+
+### Fixed
+- Removed coding-agent runtime auto-download from `skills/md2wechat/scripts/run.sh`; the skill now executes only an already-installed `md2wechat` runtime and rejects version mismatches instead of fetching a remote binary during normal execution.
+- Simplified Coding Agent and OpenClaw installation guidance so the primary shell path is a single fixed-version `curl -fsSL ... | bash` command, without requiring `MD2WECHAT_RELEASE_BASE_URL` exports or recommending `go install` as a user path.
+- Tightened OpenClaw runtime guidance so installer output, runtime wrapper errors, README, and `docs/OPENCLAW.md` all point to the installed runtime path and fixed-version installer consistently.
+- Re-audited README, FAQ, INSTALL, QUICKSTART, both SKILL.md files, installer comments, and release metadata to keep version anchors aligned at `2.0.2`.
+
 ## [2.0.1] - 2026-03-20
 
 ### Fixed

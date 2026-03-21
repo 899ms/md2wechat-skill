@@ -41,8 +41,7 @@ md2wechat --help
 **解决方案 A：重新用安装脚本安装**
 
 ```bash
-export MD2WECHAT_RELEASE_BASE_URL=https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.1
-curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install.sh" | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install.sh | bash
 ```
 
 **解决方案 B：把二进制目录加到 PATH**
@@ -73,12 +72,14 @@ export PATH=$PATH:/usr/local/bin
 1. 本地缓存
 2. 仓库内开发二进制
 3. `PATH` 里的 `md2wechat`，但版本必须和当前 skill 一致
-4. 最后才回退到固定版本 GitHub Releases 下载
+4. 找不到匹配版本时直接报错，并要求你先安装 CLI
 
-如果你所在网络访问不了 GitHub Releases CDN，最稳做法是：
+推荐先安装固定版本 CLI，再安装 skill：
 
-- 先把 `md2wechat` 安装到 `PATH`
-- 或设置 `MD2WECHAT_SKILL_RELEASE_BASE_URL` 指向可访问镜像
+```bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install.sh | bash
+npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+```
 
 ---
 

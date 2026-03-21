@@ -9,7 +9,7 @@
 set -euo pipefail
 
 RUNTIME_DIR="${MD2WECHAT_OPENCLAW_RUNTIME_DIR:-${HOME}/.openclaw/tools/md2wechat}"
-SKILL_VERSION="${MD2WECHAT_OPENCLAW_SKILL_VERSION:-2.0.1}"
+SKILL_VERSION="${MD2WECHAT_OPENCLAW_SKILL_VERSION:-2.0.2}"
 
 extract_version_from_json() {
     local output=$1
@@ -70,8 +70,7 @@ Expected one of:
 clawhub install md2wechat currently installs only the skill shell and may not provision the runtime.
 Install the fixed-version OpenClaw bundle and runtime first, for example:
 
-  export MD2WECHAT_RELEASE_BASE_URL="https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.1"
-  curl -fsSL "${MD2WECHAT_RELEASE_BASE_URL}/install-openclaw.sh" | bash
+  curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install-openclaw.sh | bash
 
 Or manually place the runtime at:
   ~/.openclaw/tools/md2wechat/md2wechat
@@ -90,8 +89,7 @@ Found runtime: ${runtime}
 
 Reinstall the fixed-version OpenClaw bundle and runtime, for example:
 
-  export MD2WECHAT_RELEASE_BASE_URL="https://github.com/geekjourneyx/md2wechat-skill/releases/download/v${SKILL_VERSION}"
-  curl -fsSL "\${MD2WECHAT_RELEASE_BASE_URL}/install-openclaw.sh" | bash
+  curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v${SKILL_VERSION}/install-openclaw.sh | bash
 
 If you intentionally want to run a different but matching runtime, set:
   MD2WECHAT_OPENCLAW_RUNTIME=/absolute/path/to/md2wechat
