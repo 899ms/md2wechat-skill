@@ -52,9 +52,9 @@ Treat these commands as the source of truth for:
    - `.claude-plugin/marketplace.json`
    - `skills/md2wechat/SKILL.md`
    - `platforms/openclaw/md2wechat/SKILL.md`
-   - `skills/md2wechat/scripts/run.sh`
    - `scripts/install.sh`
    - `scripts/install-openclaw.sh`
+   - `platforms/openclaw/md2wechat/SKILL.md`
 5. If any of the files above still carry an old version, stale release URL, stale maintainer identity, or outdated command examples, block the release and fix them before tagging.
 
 ## Documentation Discipline

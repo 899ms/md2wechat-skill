@@ -43,6 +43,34 @@ curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.
 npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 ```
 
+### 直接发给大模型
+
+如果你不想自己组织命令，可以直接把下面的话发给 Claude Code / Codex / OpenCode：
+
+```text
+请帮我安装 md2wechat 并验证可用。按这个顺序执行：
+1. 运行：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install.sh | bash
+2. 运行：npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+3. 运行：export PATH="$HOME/.local/bin:$PATH"
+4. 运行：md2wechat version --json
+5. 运行：md2wechat config init
+6. 运行：md2wechat capabilities --json
+如果某一步失败，请直接告诉我失败原因和下一步修复命令，不要省略命令。
+```
+
+如果你在 OpenClaw 里使用，可以直接发：
+
+```text
+请帮我安装 OpenClaw 版 md2wechat，并验证 CLI 和 skill 都可用。按这个顺序执行：
+1. 运行：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install-openclaw.sh | bash
+2. 运行：export PATH="$HOME/.local/bin:$PATH"
+3. 运行：md2wechat version --json
+4. 运行：md2wechat config init
+5. 运行：md2wechat capabilities --json
+6. 如果我已经装过 skill，再检查：~/.openclaw/skills/md2wechat/ 是否存在，并确认 `command -v md2wechat` 有输出
+如果某一步失败，请直接告诉我失败原因和下一步修复命令，不要省略命令。
+```
+
 </div>
 
 ---
@@ -65,6 +93,18 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install.sh | bash
 ```
 
+默认会安装到用户级目录：
+
+- macOS / Linux: `~/.local/bin/md2wechat`
+- Windows: 当前用户目录或 `C:\Program Files\md2wechat\md2wechat.exe`
+
+如果脚本执行完后当前终端仍然提示 `command not found: md2wechat`，先执行：
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+md2wechat version --json
+```
+
 Windows PowerShell：
 
 ```powershell
@@ -82,6 +122,14 @@ curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.
 
 ```bash
 npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+```
+
+如果你要直接发给 Agent，建议把这句也带上：
+
+```text
+如果 install.sh 执行完后当前终端仍然提示 command not found: md2wechat，请继续执行：
+export PATH="$HOME/.local/bin:$PATH"
+md2wechat version --json
 ```
 
 手动下载 release 资产时，请同时校验 `checksums.txt`。主路径应始终指向固定版本的 release，不要使用 `latest` 或 `main` 作为安装入口。
@@ -1072,12 +1120,25 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 
 当前 coding-agent skill 的 runtime 逻辑是：
 
-- 先尝试使用缓存中的 `md2wechat`
-- 再尝试使用仓库内的开发二进制
-- 再尝试使用 `PATH` 里已经安装好的 `md2wechat`，但要求版本与当前 skill 一致
-- 找不到匹配 runtime 时会直接报错，并提示先安装 CLI
+- 直接依赖 `PATH` 里已安装好的 `md2wechat`
+- skill 本身不再承担 runtime 查找、缓存 bootstrap 或执行时下载
+- 如果 `md2wechat` 不在 `PATH` 里，先安装 CLI，再继续使用 skill
 
 skill 不再在正常执行路径中自动下载并执行远程二进制。
+
+推荐直接发给 Coding Agent 的对话脚本：
+
+```text
+请先安装 md2wechat CLI，再安装 md2wechat skill，并验证版本和能力发现都正常。
+执行：
+1. curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install.sh | bash
+2. npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+3. export PATH="$HOME/.local/bin:$PATH"
+4. md2wechat version --json
+5. md2wechat capabilities --json
+6. md2wechat config init
+如果失败，请继续排查，不要只停止在报错信息。
+```
 
 #### 方式二：Claude Code Plugin Marketplace
 
@@ -1136,15 +1197,10 @@ md2wechat-skill/
 │       │   ├── html-guide.md  # HTML 规范
 │       │   ├── image-syntax.md # 图片语法
 │       │   └── wechat-api.md  # API 参考
-│       └── scripts/       # 执行脚本
-│           └── run.sh     # 技能启动入口
 ├── platforms/             # 平台适配层
 │   └── openclaw/
 │       └── md2wechat/     # OpenClaw 专用 skill 包
-│           ├── SKILL.md
-│           ├── references/
-│           └── scripts/
-│               └── run.sh  # OpenClaw 启动入口
+│           └── SKILL.md
 ├── scripts/               # 安装脚本
 │   ├── install.sh         # CLI 安装脚本
 │   └── install-openclaw.sh # OpenClaw 安装脚本
@@ -1160,8 +1216,7 @@ md2wechat-skill/
 
 md2wechat 现已支持 [OpenClaw](https://openclaw.ai/) 平台！
 
-OpenClaw 使用独立的 `platforms/openclaw/md2wechat/` skill 包，和面向 Claude Code / Codex / OpenCode 的 `skills/md2wechat/` 分开维护。OpenClaw 安装主线是 skill 包与 runtime 一起安装，`run.sh` 只负责启动已安装 runtime，不再承担首跑动态下载。
-OpenClaw `run.sh` 还会校验 runtime 版本是否与当前 skill 版本一致，不会静默执行错版本二进制。
+OpenClaw 使用独立的 `platforms/openclaw/md2wechat/` skill 包，和面向 Claude Code / Codex / OpenCode 的 `skills/md2wechat/` 分开维护。OpenClaw 现在也直接依赖已安装到环境路径里的 `md2wechat` CLI，不再保留 skill 内部 runtime wrapper。
 
 ### 什么是 OpenClaw？
 
@@ -1182,7 +1237,7 @@ clawhub login
 clawhub install md2wechat
 ```
 
-当前 ClawHub 路径只会安装 skill 壳到 OpenClaw workspace，**不保证自动 provision `md2wechat` runtime**。完整、可验证的安装主线仍建议使用下一种固定版本 installer。
+当前 ClawHub 路径只会安装 skill 壳到 OpenClaw workspace，**不保证自动安装 `md2wechat` CLI**。完整、可验证的安装主线仍建议使用下一种固定版本 installer。
 
 #### 方式二：一键脚本安装
 
@@ -1190,7 +1245,21 @@ clawhub install md2wechat
 curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install-openclaw.sh | bash
 ```
 
-脚本会按固定版本安装 OpenClaw skill 包与 runtime，并校验 `checksums.txt`。这是当前最完整、最可验证的 OpenClaw 安装路径。
+脚本会按固定版本安装 OpenClaw skill 包与 `md2wechat` CLI，并校验 `checksums.txt`。这是当前最完整、最可验证的 OpenClaw 安装路径。
+
+推荐直接发给 OpenClaw / 通用大模型的对话脚本：
+
+```text
+请帮我安装 OpenClaw 版 md2wechat，并验证 skill 和 CLI 都可用。
+执行：
+1. curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install-openclaw.sh | bash
+2. 先执行：export PATH="$HOME/.local/bin:$PATH"
+3. md2wechat version --json
+4. md2wechat config init
+5. md2wechat config validate
+6. md2wechat capabilities --json
+如果失败，请继续排查 ~/.openclaw/skills/md2wechat/ 和 `command -v md2wechat`，不要只返回错误原文。
+```
 
 #### 方式三：手动安装
 
@@ -1202,14 +1271,15 @@ curl -LO https://github.com/geekjourneyx/md2wechat-skill/releases/download/v${VE
 curl -LO https://github.com/geekjourneyx/md2wechat-skill/releases/download/v${VERSION}/checksums.txt
 sha256sum -c checksums.txt --ignore-missing
 mkdir -p ~/.openclaw/skills
-mkdir -p ~/.openclaw/tools/md2wechat
+mkdir -p ~/.local/bin
 mkdir -p /tmp/md2wechat-openclaw
 tar -xzf md2wechat-openclaw-skill.tar.gz -C /tmp/md2wechat-openclaw
 cp -r /tmp/md2wechat-openclaw/skills/md2wechat ~/.openclaw/skills/
-install -m 0755 md2wechat-linux-amd64 ~/.openclaw/tools/md2wechat/md2wechat
+install -m 0755 md2wechat-linux-amd64 ~/.local/bin/md2wechat
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
-手动安装时，请以同一版本 release 提供的 OpenClaw 资产为准，确保 skill 包与 runtime 同步安装到 OpenClaw 管理目录，不要依赖 `run.sh` 首次运行再下载。
+手动安装时，请以同一版本 release 提供的 OpenClaw 资产为准，确保 skill 包与 `md2wechat` CLI 同版本安装。
 
 ### 配置
 

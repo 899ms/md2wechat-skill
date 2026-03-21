@@ -44,6 +44,9 @@ Write-Host ""
 
 # 创建目录
 New-Item -ItemType Directory -Force -Path $installDir | Out-Null
+if (Test-Path (Join-Path $installDir "md2wechat.exe")) {
+    Write-Host "检测到已存在安装，将覆盖: $(Join-Path $installDir 'md2wechat.exe')" -ForegroundColor Yellow
+}
 
 # 下载
 Write-Host "正在下载..." -ForegroundColor Green
@@ -104,6 +107,9 @@ try {
 
 Write-Host ""
 
+$verifyCmd = "& `"$outputFile`" version --json"
+$initCmd = "& `"$outputFile`" config init"
+
 # 添加到 PATH
 if ($skipPathUpdate) {
     Write-Host "ℹ️  跳过 PATH 更新（CI / non-interactive 模式）" -ForegroundColor Yellow
@@ -112,10 +118,17 @@ if ($skipPathUpdate) {
     if ($currentPath -notlike "*$installDir*") {
         Write-Host "添加到系统 PATH..." -ForegroundColor Yellow
         [Environment]::SetEnvironmentVariable("Path", "$currentPath;$installDir", "User")
+        if ($env:Path -notlike "*$installDir*") {
+            $env:Path = "$installDir;$env:Path"
+        }
         Write-Host "✅ 已添加到 PATH" -ForegroundColor Green
         Write-Host ""
-        Write-Host "⚠️  需要重启终端或命令提示符才能生效" -ForegroundColor Yellow
+        Write-Host "当前 PowerShell 会话已可直接使用 md2wechat" -ForegroundColor Green
+        Write-Host "新的终端或命令提示符也会继承该 PATH 更新" -ForegroundColor Yellow
     } else {
+        if ($env:Path -notlike "*$installDir*") {
+            $env:Path = "$installDir;$env:Path"
+        }
         Write-Host "✅ 已在 PATH 中" -ForegroundColor Green
     }
 }
@@ -126,12 +139,16 @@ Write-Host "   安装完成！" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "下一步：" -ForegroundColor Yellow
-Write-Host "  1. 重启此终端或命令提示符" -ForegroundColor White
+Write-Host "  1. 运行: md2wechat version --json" -ForegroundColor White
 Write-Host "  2. 运行: md2wechat config init" -ForegroundColor White
 Write-Host "  3. 编辑生成的配置文件" -ForegroundColor White
 Write-Host "  4. 运行: md2wechat convert 文章.md --preview" -ForegroundColor White
 Write-Host ""
-Write-Host "查看帮助: md2wechat --help" -ForegroundColor White
+Write-Host "如果当前会话里仍然找不到命令，直接运行：" -ForegroundColor Yellow
+Write-Host "  $verifyCmd" -ForegroundColor White
+Write-Host "  $initCmd" -ForegroundColor White
+Write-Host ""
+Write-Host "查看帮助: & `"$outputFile`" --help" -ForegroundColor White
 Write-Host ""
 
 if (-not $nonInteractive) {

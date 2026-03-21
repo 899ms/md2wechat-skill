@@ -38,6 +38,21 @@ iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BA
 
 安装脚本会下载对应 release 资产并校验 `checksums.txt`。主路径应始终指向固定版本的 release，不要使用 `latest` 或 `main` 作为安装入口。
 
+默认安装路径：
+
+- macOS / Linux: `~/.local/bin/md2wechat`
+- Windows（普通用户）: `%USERPROFILE%\\AppData\\Local\\md2wechat\\md2wechat.exe`
+- Windows（管理员）: `C:\\Program Files\\md2wechat\\md2wechat.exe`
+
+如果 macOS / Linux 当前终端执行完脚本后仍然找不到命令，先运行：
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+md2wechat version --json
+```
+
+如果 Windows 当前 PowerShell 会话里仍然找不到命令，直接运行安装器输出的绝对路径验证命令即可。
+
 ---
 
 ## 方式二：预编译二进制
@@ -121,6 +136,13 @@ md2wechat --help
 md2wechat help
 
 # 配置校验是独立动作，不是安装验证的一部分
+```
+
+如果当前 shell 还没刷新 PATH，也可以直接运行安装目录里的二进制：
+
+```bash
+~/.local/bin/md2wechat version --json
+~/.local/bin/md2wechat --help
 ```
 
 预期输出：

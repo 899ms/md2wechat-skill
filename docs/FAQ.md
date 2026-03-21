@@ -44,10 +44,16 @@ md2wechat --help
 curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install.sh | bash
 ```
 
+安装脚本默认会把 CLI 放到：
+
+- macOS / Linux: `~/.local/bin/md2wechat`
+- Windows: 用户级安装目录或 `C:\Program Files\md2wechat\md2wechat.exe`
+
 **解决方案 B：把二进制目录加到 PATH**
 
 ```bash
-export PATH=$PATH:/usr/local/bin
+export PATH="$HOME/.local/bin:$PATH"
+md2wechat version --json
 ```
 
 如果你不确定装到了哪里，优先重新走安装脚本，不要手猜路径。
@@ -61,24 +67,47 @@ export PATH=$PATH:/usr/local/bin
 - `skills/md2wechat/`：给 Claude Code / Codex / OpenCode 的 coding-agent skill
 - `platforms/openclaw/md2wechat/`：给 OpenClaw / ClawHub 的专用 skill
 
-**OpenClaw 路径**还需要安装 runtime，不是只把 `SKILL.md` 放进去就够了。优先看：
+**OpenClaw 路径**还需要先安装 `md2wechat` CLI，不是只把 `SKILL.md` 放进去就够了。优先看：
 
 - [OPENCLAW.md](OPENCLAW.md)
 
 **Claude Code / Codex 路径**如果只是二进制没装好，skill 也无法替你凭空执行 CLI。
 
-对 `skills/md2wechat/` 这条 coding-agent 路径，`run.sh` 当前会按这个顺序找 runtime：
-
-1. 本地缓存
-2. 仓库内开发二进制
-3. `PATH` 里的 `md2wechat`，但版本必须和当前 skill 一致
-4. 找不到匹配版本时直接报错，并要求你先安装 CLI
+对 `skills/md2wechat/` 这条 coding-agent 路径，skill 现在直接依赖 `PATH` 里的 `md2wechat`。如果命令不存在，先安装 CLI，再安装 skill。
 
 推荐先安装固定版本 CLI，再安装 skill：
 
 ```bash
 curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install.sh | bash
 npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+```
+
+如果你懒得自己操作，也可以直接把下面的话发给 Claude Code / Codex / OpenCode：
+
+```text
+请先安装 md2wechat CLI，再安装 md2wechat skill，并验证版本和能力发现都正常。
+执行：
+1. curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install.sh | bash
+2. npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+3. 先执行：export PATH="$HOME/.local/bin:$PATH"
+4. md2wechat version --json
+5. md2wechat capabilities --json
+6. md2wechat config init
+如果失败，请继续排查，不要只返回错误原文。
+```
+
+如果你走的是 OpenClaw 路径，直接发这段：
+
+```text
+请帮我安装 OpenClaw 版 md2wechat，并验证 skill 和 CLI 都可用。
+执行：
+1. curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.2/install-openclaw.sh | bash
+2. 先执行：export PATH="$HOME/.local/bin:$PATH"
+3. md2wechat version --json
+4. md2wechat config init
+5. md2wechat config validate
+6. md2wechat capabilities --json
+如果失败，请继续排查 ~/.openclaw/skills/md2wechat/ 和 `command -v md2wechat`，不要只给我报错。
 ```
 
 ---

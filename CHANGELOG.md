@@ -9,11 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.2] - 2026-03-21
 
+### Added
+- Added a dedicated `install-openclaw.ps1` so Windows OpenClaw installation now has a fixed-version installer that provisions both the skill shell and the CLI instead of relying on the generic CLI-only PowerShell installer.
+- Added more agent-friendly installer output for shell and PowerShell flows, including immediate next-step verification commands, PATH repair hints, and explicit `config init` / `capabilities` guidance.
+
+### Changed
+- Reworked both Coding Agent and OpenClaw paths so the skill layer is now knowledge-and-workflow only; both paths assume an already-installed `md2wechat` CLI on a formal user-level install path rather than wrapper-managed runtime bootstrapping.
+- Standardized the recommended installation path around fixed-version installers and direct copy-paste commands for agents, without requiring `MD2WECHAT_RELEASE_BASE_URL` exports or recommending `go install` as an end-user path.
+- Simplified OpenClaw installation so the shell installer provisions the skill shell to `~/.openclaw/skills/md2wechat/` and installs the CLI to the user-level executable path instead of an OpenClaw-private runtime directory.
+- Refreshed README, FAQ, INSTALL, QUICKSTART, and OPENCLAW onboarding so “send this to your agent” scripts consistently export PATH before validating `md2wechat`, reducing first-run failures in fresh shells.
+- Updated release automation and release checks to match the new OpenClaw contract: no OpenClaw wrapper script, new `install-openclaw.ps1`, and smoke verification against an installed CLI on the environment path.
+
+### Removed
+- Removed `skills/md2wechat/scripts/run.sh`; the coding-agent skill no longer acts as a runtime provisioner or wrapper and now documents direct `md2wechat` usage only.
+- Removed `platforms/openclaw/md2wechat/scripts/run.sh`; the OpenClaw skill no longer ships a runtime wrapper and instead assumes the CLI has been installed by the fixed-version installer.
+- Removed `platforms/openclaw/md2wechat/references/runtime.md`; OpenClaw runtime expectations were folded back into `platforms/openclaw/md2wechat/SKILL.md`.
+
 ### Fixed
-- Removed coding-agent runtime auto-download from `skills/md2wechat/scripts/run.sh`; the skill now executes only an already-installed `md2wechat` runtime and rejects version mismatches instead of fetching a remote binary during normal execution.
-- Simplified Coding Agent and OpenClaw installation guidance so the primary shell path is a single fixed-version `curl -fsSL ... | bash` command, without requiring `MD2WECHAT_RELEASE_BASE_URL` exports or recommending `go install` as a user path.
-- Tightened OpenClaw runtime guidance so installer output, runtime wrapper errors, README, and `docs/OPENCLAW.md` all point to the installed runtime path and fixed-version installer consistently.
-- Re-audited README, FAQ, INSTALL, QUICKSTART, both SKILL.md files, installer comments, and release metadata to keep version anchors aligned at `2.0.2`.
+- Removed coding-agent runtime auto-download during normal execution; the Coding Agent path now rejects missing or mismatched CLIs instead of fetching a remote binary from GitHub Releases at execution time.
+- Fixed OpenClaw packaging drift on Windows by pointing skill install metadata to the dedicated OpenClaw PowerShell installer instead of the generic CLI installer.
+- Fixed high-signal onboarding drift where README / FAQ / OPENCLAW scripts could validate `md2wechat` before repairing `PATH`, which caused avoidable failures in fresh shells.
+- Tightened installer output and OpenClaw guidance so CLI paths, expected skill directory layout, and fixed-version installation flow are described consistently across docs and release metadata.
+- Re-audited README, FAQ, INSTALL, QUICKSTART, OPENCLAW, both `SKILL.md` files, installer comments, and release metadata to keep version anchors aligned at `2.0.2`.
 
 ## [2.0.1] - 2026-03-20
 

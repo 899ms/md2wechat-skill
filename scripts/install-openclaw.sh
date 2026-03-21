@@ -19,7 +19,7 @@ RELEASE_BASE_URL="${MD2WECHAT_RELEASE_BASE_URL:-}"
 SKILL_NAME="md2wechat"
 SKILL_ARCHIVE="md2wechat-openclaw-skill.tar.gz"
 INSTALL_DIR="${MD2WECHAT_OPENCLAW_INSTALL_DIR:-${HOME}/.openclaw/skills/${SKILL_NAME}}"
-RUNTIME_DIR="${MD2WECHAT_OPENCLAW_RUNTIME_DIR:-${HOME}/.openclaw/tools/${SKILL_NAME}}"
+CLI_INSTALL_DIR="${MD2WECHAT_INSTALL_DIR:-${MD2WECHAT_OPENCLAW_RUNTIME_DIR:-${HOME}/.local/bin}}"
 NON_INTERACTIVE="${MD2WECHAT_NONINTERACTIVE:-}"
 
 if [[ -z "$RELEASE_BASE_URL" ]]; then
@@ -116,10 +116,18 @@ verify_checksum() {
     fi
 }
 
+print_banner() {
+cat <<'EOF'
++--------------------------------------------------+
+|               md2wechat OpenClaw                 |
+|                    installer                     |
+|              crafted by geekjourneyx             |
++--------------------------------------------------+
+EOF
+}
+
 printf "\n"
-printf "${BLUE}========================================${NC}\n"
-printf "${BLUE}   md2wechat OpenClaw Skill Installer${NC}\n"
-printf "${BLUE}========================================${NC}\n"
+print_banner
 printf "\n"
 
 if command -v clawhub >/dev/null 2>&1; then
@@ -151,12 +159,11 @@ if [[ -d "$INSTALL_DIR" ]]; then
     rm -rf "$INSTALL_DIR"
 fi
 
-if [[ -d "$RUNTIME_DIR" ]]; then
-    warn "已存在运行时 / Existing runtime: $RUNTIME_DIR"
-    if ! confirm_or_continue "覆盖运行时？/ Overwrite runtime?"; then
+if [[ -x "${CLI_INSTALL_DIR}/md2wechat" ]]; then
+    warn "已存在 CLI / Existing CLI: ${CLI_INSTALL_DIR}/md2wechat"
+    if ! confirm_or_continue "覆盖 CLI？/ Overwrite CLI?"; then
         exit 0
     fi
-    rm -rf "$RUNTIME_DIR"
 fi
 
 TMP_DIR="$(mktemp -d)"
@@ -171,7 +178,7 @@ CHECKSUMS_FILE="${TMP_DIR}/checksums.txt"
 
 info "下载技能文件 / Downloading release assets..."
 info "技能包 / Skill bundle: ${ARCHIVE_URL}"
-info "运行时 / Runtime: ${RUNTIME_URL}"
+info "CLI binary: ${RUNTIME_URL}"
 info "校验文件 / Checksums: ${CHECKSUMS_URL}"
 
 download_file "$ARCHIVE_URL" "$ARCHIVE_PATH"
@@ -183,11 +190,11 @@ if ! verify_checksum "$CHECKSUMS_FILE" "$ARCHIVE_PATH" "$SKILL_ARCHIVE"; then
     error "校验失败：下载文件与发布校验值不匹配 / Checksum verification failed"
 fi
 if ! verify_checksum "$CHECKSUMS_FILE" "$RUNTIME_PATH" "$RUNTIME_BINARY"; then
-    error "运行时校验失败：下载文件与发布校验值不匹配 / Runtime checksum verification failed"
+    error "CLI 校验失败：下载文件与发布校验值不匹配 / CLI checksum verification failed"
 fi
 
 mkdir -p "$INSTALL_DIR"
-mkdir -p "$RUNTIME_DIR"
+mkdir -p "$CLI_INSTALL_DIR"
 tar -xzf "$ARCHIVE_PATH" -C "$TMP_DIR"
 
 EXTRACTED_DIR="${TMP_DIR}/skills/md2wechat"
@@ -195,7 +202,7 @@ EXTRACTED_DIR="${TMP_DIR}/skills/md2wechat"
 
 cp -r "${EXTRACTED_DIR}/"* "$INSTALL_DIR/"
 chmod +x "${INSTALL_DIR}/scripts/"*.sh 2>/dev/null || true
-install -m 0755 "$RUNTIME_PATH" "${RUNTIME_DIR}/md2wechat"
+install -m 0755 "$RUNTIME_PATH" "${CLI_INSTALL_DIR}/md2wechat"
 
 success "安装完成 / Installation complete!"
 
@@ -207,18 +214,24 @@ printf "\n"
 printf "${YELLOW}注意 / Note:${NC}\n"
 printf "  • WECHAT_APPID/SECRET 仅草稿上传需要，预览转换可不配置\n"
 printf "  • 图片生成需额外配置 IMAGE_API_KEY\n"
-printf "  • OpenClaw 安装器会一并安装并校验 md2wechat runtime\n"
+printf "  • OpenClaw 安装器会一并安装 skill 壳并把 md2wechat CLI 安装到正式环境路径\n"
 printf "  • 推荐始终使用固定版本 release 资产，不要使用 main/raw 作为安装入口\n"
 printf "\n"
 printf "推荐执行 / Recommended commands:\n"
-printf "  ${GREEN}%s config init${NC}\n" "${RUNTIME_DIR}/md2wechat"
-printf "  ${GREEN}%s config validate${NC}\n" "${RUNTIME_DIR}/md2wechat"
+printf "  ${GREEN}%s/md2wechat config init${NC}\n" "${CLI_INSTALL_DIR}"
+printf "  ${GREEN}%s/md2wechat config validate${NC}\n" "${CLI_INSTALL_DIR}"
 printf "\n"
 printf "默认配置文件 / Default config file:\n"
 printf "  ${GREEN}~/.config/md2wechat/config.yaml${NC}\n"
 printf "\n"
 printf "安装路径 / Installed to: ${GREEN}%s${NC}\n" "$INSTALL_DIR"
-printf "运行时 / Runtime installed to: ${GREEN}%s${NC}\n" "${RUNTIME_DIR}/md2wechat"
+printf "CLI installed to: ${GREEN}%s${NC}\n" "${CLI_INSTALL_DIR}/md2wechat"
+if [[ ":$PATH:" != *":${CLI_INSTALL_DIR}:"* ]]; then
+    printf "\n"
+    printf "如果当前 shell 还找不到命令 / If the current shell still cannot find md2wechat:\n"
+    printf "  ${GREEN}export PATH=\"%s:\$PATH\"${NC}\n" "${CLI_INSTALL_DIR}"
+    printf "  ${GREEN}md2wechat version --json${NC}\n"
+fi
 printf "文档 / Documentation: https://github.com/${REPO}/blob/main/docs/OPENCLAW.md\n"
 printf "OpenClaw 官网 / OpenClaw: https://openclaw.ai/\n"
 printf "ClawHub 技能市场 / ClawHub: https://clawhub.ai/\n"

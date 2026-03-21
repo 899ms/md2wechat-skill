@@ -26,7 +26,7 @@ md2wechat-skill 的核心目标不是“把 Markdown 变好看”，而是把文
 
 - coding-agent skill 可以保留面向终端工作流的自然语言说明。
 - OpenClaw skill 需要结构化声明依赖、安装和凭证要求。
-- OpenClaw 安装主线是 skill 包与 runtime 一起安装，`run.sh` 只负责启动，不应在首跑时动态下载二进制。
+- OpenClaw 安装主线是 skill 壳与已安装 CLI 配合使用；不应在 skill 包内保留运行时下载或 wrapper 自举逻辑。
 
 ## 模块职责
 

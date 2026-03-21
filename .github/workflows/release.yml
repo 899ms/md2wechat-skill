@@ -85,6 +85,10 @@ jobs:
             cat scripts/install.ps1
           } > "${bundle_dir}/install.ps1"
           {
+            printf '$env:MD2WECHAT_VERSION_DEFAULT = "%s"\n' "${VERSION}"
+            cat scripts/install-openclaw.ps1
+          } > "${bundle_dir}/install-openclaw.ps1"
+          {
             printf 'export MD2WECHAT_VERSION_DEFAULT=%q\n' "${VERSION}"
             cat scripts/install-openclaw.sh
           } > "${bundle_dir}/install-openclaw.sh"
@@ -152,19 +156,20 @@ jobs:
         run: |
           bundle_dir="${GITHUB_WORKSPACE}/release-artifact"
           home_dir="$(mktemp -d)"
+          install_dir="${home_dir}/.local/bin"
 
           mkdir -p "${home_dir}/.openclaw"
 
           HOME="${home_dir}" \
           MD2WECHAT_VERSION="$VERSION" \
           MD2WECHAT_RELEASE_BASE_URL="file://${bundle_dir}" \
+          MD2WECHAT_INSTALL_DIR="${install_dir}" \
           MD2WECHAT_NONINTERACTIVE=1 \
           bash "${bundle_dir}/install-openclaw.sh"
 
           test -f "${home_dir}/.openclaw/skills/md2wechat/SKILL.md"
-          test -x "${home_dir}/.openclaw/skills/md2wechat/scripts/run.sh"
-          test -x "${home_dir}/.openclaw/tools/md2wechat/md2wechat"
-          HOME="${home_dir}" "${home_dir}/.openclaw/skills/md2wechat/scripts/run.sh" version --json | grep -q "\"version\": \"${VERSION}\""
+          test -x "${install_dir}/md2wechat"
+          PATH="${install_dir}:${PATH}" "${install_dir}/md2wechat" version --json | grep -q "\"version\": \"${VERSION}\""
 
   smoke-release-windows:
     needs: build-release
@@ -199,6 +204,36 @@ jobs:
             throw "installed PowerShell binary version mismatch"
           }
 
+      - name: Smoke OpenClaw PowerShell installer against same artifact
+        env:
+          VERSION: ${{ needs.build-release.outputs.version }}
+        shell: pwsh
+        run: |
+          $bundleDir = Join-Path $env:GITHUB_WORKSPACE 'release-artifact'
+          $homeDir = Join-Path $env:RUNNER_TEMP 'md2wechat-openclaw-home'
+          $installDir = Join-Path $homeDir '.local\bin'
+          $skillDir = Join-Path $homeDir '.openclaw\skills\md2wechat'
+
+          New-Item -ItemType Directory -Force -Path (Join-Path $homeDir '.openclaw') | Out-Null
+          $env:USERPROFILE = $homeDir
+          $env:MD2WECHAT_VERSION = $env:VERSION
+          $env:MD2WECHAT_RELEASE_BASE_URL = "file://$bundleDir"
+          $env:MD2WECHAT_INSTALL_DIR = $installDir
+          $env:MD2WECHAT_OPENCLAW_INSTALL_DIR = $skillDir
+          $env:MD2WECHAT_NONINTERACTIVE = '1'
+          $env:MD2WECHAT_NO_PATH_UPDATE = '1'
+
+          & (Join-Path $bundleDir 'install-openclaw.ps1')
+
+          if (-not (Test-Path (Join-Path $skillDir 'SKILL.md'))) {
+            throw "OpenClaw skill shell missing after PowerShell installer"
+          }
+          $versionOutput = & (Join-Path $installDir 'md2wechat.exe') version --json | Out-String
+          $versionData = $versionOutput | ConvertFrom-Json
+          if ($versionData.data.version -ne $env:VERSION) {
+            throw "installed OpenClaw PowerShell binary version mismatch"
+          }
+
   release:
     needs:
       - build-release
@@ -225,6 +260,7 @@ jobs:
             release-artifact/md2wechat-windows-amd64.exe
             release-artifact/install.sh
             release-artifact/install.ps1
+            release-artifact/install-openclaw.ps1
             release-artifact/install-openclaw.sh
             release-artifact/md2wechat-openclaw-skill.tar.gz
             release-artifact/checksums.txt

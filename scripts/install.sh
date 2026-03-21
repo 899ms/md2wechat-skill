@@ -16,9 +16,45 @@ if [ -z "$VERSION" ]; then
 fi
 INSTALL_DIR="${MD2WECHAT_INSTALL_DIR:-$HOME/.local/bin}"
 
-echo "========================================"
-echo "   md2wechat 安装向导"
-echo "========================================"
+choose_profile_file() {
+    if [[ -n "${ZSH_VERSION:-}" ]]; then
+        printf '%s\n' "$HOME/.zshrc"
+        return 0
+    fi
+
+    if [[ -n "${BASH_VERSION:-}" ]]; then
+        if [[ -f "$HOME/.bash_profile" ]]; then
+            printf '%s\n' "$HOME/.bash_profile"
+        else
+            printf '%s\n' "$HOME/.bashrc"
+        fi
+        return 0
+    fi
+
+    case "$(basename "${SHELL:-}")" in
+        zsh) printf '%s\n' "$HOME/.zshrc" ;;
+        bash)
+            if [[ -f "$HOME/.bash_profile" ]]; then
+                printf '%s\n' "$HOME/.bash_profile"
+            else
+                printf '%s\n' "$HOME/.bashrc"
+            fi
+            ;;
+        *) printf '%s\n' "" ;;
+    esac
+}
+
+print_banner() {
+cat <<'EOF'
++--------------------------------------------------+
+|                    md2wechat                     |
+|                    installer                     |
+|              crafted by geekjourneyx             |
++--------------------------------------------------+
+EOF
+}
+
+print_banner
 echo ""
 
 # 检测系统
@@ -50,6 +86,9 @@ echo ""
 
 # 确定安装目录
 mkdir -p "$INSTALL_DIR"
+if [[ -e "$INSTALL_DIR/md2wechat" ]]; then
+    echo "检测到已存在安装，将覆盖: $INSTALL_DIR/md2wechat"
+fi
 
 TMP_DIR="$(mktemp -d)"
 cleanup() {
@@ -130,6 +169,10 @@ install -m 0755 "$DOWNLOADED_BINARY" "$INSTALL_DIR/md2wechat"
 # 添加执行权限
 chmod +x "$INSTALL_DIR/md2wechat"
 
+PROFILE_FILE="$(choose_profile_file)"
+CURRENT_SESSION_CMD="export PATH=\"$INSTALL_DIR:\$PATH\""
+VERIFY_CMD="$INSTALL_DIR/md2wechat version --json"
+
 echo ""
 echo "✅ 下载完成！"
 echo ""
@@ -140,17 +183,16 @@ if echo ":$PATH:" | grep -q ":$INSTALL_DIR:"; then
 else
     echo "⚠️  需要将安装目录添加到 PATH"
     echo ""
-    echo "请根据你的 shell 执行以下命令："
-
-    # 检测 shell
-    if [ -n "${ZSH_VERSION:-}" ]; then
-        echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.zshrc"
-        echo "  source ~/.zshrc"
-    elif [ -n "${BASH_VERSION:-}" ]; then
-        echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
-        echo "  source ~/.bashrc"
+    echo "当前会话立即生效："
+    echo "  ${CURRENT_SESSION_CMD}"
+    echo "  md2wechat version --json"
+    echo ""
+    if [ -n "$PROFILE_FILE" ]; then
+        echo "想让以后每次终端都生效："
+        echo "  echo 'export PATH=\"$INSTALL_DIR:\$PATH\"' >> $PROFILE_FILE"
+        echo "  source $PROFILE_FILE"
     else
-        echo "  将 $INSTALL_DIR 添加到你的 PATH 环境变量"
+        echo "请将 $INSTALL_DIR 添加到你的 PATH 环境变量。"
     fi
 fi
 
@@ -160,9 +202,22 @@ echo "   安装完成！"
 echo "========================================"
 echo ""
 echo "下一步："
-echo "  1. 运行: md2wechat config init"
-echo "  2. 编辑生成的配置文件"
-echo "  3. 运行: md2wechat convert 文章.md --preview"
+if echo ":$PATH:" | grep -q ":$INSTALL_DIR:"; then
+    echo "  1. 运行: md2wechat version --json"
+    echo "  2. 运行: md2wechat config init"
+    echo "  3. 编辑生成的配置文件"
+    echo "  4. 运行: md2wechat convert 文章.md --preview"
+else
+    echo "  1. 运行: ${CURRENT_SESSION_CMD}"
+    echo "  2. 运行: md2wechat version --json"
+    echo "  3. 运行: md2wechat config init"
+    echo "  4. 编辑生成的配置文件"
+    echo "  5. 运行: md2wechat convert 文章.md --preview"
+fi
 echo ""
-echo "查看帮助: md2wechat --help"
+echo "如果当前会话仍然找不到命令，直接运行:"
+echo "  ${VERIFY_CMD}"
+echo "  ${INSTALL_DIR}/md2wechat config init"
+echo ""
+echo "查看帮助: ${INSTALL_DIR}/md2wechat --help"
 echo ""

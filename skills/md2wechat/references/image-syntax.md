@@ -148,7 +148,7 @@ md2wechat generate_image "你的提示词"
 ### 上传本地图片
 
 ```bash
-bash scripts/run.sh upload_image "/path/to/image.png"
+md2wechat upload_image "/path/to/image.png"
 ```
 
 **响应**：
@@ -165,7 +165,7 @@ bash scripts/run.sh upload_image "/path/to/image.png"
 ### 下载并上传在线图片
 
 ```bash
-bash scripts/run.sh download_and_upload "https://example.com/image.jpg"
+md2wechat download_and_upload "https://example.com/image.jpg"
 ```
 
 **响应**：同上
@@ -174,10 +174,10 @@ bash scripts/run.sh download_and_upload "https://example.com/image.jpg"
 
 ```bash
 # 默认尺寸 (2048x2048 方形)
-bash scripts/run.sh generate_image "A futuristic city skyline at sunset"
+md2wechat generate_image "A futuristic city skyline at sunset"
 
 # 16:9 比例 (推荐用于公众号封面)
-bash scripts/run.sh generate_image --size 2560x1440 "prompt"
+md2wechat generate_image --size 2560x1440 "prompt"
 ```
 
 **公众号封面图建议**：
