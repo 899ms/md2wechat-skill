@@ -206,13 +206,15 @@ if echo ":$PATH:" | grep -q ":$INSTALL_DIR:"; then
     echo "  1. 运行: md2wechat version --json"
     echo "  2. 运行: md2wechat config init"
     echo "  3. 编辑生成的配置文件"
-    echo "  4. 运行: md2wechat convert 文章.md --preview"
+    echo "  4. 运行: md2wechat inspect 文章.md"
+    echo "  5. 运行: md2wechat preview 文章.md"
 else
     echo "  1. 运行: ${CURRENT_SESSION_CMD}"
     echo "  2. 运行: md2wechat version --json"
     echo "  3. 运行: md2wechat config init"
     echo "  4. 编辑生成的配置文件"
-    echo "  5. 运行: md2wechat convert 文章.md --preview"
+    echo "  5. 运行: md2wechat inspect 文章.md"
+    echo "  6. 运行: md2wechat preview 文章.md"
 fi
 echo ""
 echo "如果当前会话仍然找不到命令，直接运行:"

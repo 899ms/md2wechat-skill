@@ -284,9 +284,10 @@ resp, err := http.Post(url, "application/json", bytes.NewReader(jsonBody))
 
 | 错误码 | 说明 | 解决方案 |
 |--------|------|----------|
-| 45002 | content size out of limit | 内容超过 2 万字符或 1MB，需精简 |
-| 45004 | title too long | 标题超过 32 字符 |
-| 45005 | digest too long | 摘要超过 128 字符 |
+| 45002 | content size out of limit | 正文内容超过微信限制，需精简正文 HTML |
+| 45003 | title size out of limit | 标题超过 32 字符，需缩短 `title` |
+| 45004 | description size out of limit | 摘要/描述超过微信限制，优先检查 `digest` / `summary` / `description` |
+| 45005 | link size out of limit / link field invalid | 外链字段超限或不合法，需检查链接字段 |
 | 53404 | 账号已被限制带货能力 | 删除商品后重试 |
 | 53405 | 插入商品信息有误 | 检查商品参数及状态 |
 | 53406 | 请先开通带货能力 | 开通带货功能 |

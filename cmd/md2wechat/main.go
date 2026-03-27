@@ -47,6 +47,9 @@ const (
 	codeHumanizeRequestReady   = "HUMANIZE_REQUEST_READY"
 	codeConvertAIRequestReady  = "CONVERT_AI_REQUEST_READY"
 	codeConvertCompleted       = "CONVERT_COMPLETED"
+	codeInspectCompleted       = "INSPECT_COMPLETED"
+	codePreviewReady           = "PREVIEW_READY"
+	codePreviewFailed          = "PREVIEW_FAILED"
 	codeImageUploadFailed      = "IMAGE_UPLOAD_FAILED"
 	codeImageGenerateFailed    = "IMAGE_GENERATE_FAILED"
 	codeDraftCreateFailed      = "DRAFT_CREATE_FAILED"
@@ -122,9 +125,15 @@ func initConfig() error {
 	}
 
 	var err error
+	config.SetQuiet(jsonOutput)
 	cfg, err = config.Load()
 	if err != nil {
 		return err
+	}
+
+	if jsonOutput {
+		log = zap.NewNop()
+		return nil
 	}
 
 	log, err = zap.NewProduction()
@@ -270,6 +279,8 @@ Examples:
 
 	// convert command
 	rootCmd.AddCommand(convertCmd)
+	rootCmd.AddCommand(inspectCmd)
+	rootCmd.AddCommand(previewCmd)
 
 	// config command
 	rootCmd.AddCommand(configCmd)

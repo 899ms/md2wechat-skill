@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -71,6 +72,25 @@ type configFile struct {
 	} `json:"image" yaml:"image"`
 }
 
+var (
+	statusWriter io.Writer = os.Stderr
+	quietOutput  bool
+)
+
+// SetQuiet suppresses non-essential configuration status messages.
+func SetQuiet(quiet bool) {
+	quietOutput = quiet
+}
+
+// SetStatusWriter overrides where configuration status messages are written.
+func SetStatusWriter(writer io.Writer) {
+	if writer == nil {
+		statusWriter = io.Discard
+		return
+	}
+	statusWriter = writer
+}
+
 // Load 从配置文件和环境变量加载配置
 // 优先级：环境变量 > 配置文件 > 默认值
 func Load() (*Config, error) {
@@ -101,12 +121,16 @@ func LoadWithDefaults(configPath string) (*Config, error) {
 	if configPath != "" {
 		if err := loadFromFile(cfg, configPath); err != nil {
 			// 配置文件加载失败不是致命错误，继续使用环境变量和默认值
-			fmt.Fprintf(os.Stderr, "⚠️  警告: 配置文件加载失败 (%v)，将使用环境变量或默认值\n", err)
+			if !quietOutput {
+				fmt.Fprintf(statusWriter, "⚠️  警告: 配置文件加载失败 (%v)，将使用环境变量或默认值\n", err)
+			}
 		} else {
 			cfg.configFile = configPath
 			// 显示正在使用的配置文件
-			relPath := getRelativePath(configPath)
-			fmt.Fprintf(os.Stderr, "✅ 使用配置文件: %s\n", relPath)
+			if !quietOutput {
+				relPath := getRelativePath(configPath)
+				fmt.Fprintf(statusWriter, "✅ 使用配置文件: %s\n", relPath)
+			}
 		}
 	}
 

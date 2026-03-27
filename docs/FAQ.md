@@ -49,13 +49,13 @@ brew install geekjourneyx/tap/md2wechat
 如果你已经有稳定可用的 Go 环境，也可以：
 
 ```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.4
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.5
 ```
 
 如果以上都不适合，再走固定版本安装脚本：
 
 ```bash
-curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.4/install.sh | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.5/install.sh | bash
 ```
 
 安装脚本默认会把 CLI 放到：
@@ -99,13 +99,13 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 如果你已经有 Go 环境，再把第一步改成：
 
 ```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.4
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.5
 ```
 
 如果以上都不适合，再把第一步改成：
 
 ```bash
-curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.4/install.sh | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.5/install.sh | bash
 ```
 
 如果你懒得自己操作，也可以直接把下面的话发给 Claude Code / Codex / OpenCode：
@@ -114,8 +114,8 @@ curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.
 请先安装 md2wechat CLI，再安装 md2wechat skill，并验证版本和能力发现都正常。
 执行：
 1. 如果我是 mac 用户，先运行：brew install geekjourneyx/tap/md2wechat
-2. 如果我已经有稳定可用的 Go 环境，也可以改成：go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.4
-3. 如果以上两种都不适合，再运行：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.4/install.sh | bash
+2. 如果我已经有稳定可用的 Go 环境，也可以改成：go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.5
+3. 如果以上两种都不适合，再运行：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.5/install.sh | bash
 4. 运行：npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 5. 如果我是通过 install.sh 安装的，再执行：export PATH="$HOME/.local/bin:$PATH"
 6. md2wechat version --json
@@ -129,7 +129,7 @@ curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.
 ```text
 请帮我安装 OpenClaw 版 md2wechat，并验证 skill 和 CLI 都可用。
 执行：
-1. curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.4/install-openclaw.sh | bash
+1. curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.5/install-openclaw.sh | bash
 2. 先执行：export PATH="$HOME/.local/bin:$PATH"
 3. md2wechat version --json
 4. md2wechat config init
@@ -151,7 +151,7 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 如果你已经有 Go 环境，再改成：
 
 ```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.4
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.5
 md2wechat version --json
 npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 ```
@@ -159,7 +159,7 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 如果以上都不适合，再改成：
 
 ```bash
-curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.4/install.sh | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.5/install.sh | bash
 export PATH="$HOME/.local/bin:$PATH"
 md2wechat version --json
 npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
@@ -502,6 +502,100 @@ md2wechat generate_image "test prompt"
 
 ## 微信与草稿
 
+### Q14.5：`inspect` 和 `preview` 应该什么时候用？
+
+推荐把它们放在真正发布前：
+
+```bash
+md2wechat inspect article.md
+md2wechat preview article.md
+```
+
+区别是：
+
+- `inspect`：解释系统最终会怎么理解你的文章，包括标题/作者/摘要来源、H1 风险、`upload/draft` readiness。
+- `preview`：生成一个本地 HTML 预览文件，用来确认当前上下文下能否拿到可信预览。
+
+第一版 `preview` 不是可编辑工作台，也不会触发上传、草稿或写回 Markdown。
+
+### Q14.6：为什么 `preview --mode ai` 不给最终视觉稿？
+
+因为当前 AI 模式返回的是 prompt / request，不是最终 HTML。为了避免误导，`preview --mode ai` 会明确降级成确认页，而不是伪造一个“看起来像最终结果”的假稿。
+
+### Q14.7：为什么我传了 `--title` / `--author` / `--digest`，但正文显示看起来没变？
+
+因为这三个参数控制的是微信草稿 metadata，不等于一定会改正文 HTML 里的可见内容。
+
+- `--title` 会影响最终草稿标题，但正文里的 H1 仍然来自 Markdown 正文。
+- `--author` 会影响草稿作者字段，但正文是否单独显示作者，取决于主题和正文结构。
+- `--digest` 会影响草稿摘要字段，不保证正文里出现一段“摘要文字”。
+
+先跑：
+
+```bash
+md2wechat inspect article.md
+```
+
+看清最终 metadata 来源、正文 H1、以及两者是否一致。
+
+### Q14.8：为什么图片没有自动替换成微信 URL？
+
+因为图片上传和替换只发生在发布路径：
+
+- `md2wechat convert article.md --upload`
+- `md2wechat convert article.md --draft --cover cover.jpg`
+
+纯：
+
+```bash
+md2wechat convert article.md --preview
+```
+
+只会预览正文输出，不会把本地图片、远程图片或 AI 图片上传到微信并替换 URL。
+
+### Q14.9：`errcode=45004` 到底应该先查什么？
+
+优先查摘要/描述字段，不要先默认成“正文太长”。
+
+在当前语义下，`45004` 更应该理解为摘要/描述超限。优先检查：
+
+1. `--digest`
+2. frontmatter 里的 `digest`
+3. frontmatter 里的 `summary`
+4. frontmatter 里的 `description`
+
+建议先把摘要压到 128 字以内，再重试草稿创建。
+
+### Q14.10：`inspect` 里那些检查码是什么意思？是不是报错了？
+
+不一定。`inspect` 的 `checks` 里既有 `error`，也有 `warn` 和 `info`。
+
+当前最常见的几类是：
+
+- `TITLE_BODY_MISMATCH`：草稿标题和正文 H1 不一样。系统是在提醒你 metadata 和正文是两层概念，不是说转换失败。
+- `DIGEST_METADATA_ONLY`：摘要只会进入草稿 metadata，不保证正文 HTML 里也显示一段摘要。
+- `IMAGE_REPLACEMENT_REQUIRES_UPLOAD_OR_DRAFT`：当前文章里有图片，但你现在只是 inspect / preview / plain convert；只有 `--upload` 或 `--draft` 才会真正上传并替换图片 URL。
+
+只有 `error` 级别的检查才意味着当前上下文下不能安全执行下一步。
+
+### Q14.11：`--json` 模式下还能放心让 Agent 直接解析吗？
+
+可以。当前契约是：
+
+- stdout：只输出 JSON
+- stderr：只保留诊断信息
+
+也就是说，正常的 Agent / 脚本应该直接读取 stdout，不要把 `2>&1` 混在一起再解析。
+
+如果你只是想确认结果，可以直接运行：
+
+```bash
+md2wechat inspect article.md --json
+md2wechat preview article.md --json
+```
+
+这两条现在都符合 machine-readable contract。
+
 ### Q15：第一次调用微信接口就报 `ip not in whitelist`
 
 这是微信接口的前置限制，不是代码 bug。
@@ -670,7 +764,7 @@ md2wechat create_image_post --help
 ### 1. 版本信息
 
 ```bash
-md2wechat --version
+md2wechat version --json
 go version
 ```
 

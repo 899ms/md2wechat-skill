@@ -448,3 +448,76 @@ func TestCreateNewspicDraftSurfacesWechatApiErrors(t *testing.T) {
 		t.Fatalf("CreateNewspicDraft() error = %v", err)
 	}
 }
+
+func TestCreateNewspicDraftExplainsKnownWeChatLimitErrors(t *testing.T) {
+	oldClient := util.DefaultHTTPClient
+	httpClient := &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			switch {
+			case strings.Contains(req.URL.String(), "/cgi-bin/token"):
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(`{"access_token":"token-123","expires_in":7200}`)),
+					Header:     make(http.Header),
+					Request:    req,
+				}, nil
+			case strings.Contains(req.URL.String(), "/cgi-bin/draft/add"):
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(`{"errcode":45004,"errmsg":"description size out of limit"}`)),
+					Header:     make(http.Header),
+					Request:    req,
+				}, nil
+			default:
+				t.Fatalf("unexpected request url: %s", req.URL.String())
+				return nil, nil
+			}
+		}),
+	}
+	t.Cleanup(func() {
+		util.DefaultHTTPClient = oldClient
+	})
+	util.DefaultHTTPClient = httpClient
+
+	svc := &Service{
+		cfg: &config.Config{
+			WechatAppID:  "appid",
+			WechatSecret: "secret",
+		},
+		log:        zap.NewNop(),
+		httpClient: httpClient,
+	}
+
+	_, err := svc.CreateNewspicDraft([]NewspicArticle{{
+		Title:       "Title",
+		Content:     "Body",
+		ArticleType: "newspic",
+		ImageInfo: NewspicImageInfo{
+			ImageList: []NewspicImageItem{{ImageMediaID: "media-1"}},
+		},
+	}})
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if !strings.Contains(err.Error(), "description size out of limit") {
+		t.Fatalf("error = %v", err)
+	}
+	if !strings.Contains(err.Error(), "shorten --digest") {
+		t.Fatalf("error missing digest hint: %v", err)
+	}
+}
+
+func TestExplainDraftErrorAddsHintsForKnownCodes(t *testing.T) {
+	err := ExplainDraftError(fmt.Errorf("wechat api error: 45003 - title size out of limit"))
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if !strings.Contains(err.Error(), "32 characters or fewer") {
+		t.Fatalf("error = %v", err)
+	}
+
+	unknown := ExplainDraftError(fmt.Errorf("wechat api error: 40013 - invalid credential"))
+	if unknown.Error() != "wechat api error: 40013 - invalid credential" {
+		t.Fatalf("unexpected error rewrite: %v", unknown)
+	}
+}

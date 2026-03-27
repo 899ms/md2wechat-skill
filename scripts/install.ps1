@@ -142,7 +142,8 @@ Write-Host "下一步：" -ForegroundColor Yellow
 Write-Host "  1. 运行: md2wechat version --json" -ForegroundColor White
 Write-Host "  2. 运行: md2wechat config init" -ForegroundColor White
 Write-Host "  3. 编辑生成的配置文件" -ForegroundColor White
-Write-Host "  4. 运行: md2wechat convert 文章.md --preview" -ForegroundColor White
+Write-Host "  4. 运行: md2wechat inspect 文章.md" -ForegroundColor White
+Write-Host "  5. 运行: md2wechat preview 文章.md" -ForegroundColor White
 Write-Host ""
 Write-Host "如果当前会话里仍然找不到命令，直接运行：" -ForegroundColor Yellow
 Write-Host "  $verifyCmd" -ForegroundColor White

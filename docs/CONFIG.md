@@ -85,6 +85,13 @@ md2wechat config show --format json
 - `image_api_base`
 - `default_convert_mode`
 
+注意这里看到的是 **`config show --format json` 的扁平输出字段名**，不是配置文件里的嵌套 YAML 键名。
+
+例如：
+
+- 配置文件里写的是 `api.image_base_url`
+- `config show --format json` 里看到的是 `image_api_base`
+
 ---
 
 ## 默认 API 域名在哪里改
@@ -242,6 +249,45 @@ image:
   max_size_mb: 5
 ```
 
+## 三套命名要分清
+
+当前最容易混淆的是：同一个配置项会同时出现在 3 个地方，但名字不完全一样。
+
+### 1. 配置文件字段名
+
+这是你在 `config.yaml` 里实际填写的名字，例如：
+
+- `wechat.appid`
+- `api.md2wechat_key`
+- `api.image_base_url`
+- `api.background_type`
+
+### 2. 环境变量名
+
+这是终端或 CI 里覆盖配置时使用的名字，例如：
+
+- `WECHAT_APPID`
+- `MD2WECHAT_API_KEY`
+- `IMAGE_API_BASE`
+- `DEFAULT_BACKGROUND_TYPE`
+
+### 3. `config show --format json` 输出字段名
+
+这是 CLI 为了更稳定的 machine-readable 输出而提供的扁平字段，例如：
+
+- `wechat_appid`
+- `md2wechat_api_key`
+- `image_api_base`
+- `default_background_type`
+
+所以如果你是在：
+
+- 改配置文件：用 `api.image_base_url`
+- 查环境变量：看 `IMAGE_API_BASE`
+- 解析 `config show --format json`：看 `image_api_base`
+
+不要把这三套名字混成一个层次。
+
 ---
 
 ## 配置项说明
@@ -313,6 +359,30 @@ image:
 2. `IMAGE_MODEL`
 3. `api.image_model`
 4. provider 默认模型
+
+## `config show --format json` 常见字段对照
+
+如果你是在排查 Agent / 脚本实际读到的配置，最常见的不是 YAML 字段，而是下面这些扁平 key：
+
+| `config show --format json` 字段 | 对应配置文件字段 |
+|---|---|
+| `wechat_appid` | `wechat.appid` |
+| `wechat_secret` | `wechat.secret` |
+| `md2wechat_api_key` | `api.md2wechat_key` |
+| `md2wechat_base_url` | `api.md2wechat_base_url` |
+| `image_api_key` | `api.image_key` |
+| `image_api_base` | `api.image_base_url` |
+| `image_provider` | `api.image_provider` |
+| `image_model` | `api.image_model` |
+| `image_size` | `api.image_size` |
+| `default_convert_mode` | `api.convert_mode` |
+| `default_theme` | `api.default_theme` |
+| `default_background_type` | `api.background_type` |
+| `compress_images` | `image.compress` |
+| `max_image_width` | `image.max_width` |
+| `max_image_size_mb` | `image.max_size_mb` |
+| `http_timeout` | `api.http_timeout` |
+| `config_file` | 当前实际命中的配置文件路径 |
 
 ---
 
@@ -411,6 +481,7 @@ md2wechat config validate
 1. 先看 `config_file` 指向哪个文件
 2. 再看 `md2wechat_base_url` 是否真是你想要的域名
 3. 再看 `image_provider` / `image_api_base` 是否匹配
+   这里的 `image_api_base` 是 `config show --format json` 的输出字段；配置文件里对应的是 `api.image_base_url`
 4. 最后检查环境变量是否把文件里的值覆盖掉了
 
 ---

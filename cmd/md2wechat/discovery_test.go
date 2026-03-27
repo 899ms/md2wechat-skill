@@ -2,9 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/geekjourneyx/md2wechat-skill/internal/config"
 	"github.com/geekjourneyx/md2wechat-skill/internal/promptcatalog"
 )
 
@@ -107,6 +110,87 @@ func TestBuildCapabilitiesDataIncludesPromptCatalog(t *testing.T) {
 	archetypes, ok := data["prompt_archetypes"].([]string)
 	if !ok || len(archetypes) == 0 {
 		t.Fatalf("expected prompt archetypes in capabilities: %#v", data["prompt_archetypes"])
+	}
+}
+
+func TestBuildCapabilitiesDataKeepsConvertContractStableWithInspectAndPreview(t *testing.T) {
+	oldCfg := cfg
+	t.Cleanup(func() { cfg = oldCfg })
+
+	cfg = &config.Config{DefaultTheme: "default"}
+	data, err := buildCapabilitiesData()
+	if err != nil {
+		t.Fatalf("buildCapabilitiesData() error = %v", err)
+	}
+
+	commands, ok := data["commands"].([]string)
+	if !ok {
+		t.Fatalf("commands type = %T", data["commands"])
+	}
+	if !contains(commands, "inspect") || !contains(commands, "preview") || !contains(commands, "convert") {
+		t.Fatalf("commands = %#v", commands)
+	}
+
+	convertData, ok := data["convert"].(map[string]any)
+	if !ok {
+		t.Fatalf("convert type = %T", data["convert"])
+	}
+	if convertData["default_mode"] != "api" {
+		t.Fatalf("default_mode = %#v", convertData["default_mode"])
+	}
+	if convertData["default_theme"] != "default" {
+		t.Fatalf("default_theme = %#v", convertData["default_theme"])
+	}
+	backgroundTypes, ok := convertData["background_types"].([]string)
+	if !ok {
+		t.Fatalf("background_types type = %T", convertData["background_types"])
+	}
+	if len(backgroundTypes) != 3 || backgroundTypes[0] != "default" || backgroundTypes[1] != "grid" || backgroundTypes[2] != "none" {
+		t.Fatalf("background_types = %#v", backgroundTypes)
+	}
+}
+
+func TestCapabilitiesJSONSuppressesConfigBannerOnStderr(t *testing.T) {
+	oldCfg := cfg
+	oldJSON := jsonOutput
+	t.Cleanup(func() {
+		cfg = oldCfg
+		jsonOutput = oldJSON
+	})
+
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	configDir := filepath.Join(home, ".config", "md2wechat")
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	configContent := strings.Join([]string{
+		"wechat:",
+		"  appid: appid",
+		"  secret: secret",
+		"api:",
+		"  md2wechat_key: api-key",
+	}, "\n")
+	if err := os.WriteFile(filepath.Join(configDir, "config.yaml"), []byte(configContent), 0600); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	cfg = nil
+	jsonOutput = true
+
+	stderr := captureStderr(t, func() {
+		stdout := captureStdout(t, func() {
+			if err := capabilitiesCmd.RunE(capabilitiesCmd, nil); err != nil {
+				t.Fatalf("RunE() error = %v", err)
+			}
+		})
+		var response map[string]any
+		if err := json.Unmarshal(stdout, &response); err != nil {
+			t.Fatalf("unmarshal response: %v\n%s", err, stdout)
+		}
+	})
+	if strings.TrimSpace(string(stderr)) != "" {
+		t.Fatalf("expected no stderr in json mode, got %q", string(stderr))
 	}
 }
 

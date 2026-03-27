@@ -228,3 +228,32 @@ func TestOutputHTMLWritesFileAndResponseSuccessPrintsJSON(t *testing.T) {
 		t.Fatalf("response data = %#v", payload)
 	}
 }
+
+func TestOutputHTMLPreviewWritesPureHTMLToStdout(t *testing.T) {
+	oldLog := log
+	oldStdout := os.Stdout
+	t.Cleanup(func() {
+		log = oldLog
+		os.Stdout = oldStdout
+	})
+
+	log = zap.NewNop()
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	os.Stdout = w
+
+	outputHTML("<p>body</p>", "", true)
+
+	if err := w.Close(); err != nil {
+		t.Fatalf("close stdout pipe writer: %v", err)
+	}
+	var buf bytes.Buffer
+	if _, err := io.Copy(&buf, r); err != nil {
+		t.Fatalf("read stdout: %v", err)
+	}
+	if got := buf.String(); got != "<p>body</p>" {
+		t.Fatalf("stdout = %q", got)
+	}
+}

@@ -38,11 +38,15 @@
 
 #### Windows 解决方法：
 
-**方法 A：简单方式（推荐）**
-1. 把 `md2wechat.exe` 复制到 `C:\Windows\System32\`
-2. 重新打开命令提示符
+**推荐方式：重新走固定版本安装器**
 
-**方法 B：添加到 PATH**
+```powershell
+$env:MD2WECHAT_RELEASE_BASE_URL = "https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.5"
+iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BASE_URL/install.ps1"))
+```
+
+如果 CLI 已经安装，只是当前终端找不到，再手动补 PATH：
+
 1. 搜索「环境变量」→「编辑系统环境变量」
 2. 点击「环境变量」
 3. 在「用户变量」中找到 `Path`，点击「编辑」
@@ -52,12 +56,9 @@
 #### Mac/Linux 解决方法：
 
 ```bash
-# 把程序移动到系统目录
-sudo mv md2wechat /usr/local/bin/
-
-# 如果提示没有这个目录，先创建
-sudo mkdir -p /usr/local/bin
-sudo mv md2wechat /usr/local/bin/
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.5/install.sh | bash
+export PATH="$HOME/.local/bin:$PATH"
+md2wechat version --json
 ```
 
 ---
@@ -164,20 +165,30 @@ md2wechat convert /Users/你的名字/Documents/文章.md
 
 ### ❓ AI 模式报错
 
-**原因**：AI 模式需要 API Key
+先分清当前 AI 模式的语义：
+
+- `convert --mode ai` 当前返回的是 AI request / prompt
+- 它不是最终 HTML 成品
+- 它也不是靠 `api.image_key` 去完成正文排版
 
 **解决方法 A**：使用 API 模式（更简单）
 ```bash
 md2wechat convert 文章.md --mode api
 ```
 
-**解决方法 B**：配置 AI API Key
-1. 编辑 `md2wechat.yaml`
-2. 添加：
-   ```yaml
-   api:
-     image_key: "你的_claude_api_key"
-   ```
+**解决方法 B**：先确认你是不是把 AI 模式当成了最终排版
+
+```bash
+md2wechat inspect 文章.md
+md2wechat preview 文章.md --mode ai
+md2wechat convert 文章.md --mode ai --json
+```
+
+如果你真正想要的是“直接拿到可发 HTML”，优先改回：
+
+```bash
+md2wechat convert 文章.md --mode api
+```
 
 ---
 
@@ -268,7 +279,24 @@ md2wechat convert 文章.md --draft
   md2wechat convert 文章.md --save-draft draft.json
   ```
 
-**可能原因 3**：API 调用次数超限
+**可能原因 3**：缺少封面或摘要字段超限
+
+先检查：
+
+```bash
+md2wechat inspect 文章.md --draft --cover cover.jpg
+```
+
+如果看到 `errcode=45004` / `description size out of limit`，优先缩短：
+
+- `--digest`
+- frontmatter 里的 `digest`
+- frontmatter 里的 `summary`
+- frontmatter 里的 `description`
+
+不要先默认成“正文太长”。
+
+**可能原因 4**：API 调用次数超限
 
 - 等待几分钟后重试
 - 或联系微信提高限额
@@ -283,13 +311,13 @@ md2wechat convert 文章.md --draft
 
 ```bash
 # 1. 检查版本
-md2wechat --version
+md2wechat version --json
 
 # 2. 验证配置
 md2wechat config validate
 
 # 3. 查看配置（不显示密码）
-md2wechat config show
+md2wechat config show --format json
 ```
 
 ### 获取支持

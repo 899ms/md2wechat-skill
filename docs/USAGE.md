@@ -18,11 +18,25 @@
 
 ### 安装（最简单）
 
-在 Claude Code 中运行：
+推荐先安装 CLI，再安装 skill：
 
 ```bash
-/plugin marketplace add geekjourneyx/md2wechat-skill
-/plugin install md2wechat@geekjourneyx-md2wechat-skill
+brew install geekjourneyx/tap/md2wechat
+npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+```
+
+如果你已经有稳定可用的 Go 环境，也可以把第一步改成：
+
+```bash
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v2.0.5
+```
+
+如果以上都不适合，再改成固定版本安装脚本：
+
+```bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v2.0.5/install.sh | bash
+export PATH="$HOME/.local/bin:$PATH"
+npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 ```
 
 ### 使用方式
@@ -50,6 +64,12 @@ Claude 会自动：
 ### 最简单的例子
 
 ```bash
+# 先确认最终 metadata 和风险
+md2wechat inspect article.md
+
+# 生成本地 HTML 预览文件
+md2wechat preview article.md
+
 # 预览转换结果（不上传图片）
 md2wechat convert article.md --preview
 ```
@@ -88,6 +108,25 @@ md2wechat convert article.md --title "新标题" --author "作者名" --digest "
 - 摘要最多 128 个字符
 
 创建草稿时如果摘要仍为空，会从正文 HTML 生成一个 120 字符兜底摘要。正文里的一级标题不会因为被拿来当标题来源就自动删除。
+
+### 确认层命令
+
+```bash
+# 输出最终标题、作者、摘要来源与 readiness
+md2wechat inspect article.md --json
+
+# 生成本地预览 HTML 文件
+md2wechat preview article.md --json
+```
+
+注意：
+
+- `preview` 第一版会生成静态预览文件，不会写回 Markdown，也不会触发上传或草稿。
+- `preview --mode ai` 只会给出确认页，不会伪造最终 AI 排版结果。
+- `inspect` 的检查项会显式提示 `TITLE_BODY_MISMATCH`、`DIGEST_METADATA_ONLY`、`IMAGE_REPLACEMENT_REQUIRES_UPLOAD_OR_DRAFT` 这类语义边界，不要把它们当成转换失败。
+- `--title` / `--author` / `--digest` 作用于微信草稿 metadata；正文里是否显示 H1、作者、摘要，仍取决于 Markdown 正文和转换结果。
+- 图片上传与 URL 替换只发生在 `--upload` 或 `--draft` 路径；纯 `convert --preview` 不会把本地图片自动变成微信素材 URL。
+- `--json` 命令现在约定 stdout 只输出 JSON；调试日志和非结构化提示不会再混入 JSON 响应体。
 
 ---
 

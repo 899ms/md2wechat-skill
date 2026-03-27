@@ -221,6 +221,7 @@ func loadDiscoveryConfig() *config.Config {
 	if cfg != nil {
 		return cfg
 	}
+	config.SetQuiet(jsonOutput)
 	discoveryCfg, err := config.LoadWithDefaults("")
 	if err != nil {
 		return &config.Config{
@@ -282,7 +283,7 @@ func buildCapabilitiesData() (map[string]any, error) {
 	currentCfg := loadDiscoveryConfig()
 	return map[string]any{
 		"commands": []string{
-			"convert", "config", "write", "humanize", "upload_image",
+			"convert", "inspect", "preview", "config", "write", "humanize", "upload_image",
 			"download_and_upload", "generate_image", "generate_cover", "generate_infographic", "create_draft",
 			"create_image_post", "test-draft", "providers", "themes",
 			"prompts", "capabilities", "version",

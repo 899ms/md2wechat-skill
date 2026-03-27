@@ -32,7 +32,7 @@
 
 - [架构说明](ARCHITECTURE.md)
 - [设计原则](DESIGN.md)
-- [Agent 协作规范](AGENTS.md)
+- [Agent 协作规范](../AGENTS.md)
 - [Claude Skill 规则](SKILL-RULE.md)
 
 ## 能力专题

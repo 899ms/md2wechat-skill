@@ -6,11 +6,13 @@ md2wechat-skill 的核心目标不是“把 Markdown 变好看”，而是把文
 
 当前代码按这条主线组织：
 
-`cmd -> publish orchestrator -> asset pipeline -> draft/wechat adapters`
+`cmd -> inspect/preview + publish orchestrators -> asset pipeline -> draft/wechat adapters`
 
 这条主线的含义是：
 
 - `cmd/md2wechat` 只负责参数解析、命令入口、输出 envelope 和错误出口。
+- `internal/inspect` 负责把 metadata 来源、readiness 和 checks 收口成一份可解释真相。
+- `internal/preview` 负责消费 inspect 结果，生成只读本地确认页，而不是再实现一套业务判断。
 - `internal/publish` 负责应用层编排，承接文章转换、图片处理、草稿保存和图片帖子创建。
 - `internal/publish/AssetPipeline` 负责解析后的资产上传、生成、下载和 HTML 回填。
 - `internal/draft` 和 `internal/wechat` 负责平台适配，不再承担命令级业务编排。
@@ -44,6 +46,19 @@ md2wechat-skill 的核心目标不是“把 Markdown 变好看”，而是把文
 - `AssetPipeline`: 发布期图片处理与回填
 - `model.go`: canonical article / asset / artifact model
 
+### `internal/inspect`
+
+- resolved metadata 计算
+- metadata source 标注
+- readiness 计算
+- publish risk / semantic checks
+
+### `internal/preview`
+
+- 只读预览页渲染
+- exact / degraded preview fidelity 标记
+- inspect state 到 HTML 确认页的展示适配
+
 ### `internal/converter`
 
 - Markdown 转 HTML
@@ -72,6 +87,21 @@ md2wechat-skill 的核心目标不是“把 Markdown 变好看”，而是把文
 
 ## 两条发布流
 
+### 确认层
+
+在真正执行发布前，当前架构多了一条独立确认层：
+
+1. `inspect` 读取 Markdown 与配置
+2. 解析 metadata、正文结构、资产和上下文
+3. 输出 resolved metadata、source、readiness、checks
+4. `preview` 复用 inspect 结果，尽量生成 exact HTML；做不到时明确 degraded
+
+这里最重要的约束是：
+
+- `inspect` 是真相源
+- `preview` 不是第二套规则引擎
+- 任何 metadata/source/checks 的业务判断都不应该只存在于 `preview`
+
 ### `convert`
 
 1. 读取 Markdown
@@ -98,7 +128,7 @@ metadata 解析顺序：
 
 ## 稳定契约
 
-当前工程里有 4 个关键契约：
+当前工程里有 5 个关键契约：
 
 1. `internal/publish/model.go`
    - 统一 article / asset / artifact model
@@ -106,12 +136,15 @@ metadata 解析顺序：
    - 统一 `completed / action_required / failed`
 3. CLI JSON envelope
    - 统一 `success / code / message / schema_version / status / retryable / data / error`
-4. `AssetPipeline`
+4. `internal/inspect`
+   - 统一 resolved metadata / source / readiness / checks
+5. `AssetPipeline`
    - 统一图片上传、生成、下载、回填
 
 ## 当前设计原则
 
 - 命令层不做业务编排
+- `inspect` 是确认层真相源，`preview` 只做视图层
 - 平台适配层不做内容预处理
 - 图片链只保留一套发布期实现
 - 机器输出优先稳定，再考虑人类可读文案

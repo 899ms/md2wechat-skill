@@ -127,7 +127,7 @@ func (s *Service) CreateDraft(articles []*draft.Article) (*CreateDraftResult, er
 	mediaID, err := dm.AddDraft(articles)
 	if err != nil {
 		s.log.Error("create draft failed", zap.Error(err))
-		return nil, fmt.Errorf("create draft: %w", err)
+		return nil, fmt.Errorf("create draft: %w", ExplainDraftError(err))
 	}
 
 	duration := time.Since(startTime)
@@ -455,7 +455,7 @@ func (s *Service) CreateNewspicDraft(articles []NewspicArticle) (*CreateDraftRes
 		s.log.Error("create newspic draft failed",
 			zap.Int("errcode", resp.ErrCode),
 			zap.String("errmsg", resp.ErrMsg))
-		return nil, fmt.Errorf("wechat api error: %d - %s", resp.ErrCode, resp.ErrMsg)
+		return nil, fmt.Errorf("%s", ExplainDraftAPIError(resp.ErrCode, resp.ErrMsg))
 	}
 
 	duration := time.Since(startTime)

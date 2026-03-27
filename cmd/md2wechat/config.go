@@ -113,6 +113,7 @@ This is the global config location, used by all your projects.`,
 // runConfigShow 显示配置
 func runConfigShow(showSecret bool) error {
 	// 加载配置
+	config.SetQuiet(jsonOutput || configFormat == "json")
 	cfg, err := config.Load()
 	if err != nil {
 		// 如果加载失败，可能是缺少必需配置，尝试创建一个用于显示
@@ -137,6 +138,7 @@ func runConfigShow(showSecret bool) error {
 
 // runConfigValidate 验证配置
 func runConfigValidate() error {
+	config.SetQuiet(jsonOutput)
 	cfg, err := config.Load()
 	if err != nil {
 		return wrapCLIError(codeConfigInvalid, err, err.Error())

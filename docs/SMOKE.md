@@ -4,9 +4,9 @@
 
 最近更新：
 
-- 日期：2026-03-19
+- 日期：2026-03-26
 - 环境：本地配置文件 `~/.config/md2wechat/config.yaml`
-- 目标：验证安装、配置、排版、图片、微信上传、草稿创建是否真实可用
+- 目标：验证安装、配置、确认层、排版、图片、微信上传、草稿创建是否真实可用
 
 > 说明：本文档只记录验证结论和关键观察，不记录敏感凭证、草稿 ID、素材 ID。
 
@@ -32,6 +32,26 @@ md2wechat config show --format json
 ---
 
 ## 通过的真实链路
+
+### 0. 确认层：inspect / preview
+
+命令形态：
+
+```bash
+md2wechat inspect article.md --json
+md2wechat preview article.md --json
+```
+
+结果：
+
+- `inspect` 能返回最终 title / author / digest 来源、readiness、checks
+- 真实验证到 `TITLE_BODY_MISMATCH`、`DIGEST_METADATA_ONLY`、`IMAGE_REPLACEMENT_REQUIRES_UPLOAD_OR_DRAFT`
+- `preview` 能在可渲染时返回 exact preview，在 AI 或受限上下文下诚实 degraded
+
+结论：
+
+- confirm-first 路径真实可用
+- 确认层没有伪造最终视觉结果
 
 ### 1. 图片生成
 
@@ -119,6 +139,25 @@ md2wechat test-draft --json draft.html cover.png
 
 - `test-draft` 真实闭环通过
 
+### 5.1 草稿错误码提示
+
+命令形态：
+
+```bash
+md2wechat create_draft oversize-digest.json --json
+```
+
+结果：
+
+- 真实触发微信 `errcode=45004`
+- 返回 `description size out of limit`
+- CLI 额外补充字段级 hint，明确先检查 `--digest` / frontmatter `digest` / `summary` / `description`
+
+结论：
+
+- `45004` 不再被误导成“先缩正文”
+- draft 错误提示已能指导用户和 Agent 走正确排障路径
+
 ### 6. API 模式转换并创建草稿
 
 命令形态：
@@ -190,6 +229,15 @@ unsupported file type
 
 换成正常尺寸 PNG 后上传成功。  
 结论是：真实 smoke 不要使用异常小图作为上传样本。
+
+### 2.1 `--json` 契约已收口
+
+当前 `inspect --json`、`preview --json` 等命令已验证：
+
+- stdout 只输出 JSON
+- 结构化输出不再混入配置 banner
+
+这让 Agent / 脚本可以直接解析 stdout，而不用先清洗杂音。
 
 ### 3. AI 模式不是“自动完成 HTML 排版”
 

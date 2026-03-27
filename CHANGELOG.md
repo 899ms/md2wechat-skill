@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.5] - 2026-03-26
+
+### Added
+- Added `inspect` as a release-grade confirmation command that resolves final article metadata, readiness, and publish risks before conversion or draft creation.
+- Added `preview` as a lightweight standalone HTML preview flow that writes a local preview artifact without upload or draft side effects.
+- Added a typed `internal/inspect` confirmation layer so metadata sources, readiness, and checks are computed once and reused by CLI and preview flows.
+
+### Changed
+- Updated `capabilities --json` to advertise `inspect` and `preview` as first-class commands.
+- Kept the preview implementation Go-only with embedded template rendering instead of introducing a separate frontend stack or editable workbench.
+- Clarified that API mode can produce exact preview HTML when conversion succeeds, while AI mode degrades honestly to a confirmation page instead of pretending to show final layout.
+- Reframed installer next steps and the main README around a confirm-first flow: `inspect` -> `preview` -> `convert` / `--draft`.
+
+### Fixed
+- Closed documentation drift around release version anchors by updating install and high-signal entry-point docs to `2.0.5`.
+- Closed agent drift by updating both skill entry points to describe the new confirm-first flow and AI preview degradation behavior consistently.
+- Tightened `scripts/release-check.sh` so version anchors, marketplace metadata, confirm-first docs, and both skill entry points are verified together before release work is considered done.
+- Fixed JSON-mode CLI behavior so `inspect --json`, `preview --json`, and related machine-readable commands no longer mix config banners into stdout.
+- Fixed `convert --preview` to emit pure HTML on stdout instead of wrapped terminal markers, making redirect-to-file and agent use more reliable.
+- Fixed WeChat draft error guidance so `45004` now points users and agents to digest/description limits instead of encouraging body-content guesswork.
+- Re-audited README, USAGE, DISCOVERY, FAQ, and both skill entry points to keep metadata-vs-body semantics, preview behavior, and image replacement rules aligned.
+
 ## [2.0.4] - 2026-03-25
 
 ### Added

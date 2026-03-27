@@ -44,6 +44,52 @@ Treat these commands as the source of truth for:
 7. If the task touches release or installer paths, keep the documented primary path versioned and non-`latest`.
 8. If the task touches Homebrew distribution, verify the tap formula is generated from the same release bundle and points only to versioned release assets.
 
+## Test Discipline
+
+Tests are part of the product contract, not a coverage vanity metric.
+
+When adding or changing a command, workflow, or user-facing behavior, start from first principles:
+
+1. Which failure would most damage user trust?
+2. Which failure would most mislead an agent into taking the wrong next step?
+3. Which boundary must stay identical across `inspect`, `preview`, `convert`, `upload`, and `draft`?
+
+Required rules:
+
+1. Do not add tests just to raise a coverage number.
+2. Prefer tests that protect a real contract, invariant, or blocking user workflow.
+3. If a new command or feature changes a decision boundary, add tests for both the accepted path and the rejected path.
+4. If a new feature introduces a “confirmation” step, its tests must prove that the confirmation layer stays aligned with the execution layer.
+5. When behavior depends on combinations of inputs, prefer table-driven matrix tests over one-off happy-path tests.
+6. When the code talks to external systems, keep a small number of real smoke tests, but make the default regression suite deterministic and local-first.
+7. If a test is brittle, environment-dependent, or mostly re-tests implementation details without protecting user trust, do not add it unless there is a concrete regression history behind it.
+
+Priority order for effective tests:
+
+1. CLI contract tests
+   - invalid input rejection
+   - exit codes
+   - JSON envelope / stdout stability
+2. confirmation-vs-execution consistency tests
+   - `inspect` / `preview` must not declare a path ready when `convert` / `draft` would fail
+3. blocking readiness matrix tests
+   - metadata limits
+   - missing local assets
+   - missing or invalid cover
+   - missing credentials
+4. core publish-path tests
+   - asset rewrite
+   - draft mapping
+   - WeChat error translation
+5. real smoke tests for one minimal external closed loop
+
+Coverage guidance:
+
+1. Low coverage alone is not a reason to add tests.
+2. High-risk modules with stable contracts should be covered before low-risk helper modules.
+3. A smaller set of durable, high-signal tests is better than broad but shallow assertion spam.
+4. If `go test -cover ./...` is unreliable in the current environment, do not force it blindly; document the limitation and keep the deterministic subset healthy.
+
 ## Release And Version Discipline
 
 1. Keep the version source singular and explicit when the repository has one.
@@ -79,6 +125,11 @@ Treat these commands as the source of truth for:
 9. When image prompts change, treat both skill entry points as mandatory review targets:
    - `skills/md2wechat/SKILL.md`
    - `platforms/openclaw/md2wechat/SKILL.md`
+10. Keep configuration naming layers explicit:
+   - config-file YAML keys such as `api.image_base_url`
+   - environment variables such as `IMAGE_API_BASE`
+   - `config show --format json` output keys such as `image_api_base`
+   Do not mix these three layers in docs or agent guidance.
 
 ## Image Prompt Discipline
 

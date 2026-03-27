@@ -24,9 +24,27 @@ md2wechat capabilities --json
 
 - 已开放的高层命令能力
 - `convert` 支持的模式和默认模式
+- `inspect` / `preview` 这类确认层命令
 - 当前可枚举的图片 provider
 - 当前可枚举的 theme
 - 当前可枚举的 prompt catalog
+
+## 确认层命令
+
+在真正执行 `convert`、`upload`、`draft` 之前，推荐先调用：
+
+```bash
+md2wechat inspect article.md --json
+md2wechat preview article.md --json
+```
+
+其中：
+
+- `inspect` 用来确认最终标题、作者、摘要来源，以及 `upload/draft` readiness。
+- `inspect` 的 `checks` 会直接暴露语义边界，例如 `TITLE_BODY_MISMATCH`、`DIGEST_METADATA_ONLY`、`IMAGE_REPLACEMENT_REQUIRES_UPLOAD_OR_DRAFT`。
+- `preview` 第一版会生成本地 HTML 预览文件；`--json` 返回输出路径和 render metadata。
+- `preview --mode ai` 不会声称展示最终视觉稿，只会明确降级为确认页。
+- `--json` 走稳定 machine-readable contract；stdout 只保留 JSON，便于 Agent 和脚本直接解析。
 
 ## 图片 Provider
 
