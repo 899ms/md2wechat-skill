@@ -1859,7 +1859,17 @@ EOF
 <img src="https://raw.githubusercontent.com/geekjourneyx/awesome-developer-go-sail/main/docs/assets/qrcode.jpg" alt="公众号：极客杰尼" width="180" />
 </p>
 
-如需咨询，扫描底部公众号二维码联系，备注「API内测」。
+如需咨询，扫描底部公众号二维码联系，备注「API咨询」。
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=geekjourneyx%2Fmd2wechat-skill&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=geekjourneyx/md2wechat-skill&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=geekjourneyx/md2wechat-skill&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=geekjourneyx/md2wechat-skill&type=date&legend=top-left" />
+ </picture>
+</a>
 
 ---
 
