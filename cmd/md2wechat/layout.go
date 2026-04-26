@@ -1,0 +1,186 @@
+package main
+
+import (
+	"errors"
+	"fmt"
+	"io"
+	"os"
+	"strings"
+
+	"github.com/spf13/cobra"
+
+	"github.com/geekjourneyx/md2wechat-skill/internal/layoutcatalog"
+)
+
+const (
+	codeLayoutShown     = "LAYOUT_SHOWN"
+	codeLayoutRendered  = "LAYOUT_RENDERED"
+	codeLayoutValidated = "LAYOUT_VALIDATED"
+)
+
+var (
+	layoutListFilters struct {
+		category    string
+		serves      string
+		contentType string
+		industry    string
+		tag         string
+	}
+	layoutRenderVars    []string
+	layoutValidateFile  string
+	layoutValidateStdin bool
+)
+
+var layoutCmd = &cobra.Command{
+	Use:   "layout",
+	Short: "Discover and render advanced layout modules (:::block syntax)",
+}
+
+var layoutListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List available layout modules",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		c, err := layoutcatalog.DefaultCatalog()
+		if err != nil {
+			return wrapCLIError(codeError, err, "load layout catalog")
+		}
+		mods := c.ListFiltered(layoutcatalog.ListFilter{
+			Category:    layoutListFilters.category,
+			Serves:      layoutListFilters.serves,
+			ContentType: layoutListFilters.contentType,
+			Industry:    layoutListFilters.industry,
+			Tag:         layoutListFilters.tag,
+		})
+		summaries := make([]map[string]any, 0, len(mods))
+		for _, m := range mods {
+			summaries = append(summaries, map[string]any{
+				"name":          m.Name,
+				"category":      m.Category,
+				"serves":        m.Serves,
+				"content_types": m.ContentTypes,
+				"industry":      m.Industry,
+				"tags":          m.Tags,
+				"version":       m.Version,
+			})
+		}
+		responseSuccessWith(codeLayoutShown, "layout modules", map[string]any{
+			"count":   len(summaries),
+			"modules": summaries,
+		})
+		return nil
+	},
+}
+
+var layoutShowCmd = &cobra.Command{
+	Use:   "show <name>",
+	Short: "Show full spec of one layout module",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		c, err := layoutcatalog.DefaultCatalog()
+		if err != nil {
+			return wrapCLIError(codeError, err, "load layout catalog")
+		}
+		spec, ok := c.Get(args[0])
+		if !ok {
+			return wrapCLIError(codeLayoutModuleNotFound,
+				fmt.Errorf("module %q not found", args[0]),
+				"layout module not found")
+		}
+		responseSuccessWith(codeLayoutShown, "layout module", map[string]any{"spec": spec})
+		return nil
+	},
+}
+
+var layoutRenderCmd = &cobra.Command{
+	Use:   "render <name>",
+	Short: "Render a :::module ... ::: block from --var KEY=VALUE pairs",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		c, err := layoutcatalog.DefaultCatalog()
+		if err != nil {
+			return wrapCLIError(codeError, err, "load layout catalog")
+		}
+		vars := map[string]any{}
+		for _, kv := range layoutRenderVars {
+			i := strings.Index(kv, "=")
+			if i < 0 {
+				return wrapCLIError(codeLayoutInvalidFieldValue,
+					fmt.Errorf("invalid --var %q (want KEY=VALUE)", kv),
+					"invalid var")
+			}
+			vars[kv[:i]] = kv[i+1:]
+		}
+		out, err := c.Render(args[0], vars)
+		if err != nil {
+			switch {
+			case errors.Is(err, layoutcatalog.ErrUnknownModule):
+				return wrapCLIError(codeLayoutModuleNotFound, err, "module not found")
+			case errors.Is(err, layoutcatalog.ErrMissingRequiredField):
+				return wrapCLIError(codeLayoutMissingRequiredField, err, "missing required field")
+			case errors.Is(err, layoutcatalog.ErrInvalidFieldValue):
+				return wrapCLIError(codeLayoutInvalidFieldValue, err, "invalid field value")
+			default:
+				return wrapCLIError(codeError, err, "render failed")
+			}
+		}
+		responseSuccessWith(codeLayoutRendered, "rendered", map[string]any{"block": out})
+		return nil
+	},
+}
+
+var layoutValidateCmd = &cobra.Command{
+	Use:   "validate",
+	Short: "Validate :::block usage in a Markdown file",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		c, err := layoutcatalog.DefaultCatalog()
+		if err != nil {
+			return wrapCLIError(codeError, err, "load layout catalog")
+		}
+		var content []byte
+		var readErr error
+		switch {
+		case layoutValidateStdin:
+			if env := os.Getenv("LAYOUT_TEST_INPUT"); env != "" {
+				content = []byte(env)
+			} else {
+				content, readErr = io.ReadAll(os.Stdin)
+				if readErr != nil {
+					return wrapCLIError(codeError, readErr, "read stdin")
+				}
+			}
+		case layoutValidateFile != "":
+			content, readErr = os.ReadFile(layoutValidateFile)
+			if readErr != nil {
+				return wrapCLIError(codeError, readErr, "read file")
+			}
+		default:
+			return wrapCLIError(codeLayoutInvalidFilter,
+				fmt.Errorf("either --file or --stdin required"),
+				"no input source")
+		}
+		report := c.Validate(string(content))
+		responseSuccessWith(codeLayoutValidated, "validation report", map[string]any{
+			"errors":   report.Errors,
+			"warnings": report.Warnings,
+		})
+		if len(report.Errors) > 0 {
+			exitFunc(1)
+		}
+		return nil
+	},
+}
+
+func init() {
+	layoutListCmd.Flags().StringVar(&layoutListFilters.category, "category", "", "filter by category")
+	layoutListCmd.Flags().StringVar(&layoutListFilters.serves, "serves", "", "filter by serves (attention/readability/memorability/conversion)")
+	layoutListCmd.Flags().StringVar(&layoutListFilters.contentType, "content-type", "", "filter by content_type")
+	layoutListCmd.Flags().StringVar(&layoutListFilters.industry, "industry", "", "filter by industry")
+	layoutListCmd.Flags().StringVar(&layoutListFilters.tag, "tag", "", "filter by tag")
+
+	layoutRenderCmd.Flags().StringArrayVar(&layoutRenderVars, "var", nil, "field as KEY=VALUE (repeatable)")
+
+	layoutValidateCmd.Flags().StringVar(&layoutValidateFile, "file", "", "path to markdown file")
+	layoutValidateCmd.Flags().BoolVar(&layoutValidateStdin, "stdin", false, "read markdown from stdin")
+
+	layoutCmd.AddCommand(layoutListCmd, layoutShowCmd, layoutRenderCmd, layoutValidateCmd)
+}

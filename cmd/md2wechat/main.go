@@ -62,6 +62,12 @@ const (
 	codeTestDraftCoverFailed   = "TEST_DRAFT_COVER_FAILED"
 	codeTestDraftCreateFailed  = "TEST_DRAFT_CREATE_FAILED"
 	codeTestDraftCreated       = "TEST_DRAFT_CREATED"
+
+	codeLayoutModuleNotFound       = "LAYOUT_MODULE_NOT_FOUND"
+	codeLayoutInvalidFilter        = "LAYOUT_INVALID_FILTER"
+	codeLayoutMissingRequiredField = "LAYOUT_MISSING_REQUIRED_FIELD"
+	codeLayoutInvalidFieldValue    = "LAYOUT_INVALID_FIELD_VALUE"
+	codeLayoutValidateHasErrors    = "LAYOUT_VALIDATE_HAS_ERRORS"
 )
 
 type cliResponse struct {
@@ -302,6 +308,9 @@ Examples:
 
 	// create-image-post command (小绿书)
 	rootCmd.AddCommand(createImagePostCmd)
+
+	// layout command
+	rootCmd.AddCommand(layoutCmd)
 
 	// Execute
 	if err := rootCmd.Execute(); err != nil {
