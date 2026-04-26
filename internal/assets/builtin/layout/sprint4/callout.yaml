@@ -20,22 +20,11 @@ anti_pattern: |
   缺少 content 导致渲染失败；
   danger 类型用于非危险场景失去警示意义；
   内容写太长应该拆成正文段落。
-fields:
-  required:
+rows:
+  columns:
     - name: content
-      description: 提示内容，支持 Markdown 行内语法
-      example: "这是一条重要提示，请仔细阅读后再操作。"
-  optional:
-    - name: type
-      description: "提示类型（默认 info）"
-      enum: [info, tip, warning, danger]
-      example: "warning"
-    - name: title
-      description: 提示标题
-      example: "注意事项"
-    - name: icon
-      description: 图标（emoji 或文字）
-      example: "⚠️"
+      description: 提示内容（纯文本或 Markdown 行内语法）
+  min_cols: 1
 example: |
   :::callout warning
   这是一条警告提示，请在操作前确认已备份数据。

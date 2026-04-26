@@ -20,24 +20,7 @@ anti_pattern: |
   缺少 term 或 definition 导致渲染失败；
   definition 写太长失去术语卡片的简洁性；
   term 写成句子而非简短词汇。
-fields:
-  required:
-    - name: term
-      description: 术语名称（简短词汇或短语）
-      example: "OKR"
-    - name: definition
-      description: 术语释义，简洁解释该术语的含义
-      example: "目标与关键结果，一种目标管理框架"
-  optional:
-    - name: example
-      description: 使用示例
-      example: "季度 OKR：提升用户留存率到 80%"
-    - name: note
-      description: 补充说明
-      example: "源自 Andy Grove 在英特尔的管理实践"
-    - name: termLabel
-      description: 左栏标签（默认显示"术语"）
-      example: "术语"
+
 example: |
   :::definition
   {"term":"OKR","def":"目标与关键结果","termLabel":"术语"}
