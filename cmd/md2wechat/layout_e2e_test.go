@@ -33,9 +33,11 @@ func postConvert(t *testing.T, markdown string) (int, string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	buf := &bytes.Buffer{}
-	buf.ReadFrom(resp.Body)
+	if _, err := buf.ReadFrom(resp.Body); err != nil {
+		t.Fatalf("read body: %v", err)
+	}
 	return resp.StatusCode, buf.String()
 }
 

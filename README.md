@@ -331,16 +331,18 @@ AI 模式返回一个结构化排版 prompt，需要 Claude / Codex 继续处理
 
 ---
 
-## 社群 & 联系
+## 关于作者
 
 **极客杰尼** — 独立开发者 / AI Builder / AI 科技领域博主
 
 持续打磨面向 AI Agent 的 CLI、API 与公众号自动化工作流。
 
-- X（Twitter）：[@seekjourney](https://x.com/seekjourney)
-- GitHub：[geekjourneyx](https://github.com/geekjourneyx/geekjourneyx)
-- 国际站：[md2wechat.com](https://www.md2wechat.com/)
-- API 主站：[md2wechat.cn](https://md2wechat.cn)
+| | |
+|:---|:---|
+| 个人主页 | [jieni.ai](https://jieni.ai) |
+| GitHub | [geekjourneyx](https://github.com/geekjourneyx) |
+| Twitter | [@seekjourney](https://x.com/seekjourney) |
+| 公众号 | 微信搜「极客杰尼」 |
 
 **欢迎加入微信交流群** — 扫码关注公众号，备注 **「交流群」** 申请入群；备注 **「API咨询」** 申请 API 服务：
 
