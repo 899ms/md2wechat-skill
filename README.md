@@ -107,6 +107,10 @@ md2wechat convert article.md --draft --cover cover.jpg
 
 如果你想把上面的步骤直接发给 Agent 执行，见 [Agent 安装脚本](docs/INSTALL.md#agent-script)。
 
+<p align="center">
+<img src="assets/transform.gif" alt="md2wechat 转换演示" width="720" />
+</p>
+
 ---
 
 ## 核心能力
