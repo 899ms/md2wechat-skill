@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Integration test fixtures**: 3 article shapes (opinion-piece, data-report, mixed-with-unknown)
 - **E2E test suite**: gated by MD2WECHAT_E2E=1, validates each module's example against /api/convert
 - **`docs/LAYOUT.md`**: 保姆级高级排版模块教程，覆盖全部 43 个模块的字段说明、使用场景、示例和常见错误
+- **`--intensity authentic` for `humanize`**: new standalone intensity level that bypasses the 24-pattern AI-trace detection pipeline and instead applies six-dimension writing-quality rules (用词 / 句式 / 语气 / 内容表达 / 结构 / 整体原则). The goal is writing that reads like a skilled human, not merely text with AI markers removed. Aliases: `authentic` / `natural` / `真实` / `自然`.
+- **`docs/HUMANIZE.md`**: 保姆级 humanize 命令教程，覆盖四种强度选择逻辑、`--show-changes` 输出格式、Agent/JSON 用法、管道输入、与 `write` 集成，以及 `authentic` vs `aggressive` 的本质区别
 
 ### Fixed
 - **9 YAML module field doc errors** (`sprint4` category): corrected JSON key names in YAML field documentation so Agents no longer generate wrong keys at render time
@@ -30,13 +32,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `stat-row`, `question`, `resource-list`, `comparison-table`, `changelog`: replaced misleading pipe-format rows with correct JSON object field docs
 
 ### Changed
-- **SKILL.md (both Claude Code and OpenClaw)**: added API-mode-only blockquote for layout modules; removed `https://www.md2wechat.cn` URL from public skill files (security); added gentle AI→API nudge rule
+- **README.md**: restructured from 1941 → 388 lines as a commercial landing page. Removed 3 Mermaid diagrams, 5 repeated install sections, 200-line AI quality scoring system, and ModelScope flowchart. New structure: Hero → API unlock banner → comparison table → quickstart → command table → 高级排版模块 → Agent discovery → AI vs API table → Coding Agent platforms → FAQ → community → Star History.
+- **SKILL.md (both Claude Code and OpenClaw)**: added API-mode-only blockquote for layout modules; removed `https://www.md2wechat.cn` URL from public skill files (security); added gentle AI→API nudge rule; added `authentic` intensity example and four-level intensity reference table for `humanize`
+- **`docs/DISCOVERY.md`**: added `prompts show authentic --kind humanizer` example
 - **AGENTS.md / .github/copilot-instructions.md**: added layout API-only constraint notes (internal dev docs, URL retained)
 - **Docs version references**: bumped `v2.0.7` → `v2.1.0` across `QUICKSTART.md`, `USAGE.md`, `FAQ.md`, `INSTALL.md`
 
 ### Technical Details
 - **New Package**: `internal/layoutcatalog` (schema.go, loader.go, renderer.go, validator.go)
-- **New Files**: `internal/assets/builtin/layout/**/*.yaml` (43 module definitions), `docs/LAYOUT.md`
+- **New Files**: `internal/assets/builtin/layout/**/*.yaml` (43 module definitions), `docs/LAYOUT.md`, `docs/HUMANIZE.md`
+- **New Prompt**: `internal/assets/builtin/prompts/humanizer/authentic.yaml` — standalone template rendered with only `{{CONTENT}}`, bypassing `base.yaml`
 - **New Commands**: `cmd/md2wechat/layout.go`, `cmd/md2wechat/layout_test.go`, `cmd/md2wechat/layout_e2e_test.go`
 - **New Test Data**: `internal/layoutcatalog/testdata/integration/`
 - **Error Codes**: LAYOUT_MODULE_NOT_FOUND, LAYOUT_INVALID_FILTER, LAYOUT_MISSING_REQUIRED_FIELD, LAYOUT_INVALID_FIELD_VALUE, LAYOUT_VALIDATE_HAS_ERRORS, LAYOUT_VALIDATED
