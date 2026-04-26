@@ -1,0 +1,208 @@
+package layoutcatalog
+
+import (
+	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"sync"
+
+	"gopkg.in/yaml.v3"
+
+	"github.com/geekjourneyx/md2wechat-skill/internal/assets"
+)
+
+type Catalog struct {
+	mu      sync.RWMutex
+	modules map[string]*LayoutSpec
+}
+
+var (
+	defaultCatalog     *Catalog
+	defaultCatalogOnce sync.Once
+)
+
+func NewCatalog() *Catalog {
+	return &Catalog{modules: map[string]*LayoutSpec{}}
+}
+
+func DefaultCatalog() (*Catalog, error) {
+	var err error
+	defaultCatalogOnce.Do(func() {
+		defaultCatalog = NewCatalog()
+		err = defaultCatalog.Load()
+	})
+	return defaultCatalog, err
+}
+
+func ResetDefaultCatalogForTests() {
+	defaultCatalog = nil
+	defaultCatalogOnce = sync.Once{}
+}
+
+func (c *Catalog) Load() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.modules = map[string]*LayoutSpec{}
+
+	if err := c.loadBuiltin(); err != nil {
+		return fmt.Errorf("load builtin layout: %w", err)
+	}
+	for _, dir := range overrideDirs() {
+		if dir == "" {
+			continue
+		}
+		if err := c.loadFromDir(dir); err != nil {
+			return fmt.Errorf("load layout dir %s: %w", dir, err)
+		}
+	}
+	return nil
+}
+
+func overrideDirs() []string {
+	var dirs []string
+	if envDir := strings.TrimSpace(os.Getenv("MD2WECHAT_LAYOUT_DIR")); envDir != "" {
+		dirs = append(dirs, envDir)
+	}
+	if cwd, err := os.Getwd(); err == nil {
+		dirs = append(dirs, filepath.Join(cwd, "layout"))
+	}
+	if home, err := os.UserHomeDir(); err == nil {
+		dirs = append(dirs, filepath.Join(home, ".config", "md2wechat", "layout"))
+	}
+	return dirs
+}
+
+func (c *Catalog) loadBuiltin() error {
+	cats, err := assets.ListBuiltinLayoutCategories()
+	if err != nil {
+		return err
+	}
+	for _, cat := range cats {
+		names, err := assets.ListBuiltinLayouts(cat)
+		if err != nil {
+			return err
+		}
+		for _, name := range names {
+			data, err := assets.ReadBuiltinLayout(cat, name)
+			if err != nil {
+				return err
+			}
+			spec, err := parseLayoutSpec(data)
+			if err != nil {
+				return fmt.Errorf("parse builtin %s/%s: %w", cat, name, err)
+			}
+			c.modules[spec.Name] = spec
+		}
+	}
+	return nil
+}
+
+func (c *Catalog) loadFromDir(dir string) error {
+	info, err := os.Stat(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	if !info.IsDir() {
+		return nil
+	}
+	return filepath.Walk(dir, func(p string, fi os.FileInfo, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if fi.IsDir() {
+			return nil
+		}
+		if !strings.HasSuffix(fi.Name(), ".yaml") && !strings.HasSuffix(fi.Name(), ".yml") {
+			return nil
+		}
+		data, err := os.ReadFile(p)
+		if err != nil {
+			return err
+		}
+		spec, err := parseLayoutSpec(data)
+		if err != nil {
+			return fmt.Errorf("parse %s: %w", p, err)
+		}
+		c.modules[spec.Name] = spec
+		return nil
+	})
+}
+
+func parseLayoutSpec(data []byte) (*LayoutSpec, error) {
+	var spec LayoutSpec
+	if err := yaml.Unmarshal(data, &spec); err != nil {
+		return nil, err
+	}
+	if spec.SchemaVersion == "" {
+		return nil, errors.New("schema_version is required")
+	}
+	if spec.Name == "" {
+		return nil, errors.New("name is required")
+	}
+	if spec.Category == "" {
+		return nil, errors.New("category is required")
+	}
+	if len(spec.Serves) == 0 {
+		return nil, errors.New("serves must contain at least one value")
+	}
+	for _, s := range spec.Serves {
+		if !ValidServes[s] {
+			return nil, fmt.Errorf("invalid serves value: %q", s)
+		}
+	}
+	if spec.Fields != nil && spec.Rows != nil {
+		return nil, errors.New("fields and rows are mutually exclusive")
+	}
+	if spec.Metadata.Author == "" || spec.Metadata.Provenance == "" {
+		return nil, errors.New("metadata.author and metadata.provenance are required")
+	}
+	return &spec, nil
+}
+
+func (c *Catalog) Get(name string) (*LayoutSpec, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	spec, ok := c.modules[name]
+	return spec, ok
+}
+
+func (c *Catalog) ListFiltered(f ListFilter) []*LayoutSpec {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	out := make([]*LayoutSpec, 0, len(c.modules))
+	for _, m := range c.modules {
+		if f.Category != "" && m.Category != f.Category {
+			continue
+		}
+		if f.Serves != "" && !contains(m.Serves, f.Serves) {
+			continue
+		}
+		if f.ContentType != "" && !contains(m.ContentTypes, f.ContentType) {
+			continue
+		}
+		if f.Industry != "" && !contains(m.Industry, f.Industry) {
+			continue
+		}
+		if f.Tag != "" && !contains(m.Tags, f.Tag) {
+			continue
+		}
+		out = append(out, m)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+	return out
+}
+
+func contains(haystack []string, needle string) bool {
+	for _, h := range haystack {
+		if h == needle {
+			return true
+		}
+	}
+	return false
+}

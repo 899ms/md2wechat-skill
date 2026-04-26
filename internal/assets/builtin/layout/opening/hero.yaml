@@ -1,0 +1,48 @@
+schema_version: "1"
+name: hero
+version: "1.0.0"
+since: "1.5.0"
+category: opening
+serves: [attention, readability]
+content_types: [opinion, announcement, manifesto, product-launch]
+industry: [general]
+tags: [opening, hero, first-screen]
+position: opening
+when_to_use: |
+  文章开篇第一屏需要让读者在 3 秒内判断这篇值不值得读。
+  适合观点文、产品发布、重大宣布、品牌主张。
+when_not_to_use: |
+  纯流水信息（日报、周报）、纯数据报告（用 metrics）、
+  教程类（用 part + toc）。
+pairs_well_with: [verdict, audience-fit, toc]
+avoid_combining_with: [hero]
+anti_pattern: |
+  把 hero 当 banner 放每个章节开头；
+  title 写口水话不写判断；
+  缺少 cta_text 错失开篇钩子。
+fields:
+  required:
+    - name: eyebrow
+      description: 标签词，定位文章类别（如"深度观察"、"行业警告"）
+      example: "深度观察"
+    - name: title
+      description: 主标题，必须是一句判断或承诺
+      example: "公众号排版的真问题不是好不好看"
+  optional:
+    - name: subtitle
+      description: 副标题，对主标题补一刀
+      example: "是读者愿不愿意读完"
+    - name: cta_text
+      description: 开篇钩子动作文案
+      example: "↓ 3 分钟读完，给你一个判断"
+example: |
+  :::hero
+  eyebrow: 深度观察
+  title: 公众号排版的真问题不是好不好看
+  subtitle: 是读者愿不愿意读完
+  cta_text: ↓ 3 分钟读完，给你一个判断
+  :::
+metadata:
+  author: md2wechat
+  provenance: builtin
+  inspired_by: "advanced-layout-modules-guide.md#hero"

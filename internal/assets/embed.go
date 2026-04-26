@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-//go:embed builtin/themes/*.yaml builtin/writers/*.yaml builtin/prompts/*/*.yaml
+//go:embed builtin/themes/*.yaml builtin/writers/*.yaml builtin/prompts/*/*.yaml builtin/layout/*/*.yaml
 var builtinFS embed.FS
 
 func listYAMLNames(dir string) ([]string, error) {
@@ -61,4 +61,27 @@ func ListBuiltinPrompts(kind string) ([]string, error) {
 
 func ReadBuiltinPrompt(kind, name string) ([]byte, error) {
 	return readYAMLFile(path.Join("builtin/prompts", kind), name)
+}
+
+func ListBuiltinLayoutCategories() ([]string, error) {
+	entries, err := fs.ReadDir(builtinFS, "builtin/layout")
+	if err != nil {
+		return nil, err
+	}
+	cats := make([]string, 0, len(entries))
+	for _, e := range entries {
+		if e.IsDir() {
+			cats = append(cats, e.Name())
+		}
+	}
+	sort.Strings(cats)
+	return cats, nil
+}
+
+func ListBuiltinLayouts(category string) ([]string, error) {
+	return listYAMLNames(path.Join("builtin/layout", category))
+}
+
+func ReadBuiltinLayout(category, name string) ([]byte, error) {
+	return readYAMLFile(path.Join("builtin/layout", category), name)
 }
