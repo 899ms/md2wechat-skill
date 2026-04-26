@@ -114,9 +114,15 @@ Writing and humanizing:
 - `md2wechat write --style dan-koe --cover`
 - `md2wechat write --style dan-koe --humanize --humanize-intensity aggressive`
 - `md2wechat humanize article.md`
+- `md2wechat humanize article.md --intensity gentle`
 - `md2wechat humanize article.md --intensity aggressive`
+- `md2wechat humanize article.md --intensity authentic`
 - `md2wechat humanize article.md --show-changes`
 - `md2wechat humanize article.md -o output.md`
+
+Intensity levels: `gentle` / `medium` (default) / `aggressive` / `authentic`
+
+`authentic` uses a standalone six-dimension writing-quality prompt and bypasses the 24-pattern AI-trace detection used by the other three levels. Use it when the goal is writing that reads like a skilled human — concrete expression, stable tone, no performative depth — rather than just removing AI traces.
 
 ## Article Metadata Rules
 

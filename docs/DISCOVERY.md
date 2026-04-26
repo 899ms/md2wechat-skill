@@ -119,6 +119,7 @@ md2wechat prompts list --kind image --tag editorial --json
 
 ```bash
 md2wechat prompts show medium --kind humanizer --json
+md2wechat prompts show authentic --kind humanizer --json
 md2wechat prompts show default --kind refine --json
 md2wechat prompts show cover-default --kind image --json
 md2wechat prompts show cover-hero --kind image --archetype cover --tag hero --json
