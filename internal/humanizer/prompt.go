@@ -19,6 +19,18 @@ func BuildPrompt(req *HumanizeRequest) string {
 		return buildPromptFallback(req)
 	}
 
+	// authentic 模式跳过 base.yaml，直接渲染独立模板
+	if req.Intensity == IntensityAuthentic {
+		rendered, _, err := catalog.Render("humanizer", "authentic", map[string]string{
+			"CONTENT": req.Content,
+		})
+		if err == nil {
+			return rendered
+		}
+		// 降级到 aggressive
+		req.Intensity = IntensityAggressive
+	}
+
 	intensitySpec, err := catalog.Get("humanizer", req.Intensity.String())
 	if err != nil {
 		intensitySpec, err = catalog.Get("humanizer", IntensityMedium.String())
@@ -164,6 +176,8 @@ func ParseIntensity(s string) HumanizeIntensity {
 		return IntensityGentle
 	case "aggressive", "heavy", "激进", "深度":
 		return IntensityAggressive
+	case "authentic", "natural", "真实", "自然":
+		return IntensityAuthentic
 	case "medium", "normal", "中等", "标准", "":
 		return IntensityMedium
 	default:

@@ -10,6 +10,7 @@ const (
 	IntensityGentle     HumanizeIntensity = "gentle"     // 温和：只处理明显的
 	IntensityMedium     HumanizeIntensity = "medium"     // 中等：默认
 	IntensityAggressive HumanizeIntensity = "aggressive" // 激进：深度处理
+	IntensityAuthentic  HumanizeIntensity = "authentic"  // 真实写作：六维规则，独立路径
 )
 
 // String returns the string representation
@@ -26,6 +27,8 @@ func (h HumanizeIntensity) Description() string {
 		return "平衡处理，保留合理的表达，去除明显 AI 痕迹"
 	case IntensityAggressive:
 		return "深度审查，最大化去除 AI 痕迹，大幅改写"
+	case IntensityAuthentic:
+		return "真实写作模式，以六维具体规则引导输出像真人写的中文"
 	default:
 		return "中等强度"
 	}

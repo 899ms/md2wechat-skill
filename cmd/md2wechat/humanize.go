@@ -31,6 +31,7 @@ var humanizeCmd = &cobra.Command{
   gentle      - 温和处理，只修改明显的问题
   medium      - 中等强度 (默认)
   aggressive  - 激进处理，深度去除 AI 痕迹
+  authentic   - 真实写作，六维规则引导，写得像真人（独立路径，不走 24 种模式检测）
 
 示例:
   # 基本用法
@@ -38,6 +39,9 @@ var humanizeCmd = &cobra.Command{
 
   # 指定强度
   md2wechat humanize article.md --intensity gentle
+
+  # authentic 模式：以具体写作规则重写
+  md2wechat humanize article.md --intensity authentic
 
   # 显示修改对比和质量评分
   md2wechat humanize article.md --show-changes
@@ -137,7 +141,7 @@ func parseHumanizeResponse(aiResponse string, originalContent string, intensity 
 }
 
 func init() {
-	humanizeCmd.Flags().StringVarP(&intensityFlag, "intensity", "i", "medium", "处理强度: gentle/medium/aggressive")
+	humanizeCmd.Flags().StringVarP(&intensityFlag, "intensity", "i", "medium", "处理强度: gentle/medium/aggressive/authentic")
 	humanizeCmd.Flags().BoolVarP(&showChangesFlag, "show-changes", "c", false, "显示修改对比和质量评分")
 	humanizeCmd.Flags().StringVarP(&outputFlag, "output", "o", "", "输出文件路径")
 
