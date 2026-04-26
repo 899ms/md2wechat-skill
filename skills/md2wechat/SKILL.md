@@ -156,6 +156,29 @@ Draft behavior:
 - If the user asks for AI conversion or style writing, be explicit that the CLI may return an AI request or prompt rather than final HTML or prose unless the workflow completes the external model step.
 - Do not perform draft creation, publishing, or remote image generation unless the user asked for it.
 
+## 高级排版决策流（API 模式）
+
+每篇文章按 4 步选模块：
+
+1. **判断内容**：是观点 / 数据 / 教程 / 发布 / 综合？
+2. **挑选最少模块**：每个模块只服务这 4 件事之一：
+   - **attention**：让读者知道值不值得读（hero / cards / verdict / audience-fit）
+   - **readability**：让手机阅读不累（part / toc / label-title / steps）
+   - **memorability**：让读者记住一个判断/品牌（verdict / manifesto / author-card）
+   - **conversion**：让读者收藏/关注/咨询/转发/购买（cta / subscribe / faq / cases）
+3. **发现 + 渲染**：
+   ```bash
+   md2wechat layout list --serves attention --json
+   md2wechat layout show hero --json
+   md2wechat layout render hero --var eyebrow=深度观察 --var title="真问题" --json
+   ```
+4. **校验后发布**：
+   ```bash
+   md2wechat layout validate --file article.md --json
+   ```
+
+**原则**：不要堆模块。一篇文章 hero 只有一个，verdict 只有一个，cta 只有一个。
+
 ## Safety And Transparency
 
 - Reads local Markdown files and local images.
