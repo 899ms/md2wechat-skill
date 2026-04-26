@@ -85,16 +85,18 @@ func TestLayoutRenderHeroProducesBlock(t *testing.T) {
 func TestLayoutValidateUnknownWarns(t *testing.T) {
 	oldJSON := jsonOutput
 	oldStdin := layoutValidateStdin
+	oldReader := stdinReader
 	t.Cleanup(func() {
 		jsonOutput = oldJSON
 		layoutValidateStdin = oldStdin
+		stdinReader = oldReader
 		layoutcatalog.ResetDefaultCatalogForTests()
 	})
 
 	jsonOutput = true
 	layoutValidateStdin = true
+	stdinReader = strings.NewReader(":::futuristic-block\nfoo: bar\n:::\n")
 	layoutcatalog.ResetDefaultCatalogForTests()
-	t.Setenv("LAYOUT_TEST_INPUT", ":::futuristic-block\nfoo: bar\n:::\n")
 
 	stdout := captureStdout(t, func() {
 		// unknown block produces a warning, not an error — result is informational

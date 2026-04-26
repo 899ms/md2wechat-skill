@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/geekjourneyx/md2wechat-skill/internal/action"
@@ -14,10 +15,11 @@ import (
 )
 
 var (
-	cfg        *config.Config
-	log        *zap.Logger
-	jsonOutput bool
-	exitFunc   = os.Exit
+	cfg         *config.Config
+	log         *zap.Logger
+	jsonOutput  bool
+	exitFunc              = os.Exit
+	stdinReader io.Reader = os.Stdin
 )
 
 // Version is injected at build time.

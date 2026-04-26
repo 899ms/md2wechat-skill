@@ -140,13 +140,9 @@ var layoutValidateCmd = &cobra.Command{
 		var readErr error
 		switch {
 		case layoutValidateStdin:
-			if env := os.Getenv("LAYOUT_TEST_INPUT"); env != "" {
-				content = []byte(env)
-			} else {
-				content, readErr = io.ReadAll(os.Stdin)
-				if readErr != nil {
-					return wrapCLIError(codeError, readErr, "read stdin")
-				}
+			content, readErr = io.ReadAll(stdinReader)
+			if readErr != nil {
+				return wrapCLIError(codeError, readErr, "read stdin")
 			}
 		case layoutValidateFile != "":
 			content, readErr = os.ReadFile(layoutValidateFile)
@@ -159,13 +155,18 @@ var layoutValidateCmd = &cobra.Command{
 				"no input source")
 		}
 		report := c.Validate(string(content))
-		responseSuccessWith(codeLayoutValidated, "validation report", map[string]any{
+		if len(report.Errors) > 0 {
+			responseSuccessWith(codeLayoutValidateHasErrors, "validation failed", map[string]any{
+				"errors":   report.Errors,
+				"warnings": report.Warnings,
+			})
+			exitFunc(1)
+			return nil
+		}
+		responseSuccessWith(codeLayoutValidated, "validation passed", map[string]any{
 			"errors":   report.Errors,
 			"warnings": report.Warnings,
 		})
-		if len(report.Errors) > 0 {
-			exitFunc(1)
-		}
 		return nil
 	},
 }
