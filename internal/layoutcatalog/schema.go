@@ -11,7 +11,6 @@ var ValidServes = map[string]bool{
 
 type FieldSpec struct {
 	Name        string   `yaml:"name"`
-	Required    bool     `yaml:"required"`
 	Description string   `yaml:"description,omitempty"`
 	Enum        []string `yaml:"enum,omitempty"`
 	Example     string   `yaml:"example,omitempty"`

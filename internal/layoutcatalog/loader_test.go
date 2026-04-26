@@ -68,3 +68,54 @@ metadata:
 		t.Fatal("expected error for invalid serves value")
 	}
 }
+
+func TestEnvOverrideBeatsLocalDir(t *testing.T) {
+	localDir := t.TempDir()
+	localOpening := filepath.Join(localDir, "opening")
+	if err := os.MkdirAll(localOpening, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	localYAML := []byte(`schema_version: "1"
+name: hero
+version: "2.0.0"
+category: opening
+serves: [attention]
+metadata:
+  author: local
+  provenance: local
+`)
+	if err := os.WriteFile(filepath.Join(localOpening, "hero.yaml"), localYAML, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	envDir := t.TempDir()
+	envOpening := filepath.Join(envDir, "opening")
+	if err := os.MkdirAll(envOpening, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	envYAML := []byte(`schema_version: "1"
+name: hero
+version: "3.0.0"
+category: opening
+serves: [attention]
+metadata:
+  author: env
+  provenance: env
+`)
+	if err := os.WriteFile(filepath.Join(envOpening, "hero.yaml"), envYAML, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv("MD2WECHAT_LAYOUT_DIR", envDir)
+	ResetDefaultCatalogForTests()
+	t.Cleanup(ResetDefaultCatalogForTests)
+
+	c := NewCatalog()
+	if err := c.Load(); err != nil {
+		t.Fatalf("Load() failed: %v", err)
+	}
+	spec, _ := c.Get("hero")
+	if spec.Version != "3.0.0" {
+		t.Errorf("env override should win, got version %q", spec.Version)
+	}
+}

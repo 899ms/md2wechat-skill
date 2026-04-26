@@ -1,7 +1,6 @@
 package layoutcatalog
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,6 +13,8 @@ import (
 	"github.com/geekjourneyx/md2wechat-skill/internal/assets"
 )
 
+const layoutDirEnvVar = "MD2WECHAT_LAYOUT_DIR"
+
 type Catalog struct {
 	mu      sync.RWMutex
 	modules map[string]*LayoutSpec
@@ -22,6 +23,7 @@ type Catalog struct {
 var (
 	defaultCatalog     *Catalog
 	defaultCatalogOnce sync.Once
+	defaultCatalogErr  error
 )
 
 func NewCatalog() *Catalog {
@@ -29,17 +31,20 @@ func NewCatalog() *Catalog {
 }
 
 func DefaultCatalog() (*Catalog, error) {
-	var err error
 	defaultCatalogOnce.Do(func() {
-		defaultCatalog = NewCatalog()
-		err = defaultCatalog.Load()
+		cat := NewCatalog()
+		defaultCatalogErr = cat.Load()
+		if defaultCatalogErr == nil {
+			defaultCatalog = cat
+		}
 	})
-	return defaultCatalog, err
+	return defaultCatalog, defaultCatalogErr
 }
 
 func ResetDefaultCatalogForTests() {
 	defaultCatalog = nil
 	defaultCatalogOnce = sync.Once{}
+	defaultCatalogErr = nil
 }
 
 func (c *Catalog) Load() error {
@@ -63,14 +68,14 @@ func (c *Catalog) Load() error {
 
 func overrideDirs() []string {
 	var dirs []string
-	if envDir := strings.TrimSpace(os.Getenv("MD2WECHAT_LAYOUT_DIR")); envDir != "" {
-		dirs = append(dirs, envDir)
+	if home, err := os.UserHomeDir(); err == nil {
+		dirs = append(dirs, filepath.Join(home, ".config", "md2wechat", "layout"))
 	}
 	if cwd, err := os.Getwd(); err == nil {
 		dirs = append(dirs, filepath.Join(cwd, "layout"))
 	}
-	if home, err := os.UserHomeDir(); err == nil {
-		dirs = append(dirs, filepath.Join(home, ".config", "md2wechat", "layout"))
+	if envDir := strings.TrimSpace(os.Getenv(layoutDirEnvVar)); envDir != "" {
+		dirs = append(dirs, envDir)
 	}
 	return dirs
 }
@@ -139,17 +144,17 @@ func parseLayoutSpec(data []byte) (*LayoutSpec, error) {
 	if err := yaml.Unmarshal(data, &spec); err != nil {
 		return nil, err
 	}
-	if spec.SchemaVersion == "" {
-		return nil, errors.New("schema_version is required")
+	if spec.SchemaVersion != SchemaVersion {
+		return nil, fmt.Errorf("unsupported schema_version %q (expected %q)", spec.SchemaVersion, SchemaVersion)
 	}
 	if spec.Name == "" {
-		return nil, errors.New("name is required")
+		return nil, fmt.Errorf("name is required")
 	}
 	if spec.Category == "" {
-		return nil, errors.New("category is required")
+		return nil, fmt.Errorf("category is required")
 	}
 	if len(spec.Serves) == 0 {
-		return nil, errors.New("serves must contain at least one value")
+		return nil, fmt.Errorf("serves must contain at least one value")
 	}
 	for _, s := range spec.Serves {
 		if !ValidServes[s] {
@@ -157,10 +162,10 @@ func parseLayoutSpec(data []byte) (*LayoutSpec, error) {
 		}
 	}
 	if spec.Fields != nil && spec.Rows != nil {
-		return nil, errors.New("fields and rows are mutually exclusive")
+		return nil, fmt.Errorf("fields and rows are mutually exclusive")
 	}
 	if spec.Metadata.Author == "" || spec.Metadata.Provenance == "" {
-		return nil, errors.New("metadata.author and metadata.provenance are required")
+		return nil, fmt.Errorf("metadata.author and metadata.provenance are required")
 	}
 	return &spec, nil
 }
