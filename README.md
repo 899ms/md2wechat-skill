@@ -58,9 +58,13 @@
 
 扫描下方二维码关注 **极客杰尼** 公众号 → 备注 **「API咨询」** 联系作者；或备注 **「交流群」** 申请加入用户交流群，和同类创作者一起探索 AI 驱动的公众号创作。
 
+**限时加入下面👇的公众号创作交流群获取第一时间更新资讯（人满200为止），谢绝一切广告，推广等信息，一律提出** 
+
 <p align="center">
+<img width="160" alt="image" src="https://github.com/user-attachments/assets/af6437e2-c5fd-44e0-84f9-f6f4981706b9" />
 <img src="assets/wechat.png" alt="公众号：极客杰尼" width="160" />
 </p>
+
 
 ---
 
