@@ -60,7 +60,7 @@
 
 **限时加入下面👇的公众号创作交流群获取第一时间更新资讯（人满200为止），谢绝一切广告，推广等信息，一律踢出**
 
-稳定的中转站推荐：[codesome](https://fk.codesome.cn/?aff=EBM1nw30) / [dragoncode](https://dragoncode.codes/register?ref=TYA66GGW)
+稳定的中转站推荐：[codesome](https://fk.codesome.cn/?aff=EBM1nw30)
 
 <p align="center">
 <img width="160" alt="image" src="https://github.com/user-attachments/assets/af6437e2-c5fd-44e0-84f9-f6f4981706b9" />
