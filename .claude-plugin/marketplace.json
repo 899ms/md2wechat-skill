@@ -15,7 +15,7 @@
       },
       "homepage": "https://github.com/geekjourneyx/md2wechat-skill",
       "repository": "https://github.com/geekjourneyx/md2wechat-skill",
-      "license": "MIT",
+      "license": "Source Available (BUSL-1.1)",
       "keywords": ["wechat", "markdown", "blog", "publishing", "html", "converter", "official account", "公众号", "排版"],
       "strict": false
     }

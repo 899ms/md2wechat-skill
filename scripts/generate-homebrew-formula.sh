@@ -76,7 +76,7 @@ formula=$(cat <<EOF
 class Md2wechat < Formula
   desc "Convert Markdown to WeChat Official Account HTML"
   homepage "https://github.com/geekjourneyx/md2wechat-skill"
-  license "MIT"
+  license "proprietary"
   version "${version}"
 
   on_macos do

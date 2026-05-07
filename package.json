@@ -2,7 +2,7 @@
   "name": "@geekjourneyx/md2wechat",
   "version": "2.1.0",
   "description": "Install the md2wechat CLI from the matching GitHub Release bundle.",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/geekjourneyx/md2wechat-skill.git"

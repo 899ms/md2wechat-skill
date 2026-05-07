@@ -13,7 +13,7 @@
 全流程 CLI，Agent-native — Claude Code · Codex · OpenClaw 原生支持
 
 [![Go Version](https://img.shields.io/badge/Go-1.26.1+-00ADD8?logo=go)](https://golang.org)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![License](https://img.shields.io/badge/license-Source%20Available-orange)](LICENSE)
 [![GitHub Release](https://img.shields.io/badge/download-latest-green)](https://github.com/geekjourneyx/md2wechat-skill/releases)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-purple)](#coding-agent)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Compatible-00b0aa)](#openclaw)
@@ -395,6 +395,6 @@ AI 模式返回一个结构化排版 prompt，需要 Claude / Codex 继续处理
 
 [主页](https://github.com/geekjourneyx/md2wechat-skill) · [文档](docs) · [反馈](https://github.com/geekjourneyx/md2wechat-skill/issues)
 
-Made with ♥ by [geekjourneyx](https://geekjourney.dev) · [MIT License](LICENSE)
+Made with ♥ by [geekjourneyx](https://jieni.ai) · [Source Available License](LICENSE) · Personal use free · [Commercial licensing](mailto:skrphper@gmail.com)
 
 </div>

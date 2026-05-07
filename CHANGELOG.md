@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **License**: Upgraded from MIT to Source Available License (BUSL 1.1 base + custom Additional Use Grant)
+  - Personal use, learning, evaluation, non-profit, and contributions remain free without authorization
+  - Commercial use (SaaS, client delivery, rebranding, white-labeling, AI training data) requires a written commercial license
+  - Change Date: 2030-01-01 — project automatically relicenses to Apache 2.0 on that date
+  - Historical versions released under MIT are unaffected; this license applies to all new versions from this commit onward
+  - Contact for commercial licensing: skrphper@gmail.com / https://jieni.ai / https://x.com/seekjourney
+
 ## [2.1.0] - 2026-04-27
 
 ### Added
