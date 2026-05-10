@@ -21,7 +21,7 @@ func parseBrandJSON(t *testing.T, output []byte) map[string]interface{} {
 
 // ============ init group (4 tests) ============
 
-// TestBrandInit_CreatesFile init on empty dir creates brand.yaml, returns BRAND_INITIALIZED
+// TestBrandInit_CreatesFile init on empty dir creates brand.md, returns BRAND_INITIALIZED
 func TestBrandInit_CreatesFile(t *testing.T) {
 	tmpHome := t.TempDir()
 	t.Setenv("HOME", tmpHome)
@@ -49,18 +49,18 @@ func TestBrandInit_CreatesFile(t *testing.T) {
 	}
 
 	// 检查文件是否创建
-	brandPath := filepath.Join(tmpHome, ".config", "md2wechat", "brand.yaml")
+	brandPath := filepath.Join(tmpHome, ".config", "md2wechat", "brand.md")
 	if _, err := os.Stat(brandPath); os.IsNotExist(err) {
-		t.Fatalf("brand.yaml not created at %s", brandPath)
+		t.Fatalf("brand.md not created at %s", brandPath)
 	}
 
 	// 检查文件内容不为空
 	content, err := os.ReadFile(brandPath)
 	if err != nil {
-		t.Fatalf("failed to read created brand.yaml: %v", err)
+		t.Fatalf("failed to read created brand.md: %v", err)
 	}
 	if len(content) == 0 {
-		t.Error("brand.yaml is empty")
+		t.Error("brand.md is empty")
 	}
 }
 
@@ -81,12 +81,12 @@ func TestBrandInit_Idempotent(t *testing.T) {
 		t.Errorf("first init: expected code=BRAND_INITIALIZED, got %v", result1["code"])
 	}
 
-	brandPath := filepath.Join(tmpHome, ".config", "md2wechat", "brand.yaml")
+	brandPath := filepath.Join(tmpHome, ".config", "md2wechat", "brand.md")
 
 	// 修改文件内容，标记一下
-	testContent := "# MODIFIED BY TEST\nschema_version: 1\nname: Test User\n"
+	testContent := "# MODIFIED BY TEST\n\nCustom content here.\n"
 	if err := os.WriteFile(brandPath, []byte(testContent), 0644); err != nil {
-		t.Fatalf("failed to modify brand.yaml: %v", err)
+		t.Fatalf("failed to modify brand.md: %v", err)
 	}
 
 	// 第二次 init
@@ -107,10 +107,10 @@ func TestBrandInit_Idempotent(t *testing.T) {
 	// 检查文件没有被覆盖
 	content, err := os.ReadFile(brandPath)
 	if err != nil {
-		t.Fatalf("failed to read brand.yaml after second init: %v", err)
+		t.Fatalf("failed to read brand.md after second init: %v", err)
 	}
 	if string(content) != testContent {
-		t.Error("brand.yaml was overwritten by second init (should be idempotent)")
+		t.Error("brand.md was overwritten by second init (should be idempotent)")
 	}
 }
 
@@ -176,13 +176,13 @@ func TestBrandInit_CreatesParentDir(t *testing.T) {
 		t.Fatal("config path exists but is not a directory")
 	}
 
-	brandPath := filepath.Join(configDir, "brand.yaml")
+	brandPath := filepath.Join(configDir, "brand.md")
 	if _, err := os.Stat(brandPath); os.IsNotExist(err) {
-		t.Fatalf("brand.yaml was not created at %s", brandPath)
+		t.Fatalf("brand.md was not created at %s", brandPath)
 	}
 }
 
-// ============ show group (5 tests) ============
+// ============ show group (4 tests) ============
 
 // TestBrandShow_NotFound show when no file → BRAND_NOT_FOUND, success:false, status:"action_required"
 func TestBrandShow_NotFound(t *testing.T) {
@@ -190,9 +190,9 @@ func TestBrandShow_NotFound(t *testing.T) {
 	t.Setenv("HOME", tmpHome)
 
 	// 确保文件不存在
-	brandPath := filepath.Join(tmpHome, ".config", "md2wechat", "brand.yaml")
+	brandPath := filepath.Join(tmpHome, ".config", "md2wechat", "brand.md")
 	if _, err := os.Stat(brandPath); !os.IsNotExist(err) {
-		t.Fatalf("brand.yaml exists (test precondition failed)")
+		t.Fatalf("brand.md exists (test precondition failed)")
 	}
 
 	stdout := captureStdout(t, func() {
@@ -215,7 +215,7 @@ func TestBrandShow_NotFound(t *testing.T) {
 	}
 }
 
-// TestBrandShow_ValidFile show after init → BRAND_SHOWN, success:true, data.profile present, data.path uses ~/
+// TestBrandShow_ValidFile show after init → BRAND_SHOWN, success:true, data.content present (raw string), data.path uses ~/
 func TestBrandShow_ValidFile(t *testing.T) {
 	tmpHome := t.TempDir()
 	t.Setenv("HOME", tmpHome)
@@ -250,9 +250,13 @@ func TestBrandShow_ValidFile(t *testing.T) {
 		t.Fatalf("data field is not a map: %T", result["data"])
 	}
 
-	// 检查 profile 存在
-	if _, ok := data["profile"]; !ok {
-		t.Error("data.profile is missing")
+	// 检查 content 存在且为非空字符串
+	content, ok := data["content"].(string)
+	if !ok {
+		t.Fatalf("data.content is not a string: %T", data["content"])
+	}
+	if len(content) == 0 {
+		t.Error("data.content is empty")
 	}
 
 	// 检查 path 使用 ~/ 格式
@@ -269,26 +273,38 @@ func TestBrandShow_ValidFile(t *testing.T) {
 	}
 }
 
-// TestBrandShow_CorruptYAML show with invalid YAML content → BRAND_READ_FAILED, success:false, status:"failed"
-func TestBrandShow_CorruptYAML(t *testing.T) {
+// TestBrandShow_UnreadableFile show when file exists but is unreadable (chmod 000) → BRAND_READ_FAILED
+func TestBrandShow_UnreadableFile(t *testing.T) {
+	// Skip this test if running as root (root can read 0000 files)
+	if os.Getuid() == 0 {
+		t.Skip("skipping unreadable file test when running as root")
+	}
+
+	oldExit := exitFunc
+	t.Cleanup(func() {
+		exitFunc = oldExit
+	})
+	exitFunc = func(code int) {} // no-op exit for test
+
 	tmpHome := t.TempDir()
 	t.Setenv("HOME", tmpHome)
 
-	// 创建目录和一个无效的 YAML 文件
-	configDir := filepath.Join(tmpHome, ".config", "md2wechat")
-	if err := os.MkdirAll(configDir, 0755); err != nil {
+	// 创建文件，然后设置为不可读
+	brandFile := filepath.Join(tmpHome, ".config", "md2wechat", "brand.md")
+	if err := os.MkdirAll(filepath.Dir(brandFile), 0755); err != nil {
 		t.Fatalf("failed to create config dir: %v", err)
 	}
-
-	brandPath := filepath.Join(configDir, "brand.yaml")
-	corruptContent := "this is not valid YAML:\n  - unclosed bracket: [\n  invalid: {unclosed"
-	if err := os.WriteFile(brandPath, []byte(corruptContent), 0644); err != nil {
-		t.Fatalf("failed to write corrupt brand.yaml: %v", err)
+	if err := os.WriteFile(brandFile, []byte("# test"), 0644); err != nil {
+		t.Fatalf("failed to write brand.md: %v", err)
 	}
+	if err := os.Chmod(brandFile, 0000); err != nil {
+		t.Fatalf("failed to chmod brand.md: %v", err)
+	}
+	defer os.Chmod(brandFile, 0644) // restore for cleanup
 
 	stdout := captureStdout(t, func() {
 		if err := runBrandShow(); err != nil {
-			t.Fatalf("runBrandShow() error = %v", err)
+			responseError(err) // simulate cobra error handling
 		}
 	})
 
@@ -304,71 +320,6 @@ func TestBrandShow_CorruptYAML(t *testing.T) {
 	if result["status"] != "failed" {
 		t.Errorf("expected status=failed, got %v", result["status"])
 	}
-
-	// 检查 error 字段存在
-	if _, ok := result["error"]; !ok {
-		t.Error("expected 'error' field in response for corrupt YAML")
-	}
-}
-
-// TestBrandShow_PartialProfile show with partial brand.yaml (only name set) → BRAND_SHOWN with profile, other fields zero-value
-func TestBrandShow_PartialProfile(t *testing.T) {
-	tmpHome := t.TempDir()
-	t.Setenv("HOME", tmpHome)
-
-	// 创建一个只有部分字段的 brand.yaml
-	configDir := filepath.Join(tmpHome, ".config", "md2wechat")
-	if err := os.MkdirAll(configDir, 0755); err != nil {
-		t.Fatalf("failed to create config dir: %v", err)
-	}
-
-	brandPath := filepath.Join(configDir, "brand.yaml")
-	partialContent := `schema_version: 1
-name: "Test Author"
-`
-	if err := os.WriteFile(brandPath, []byte(partialContent), 0644); err != nil {
-		t.Fatalf("failed to write partial brand.yaml: %v", err)
-	}
-
-	stdout := captureStdout(t, func() {
-		if err := runBrandShow(); err != nil {
-			t.Fatalf("runBrandShow() error = %v", err)
-		}
-	})
-
-	result := parseBrandJSON(t, stdout)
-
-	// 检查返回值
-	if result["success"] != true {
-		t.Errorf("expected success=true, got %v", result["success"])
-	}
-	if result["code"] != "BRAND_SHOWN" {
-		t.Errorf("expected code=BRAND_SHOWN, got %v", result["code"])
-	}
-
-	// 检查 profile 存在且包含设置的字段
-	data, ok := result["data"].(map[string]interface{})
-	if !ok {
-		t.Fatalf("data field is not a map: %T", result["data"])
-	}
-
-	profile, ok := data["profile"].(map[string]interface{})
-	if !ok {
-		t.Fatalf("data.profile is not a map: %T", data["profile"])
-	}
-
-	// 检查 name 字段正确
-	if profile["name"] != "Test Author" {
-		t.Errorf("expected profile.name='Test Author', got %v", profile["name"])
-	}
-
-	// 检查 schema_version 存在
-	if profile["schema_version"] == nil {
-		t.Error("profile.schema_version is missing")
-	}
-
-	// 其他字段应该是零值或不存在（YAML 解析行为）
-	// 这是正常的，不应该报错
 }
 
 // TestBrandShow_JSONEnvelope valid JSON, schema_version:"v1", code:"BRAND_SHOWN", data.path non-empty

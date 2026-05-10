@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/geekjourneyx/md2wechat-skill/internal/action"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 // brandCmd brand 命令
@@ -17,13 +17,13 @@ var brandCmd = &cobra.Command{
 	Short: "Manage Brand Profile for AI agents",
 	Long: `Manage Brand Profile for AI agents.
 
-The Brand Profile is a YAML file that AI agents read to understand your
+The Brand Profile is a Markdown file that AI agents read to understand your
 voice, layout preferences, and constraints when generating content.
 
-This file is stored at ~/.config/md2wechat/brand.yaml and is NOT parsed
+This file is stored at ~/.config/md2wechat/brand.md and is NOT parsed
 by the CLI itself. It is purely for agent consumption.
 
-Documentation: docs/AGENT-GUIDE.md`,
+Documentation: docs/BRAND-PROFILE.md`,
 }
 
 func init() {
@@ -31,7 +31,7 @@ func init() {
 	var initCmd = &cobra.Command{
 		Use:   "init",
 		Short: "Create a Brand Profile template",
-		Long: `Create a Brand Profile template at ~/.config/md2wechat/brand.yaml.
+		Long: `Create a Brand Profile template at ~/.config/md2wechat/brand.md.
 
 If the file already exists, this command is idempotent and will not overwrite it.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -44,7 +44,7 @@ If the file already exists, this command is idempotent and will not overwrite it
 	var showCmd = &cobra.Command{
 		Use:   "show",
 		Short: "Show current Brand Profile",
-		Long:  `Show the content of the Brand Profile at ~/.config/md2wechat/brand.yaml.`,
+		Long:  `Show the content of the Brand Profile at ~/.config/md2wechat/brand.md.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runBrandShow()
 		},
@@ -58,7 +58,7 @@ func getBrandProfilePath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(homeDir, ".config", "md2wechat", "brand.yaml"), nil
+	return filepath.Join(homeDir, ".config", "md2wechat", "brand.md"), nil
 }
 
 // normalizeBrandPath 将路径转换为 ~/... 格式
@@ -102,42 +102,78 @@ func runBrandInit() error {
 	}
 
 	// 创建模板内容
-	template := `# md2wechat Brand Profile
-# 此文件由 Agent 读取，CLI 不解析此文件
-# 文档：docs/AGENT-GUIDE.md
-schema_version: 1
+	createdDate := time.Now().Format("2006-01-02")
+	template := fmt.Sprintf(`# 品牌档案 / Brand Profile
 
-# 你的名字或品牌名
-name: ""
+> 此文件由 AI Agent 读取，CLI 不解析。请用自然语言描述你的创作风格。
+> 配置指南：docs/BRAND-PROFILE.md | 命令帮助：md2wechat brand --help
 
-voice:
-  # 语气风格描述（例如：犀利实用，第一人称）
-  tone: ""
-  # 可选：风格参考文件或目录的绝对路径
-  # style_ref: ~/Documents/brand/voice-guide.md
-  # 要避免的表达方式
-  avoid: []
+---
 
-layout:
-  # 文章开头风格：verdict_first | story_first | question_first | data_first
-  opening: ""
+## 基本信息
 
-limits:
-  max_modules: 6   # 上限 43，设为 0 则使用默认值 6
-  max_cta: 1       # 上限 2
-  max_quotes: 2    # 上限 10
-  max_hero: 1      # 上限 1
+**名字 / 品牌名**：
 
-cta:
-  default_title: ""
-  default_body: ""
-  default_action: ""
+**简介**：（一句话介绍你是谁、写什么）
 
-author_card:
-  name: ""
-  title: ""
-  bio: ""
-`
+---
+
+## 语气与风格
+
+描述你希望文章呈现的语气。可以写具体例子和反例，越具体越好。
+
+**我的风格**：
+
+**我要避免的表达**：
+- （例如：过多 emoji，空泛鸡汤，过度营销词汇）
+
+---
+
+## 文章开头偏好
+
+参考选项：verdict_first（先结论）/ story_first（先故事）/ question_first（先问题）/ data_first（先数据）
+
+**我的偏好**：
+
+---
+
+## 排版约束
+
+Agent 会遵守以下数量约束（可修改数字）：
+
+- 最多模块数：6（上限 43，填 0 使用默认值）
+- 最多 CTA 数：1（上限 2）
+- 最多引用数：2（上限 10）
+- 最多 Hero 数：1（固定上限）
+
+---
+
+## 默认 CTA（行动引导）
+
+**标题**：（例如：如果这篇对你有启发）
+**正文**：（例如：欢迎关注，我在持续记录 AI 工具和独立开发实践）
+**行动**：（例如：关注 / 咨询 / 分享）
+
+---
+
+## 作者卡片
+
+**名字**：
+**头衔**：（例如：AI 应用开发者 / 独立开发者）
+**简介**：（2-3 句话，介绍你的背景和关注领域）
+
+---
+
+## 风格参考文件（可选）
+
+如果你有更详细的写作风格指南文件或目录，在此填写路径（Agent 会读取全文）：
+
+**路径**：（例如：~/Documents/brand/voice-guide.md）
+
+---
+
+*创建时间：%s*
+`, createdDate)
 
 	// 写入文件
 	if err := os.WriteFile(brandPath, []byte(template), 0644); err != nil {
@@ -178,31 +214,16 @@ func runBrandShow() error {
 		return nil
 	}
 
-	// 读取文件
+	// 读取文件（Markdown 无需解析，直接返回原始内容）
 	content, err := os.ReadFile(brandPath)
 	if err != nil {
 		return wrapCLIError(codeBrandReadFailed, err, fmt.Sprintf("failed to read file: %s", brandPath))
 	}
 
-	// 解析 YAML
-	var profile map[string]any
-	if err := yaml.Unmarshal(content, &profile); err != nil {
-		responseWith(cliResponse{
-			Success:       false,
-			Code:          codeBrandReadFailed,
-			Message:       "Failed to parse Brand Profile (invalid YAML)",
-			SchemaVersion: action.SchemaVersion,
-			Status:        action.StatusFailed,
-			Retryable:     false,
-			Error:         err.Error(),
-		})
-		return nil
-	}
-
 	displayPath := normalizeBrandPath(brandPath)
 	responseSuccessWith(codeBrandShown, "Brand Profile loaded successfully", map[string]any{
 		"path":    displayPath,
-		"profile": profile,
+		"content": string(content),
 	})
 	return nil
 }
