@@ -269,8 +269,11 @@ CLI flag (--theme 等)
 | 字段缺失 | 该字段用默认值 |
 | theme 值无效 | 降级到 api.default_theme，警告 |
 | style_ref 路径不存在 | 警告，使用内联 voice 字段 |
+| style_ref 是目录 | 读目录下全部 .md 文件（字母序合并） |
 | limits.max_modules > 43 | cap 到 43，警告 |
 | limits.max_cta > 2 | cap 到 2，警告 |
+| limits.max_quotes > 10 | cap 到 10，警告 |
+| limits.max_hero > 1 | cap 到 1，警告 |
 | limits.max_modules 为 0 | 当作未设置，用默认值 6 |
 | author_card 部分填写 | 用现有字段渲染简化版，不跳过 |
 
@@ -285,13 +288,13 @@ style_ref_path=$(python3 -c "import os; print(os.path.expanduser('~/Documents/br
 
 # 目录（读所有 .md，按字母序合并）
 style_ref_dir=$(python3 -c "import os; print(os.path.expanduser('~/Documents/brand/'))")
-[ -d "$style_ref_dir" ] && for f in $(ls "$style_ref_dir"*.md 2>/dev/null | sort); do echo "=== $f ==="; cat "$f"; done
+[ -d "$style_ref_dir" ] && for f in "$style_ref_dir"*.md; do [ -f "$f" ] && echo "=== $f ===" && cat "$f"; done
 ```
 
 ### Sanity Cap（读取后立即应用）
 
 ```python3
-import yaml, sys
+import yaml, os
 content = open(os.path.expanduser('~/.config/md2wechat/brand.yaml')).read()
 profile = yaml.safe_load(content) or {}
 limits = profile.get('limits', {})
