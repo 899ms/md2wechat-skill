@@ -118,58 +118,61 @@ md2wechat config validate
 
 ---
 
-## 三、Brand Profile 操作（未来功能，当前不可用）
+## 三、Brand Profile 操作
 
-> **注意**：`md2wechat brand` 命令计划在 v2.3 版本加入。当前版本不支持此命令。以下内容为规划内容。
+Brand Profile 是一个可选的品牌档案，位于 `~/.config/md2wechat/brand.md`，由 Agent 读取但不被 CLI 解析。
 
-Brand Profile 是一个可选的品牌档案，位于 `~/.config/md2wechat/brand.yaml`，由 Agent 读取但不被 CLI 解析。它包含：
+它使用 **Markdown 格式**，而不是 YAML，让 Agent 可以直接理解自然语言描述的品牌风格和偏好。
 
-- **voice** — 文章语气和风格指引
-  - `tone` — 文章的整体语气（如："犀利实用"、"温暖鼓励"）
-  - `avoid` — 应避免的表达方式
-  - `style_ref` — 风格参考文件或目录路径
-- **layout** — 排版偏好
-  - `opening` — 文章开头方式（如：直奔主题、先铺垫）
-  - `max_modules` — 单篇最多使用多少高级排版模块（默认 6，最多 43）
-- **limits** — 内容限制
-  - `max_cta` — 最多几个 CTA（默认 1，最多 2）
-  - `max_quotes` — 最多几个引用块（默认 2）
-  - `max_hero` — hero 模块最多使用几次（默认 1）
-- **cta** — 默认 CTA（行动呼吁）配置
-- **author_card** — 作者卡片配置
-
-### 3.1 检查 Brand Profile 是否存在（未来使用）
-
-当 `md2wechat brand` 命令可用时：
+### 3.1 检查 Brand Profile 是否存在
 
 ```bash
 md2wechat brand show --json
 ```
 
 响应解读：
-- `code: "BRAND_SHOWN"` → 档案存在，`data` 包含完整配置
+- `code: "BRAND_SHOWN"` → 档案存在，`data.content` 包含完整 Markdown 文本
 - `code: "BRAND_NOT_FOUND"` → 档案不存在，可引导初始化
-- `code: "BRAND_READ_FAILED"` → 文件损坏或格式错误
+- `code: "BRAND_READ_FAILED"` → 文件不可读（权限问题等）
 
-### 3.2 手动读取 Brand Profile（当前可用方式）
+### 3.2 读取 Brand Profile
 
-由于命令尚不可用，Agent 可以直接读取文件：
+Agent 读取方式：
 
 ```python
-import yaml
 import os
 
-brand_path = os.path.expanduser("~/.config/md2wechat/brand.yaml")
-brand = {}
+brand_path = os.path.expanduser("~/.config/md2wechat/brand.md")
+brand_content = ""
 if os.path.exists(brand_path):
     with open(brand_path) as f:
-        brand = yaml.safe_load(f) or {}
+        brand_content = f.read()
 
-# 读取各字段，使用合理的默认值
-voice_tone = brand.get("voice", {}).get("tone", "")
-layout_opening = brand.get("layout", {}).get("opening", "")
-max_modules = brand.get("limits", {}).get("max_modules", 6)
+# brand_content 包含完整的 Markdown 文本
+# Agent 将其作为上下文注入到排版决策中
 ```
+
+或通过 CLI 命令获取：
+
+```bash
+result=$(md2wechat brand show --json)
+brand_content=$(echo "$result" | jq -r '.data.content')
+```
+
+### 3.3 Brand Profile 引导流程（如果不存在）
+
+当 `md2wechat brand show` 返回 `BRAND_NOT_FOUND` 时，Agent 应发起 3 问引导：
+
+```
+我注意到你还没有设置品牌档案。这能让每篇文章都"像你说的话"。
+3 个问题，2 分钟完成：
+
+1. 你希望文章的整体语气是？（例如：犀利实用、温暖鼓励、专业严谨）
+2. 有没有你一定要避免的表达方式？（例如：过多 emoji、空泛鸡汤）
+3. 如果你有风格参考文件或文件夹，可以告诉我路径（可选）
+```
+
+根据用户回答，创建或编辑 `~/.config/md2wechat/brand.md`。
 
 ---
 
@@ -442,7 +445,7 @@ md2wechat convert article.md --mode ai --output output.html
 #       2. 有没有你一定要避免的表达方式？（例如：过多 emoji、空泛鸡汤）
 #       3. 如果你有风格参考文件或文件夹，可以告诉我路径（可选）
 
-# 2. 根据用户回答，手动编辑 ~/.config/md2wechat/brand.yaml
+根据用户回答，创建或编辑 `~/.config/md2wechat/brand.md`。
 # 或等待 md2wechat brand init 命令上线
 ```
 
@@ -486,7 +489,7 @@ md2wechat layout validate --file article.md --json
 ```
 1. CLI flag（如 --theme default）
     ↓
-2. Brand Profile（brand.yaml 中的 voice.tone、layout.max_modules）
+2. Brand Profile（brand.md 中的语气风格、排版约束）
     ↓
 3. 环境变量（如 CONVERT_MODE=ai）
     ↓
@@ -514,7 +517,7 @@ md2wechat config show --format json
 # 如果缺少关键配置，提示用户运行 md2wechat config init
 
 # 3. 发起 3 问流程创建 Brand Profile（当命令可用时）
-# 或手动创建 ~/.config/md2wechat/brand.yaml
+# 或手动创建 ~/.config/md2wechat/brand.md
 
 # 4. 验证排版语法
 md2wechat layout validate --file article.md --json
