@@ -24,7 +24,7 @@
 </div>
 
 > [!TIP]
-> **v3.6.0 新增多平台草稿同步：一篇 Markdown，交给 Agent 保存到知乎、CSDN、头条草稿箱。**
+> **v3.7.0 新增定向产品写作和腾讯云开发者社区草稿指引。** 写作用法见 [定向产品写作](docs/WRITING.md)，草稿验证范围见 [多平台草稿](docs/SYNC.md)。
 > 复用你已登录的浏览器，由具备浏览器操作能力的 Agent 完成。支持图文，保存后重新打开核对。[查看使用教程](docs/SYNC.md) · [升级到新版](docs/INSTALL.md)
 
 ---
@@ -40,7 +40,8 @@ md2wechat 把公众号发布流程拆成一组可验证的 CLI 命令：
 | 稳定排版 | API 模式成功时返回最终 HTML，覆盖 77 个主推高级排版场景条目和 56 个主推 `:::` 语法名 |
 | Agent 自动化 | `capabilities`、`doctor`、`themes`、`layout`、`providers` 等 discovery 命令 |
 | 内容生产 | `write`、`humanize`、`title suggest`、`generate_cover`、`generate_infographic` |
-| 多平台草稿 | 本地准备正文，宿主复用已登录浏览器，按内置步骤写入知乎、CSDN、头条草稿 |
+| 定向产品写作（v3.7.0） | 组合目标搜索产品、文章平台、体裁与作者语气，也可准备分平台百科词条草稿；[使用说明](docs/WRITING.md) |
+| 多平台草稿 | 本地准备正文，宿主复用已登录浏览器，按内置步骤写入知乎、CSDN、头条、腾讯云开发者社区草稿 |
 | 多账号发布 | 命名公众号账号，本地只读发现，不输出 Secret |
 | 微信白名单 | 高级 API 服务可提供微信接口固定出口能力 |
 
@@ -266,7 +267,7 @@ md2wechat layout validate --file article.md --json
 | [QUICKSTART](docs/QUICKSTART.md) | 新手主路径 |
 | [USAGE](docs/USAGE.md) | 命令完整说明 |
 | [DISCOVERY](docs/DISCOVERY.md) | Agent discovery 契约 |
-| [SYNC](docs/SYNC.md) | 知乎、CSDN、头条草稿同步 |
+| [SYNC](docs/SYNC.md) | 知乎、CSDN、头条、腾讯云开发者社区草稿同步 |
 | [WORKBUDDY](docs/WORKBUDDY.md) | WorkBuddy 安装、检查、预览与草稿确认流程 |
 | [ADVISE](docs/ADVISE.md) | 已有文章的可选增强建议 |
 | [LAYOUT](docs/LAYOUT.md) | 高级排版模块教程与 discovery 用法 |

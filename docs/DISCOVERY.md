@@ -86,7 +86,7 @@ md2wechat capabilities --json
 
 ## 多平台草稿
 
-`data.sync` 只声明本地准备与宿主接手的边界。`sync prepare` 不创建远端草稿；`action_required` 表示仍需宿主执行。通过 `data.sync.sop` 读取公共步骤，再读取其中链接的知乎、CSDN 或头条说明。平台限制、账号核对和保存后核验均是执行要求，不能把准备完成当作同步成功。
+`data.sync` 只声明本地准备与宿主接手的边界。`sync prepare` 不创建远端草稿；`action_required` 表示仍需宿主执行。通过 `data.sync.sop` 读取公共步骤，再读取其中链接的知乎、CSDN、头条或腾讯云开发者社区说明。平台限制、账号核对和保存后核验均是执行要求，不能把准备完成当作同步成功。
 
 完整流程见 [SYNC.md](SYNC.md)。
 
@@ -101,6 +101,10 @@ md2wechat skills read md2wechat --json
 `skills` 命令把 `skills/md2wechat/SKILL.md` 随二进制一起嵌入，供 Agent 在离线或只拿到二进制的环境中读取当前版本 SOP。这样 Agent 不需要猜 README、联网拉仓库，或读取一个可能和当前 CLI 版本不一致的本地 skill 副本。
 
 `skills list` 始终返回标准 JSON envelope，包含可用 skill、数量和 frontmatter 摘要。`skills read` 默认输出原始 Markdown，适合直接喂给 Agent；加 `--json` 时会返回标准 JSON envelope，并把 Markdown 放在 `data.content`。
+
+### 定向写作资料（v3.7.0）
+
+定向产品写作属于宿主工作流。使用 `md2wechat skills list md2wechat/references/writing --json` 列出资料，再读取 `md2wechat skills read md2wechat references/writing/workflow.md --json`。没有新增 `growth` 命令，也没有新增 `capabilities` 业务字段。缺少该路径表示安装版本未包含资料，不能声称新流程已执行。用法见 [WRITING.md](WRITING.md)。
 
 ## 本地体检
 

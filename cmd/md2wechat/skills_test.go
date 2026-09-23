@@ -97,7 +97,7 @@ func TestSkillsReadEmbeddedSyncWorkflow(t *testing.T) {
 	oldJSON := skillsReadJSON
 	t.Cleanup(func() { skillsReadJSON = oldJSON })
 	skillsReadJSON = true
-	for _, name := range []string{"workflow", "zhihu", "csdn", "toutiao"} {
+	for _, name := range []string{"workflow", "zhihu", "csdn", "toutiao", "tencent-cloud"} {
 		t.Run(name, func(t *testing.T) {
 			path := "references/sync/" + name + ".md"
 			stdout := captureStdout(t, func() {

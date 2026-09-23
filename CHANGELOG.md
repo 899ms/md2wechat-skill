@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.7.0] - 2026-09-23
+
+### Added
+- Added embedded host-Agent writing guidance for product introductions, encyclopedia-style articles, and drafts combining a target search product, publication platform, article form, and author voice. No new writing command or model connection is required.
+- Added separate guidance for Baidu Baike and Toutiao Baike entry drafts, including source mapping and missing-material handling.
+- Added a Tencent Cloud Developer Community draft workflow with native image insertion, save verification, and reopening of the same draft.
+
+### Changed
+- Updated both skill entry points to route directed writing to the embedded guidance while keeping formatting-only requests on the existing path.
+- Aligned installation instructions and package metadata with v3.7.0.
+
+### Limitations
+- Search targets do not imply model-specific optimization or guaranteed indexing, citations, or conversion gains. Encyclopedia support prepares drafts only; it does not submit entries or guarantee approval. Complete current Toutiao Baike editing rules remain unverified.
+- Tencent Cloud draft saving and reopening were verified with short structured content and one image; multiple images, long articles, and recovery through the draft list remain unverified.
+- OpenClaw guidance and embedded reference delivery were checked locally; actual OpenClaw host execution was not tested.
+
 ## [3.6.0] - 2026-09-12
 
 ### Added

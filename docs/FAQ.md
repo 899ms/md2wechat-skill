@@ -55,13 +55,13 @@ npm install -g @geekjourneyx/md2wechat
 如果你已经有稳定可用的 Go 环境，也可以：
 
 ```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.6.0
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.7.0
 ```
 
 如果以上都不适合，再走固定版本安装脚本：
 
 ```bash
-curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.6.0/install.sh | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.7.0/install.sh | bash
 ```
 
 安装脚本默认会把 CLI 放到：
@@ -152,13 +152,13 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 如果你已经有 Go 环境，再把第一步改成：
 
 ```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.6.0
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.7.0
 ```
 
 如果以上都不适合，再把第一步改成：
 
 ```bash
-curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.6.0/install.sh | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.7.0/install.sh | bash
 ```
 
 如果你懒得自己操作，也可以直接把下面的话发给 Claude Code / Codex / OpenCode：
@@ -167,8 +167,8 @@ curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.
 请先安装 md2wechat CLI，再安装 md2wechat skill，并验证版本和能力发现都正常。
 执行：
 1. 如果我是 mac 用户，先运行：brew install geekjourneyx/tap/md2wechat
-2. 如果我已经有稳定可用的 Go 环境，也可以改成：go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.6.0
-3. 如果以上两种都不适合，再运行：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.6.0/install.sh | bash
+2. 如果我已经有稳定可用的 Go 环境，也可以改成：go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.7.0
+3. 如果以上两种都不适合，再运行：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.7.0/install.sh | bash
 4. 运行：npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 5. 如果我是通过 install.sh 安装的，再执行：export PATH="$HOME/.local/bin:$PATH"
 6. md2wechat version --json
@@ -213,7 +213,7 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 如果你已经有 Go 环境，再改成：
 
 ```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.6.0
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.7.0
 md2wechat version --json
 npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 ```
@@ -221,7 +221,7 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 如果以上都不适合，再改成：
 
 ```bash
-curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.6.0/install.sh | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.7.0/install.sh | bash
 export PATH="$HOME/.local/bin:$PATH"
 md2wechat version --json
 npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
@@ -841,6 +841,8 @@ md2wechat convert article.md --upload --draft --cover cover.png --json
 
 ---
 
+腾讯云开发者社区使用新版富文本编辑器、“存草稿”按钮和带 `draftId` 的实际编辑地址恢复。平台说明为 `references/sync/tencent-cloud.md`；旧版 CLI 可能尚未内置，请以实际读取结果为准。图片和长文的验证范围见 [验证记录](SMOKE.md)。
+
 ### Q17：`access_token expired` 是不是凭证坏了？
 
 不一定。
@@ -958,6 +960,18 @@ Discovery JSON is emitted as one compact object plus a final newline. Pipe it th
 而不是直接依赖动态 IP 的 CI 环境去调用微信接口。
 
 ---
+
+### 可以同时指定平台、百科体和目标 AI 搜索吗？
+
+v3.7.0 的写作指引支持向 Agent 用自然语言提出组合需求，版本状态及用法见 [定向产品写作](WRITING.md)。写作模型、发布平台和希望被引用的搜索产品分别处理。没有适用依据时不会编造模型专属写法；指定目标不保证收录、引用或付费转化。
+
+### 头条号文章和头条百科词条是否一样？
+
+不一样。百科式文章是一种组织方式；百度百科、头条百科词条草稿需分别处理资料与内容要求。该流程支持准备草稿和必要来源，不提供百科提交，不保证通过。名称不明确时 Agent 会先辨明交付对象。
+
+### 为什么找不到写作指引？
+
+外部技能与已安装程序可能不是同一版本。以 `md2wechat skills read md2wechat references/writing/workflow.md --json` 的实际结果为准；该指引从 v3.7.0 起提供，按 [安装指南](INSTALL.md) 升级。
 
 ## 调试与求助
 
