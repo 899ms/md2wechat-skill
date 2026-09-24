@@ -275,7 +275,7 @@ subtitle: 关于耐心与开始
 
 新增 12 个可在 `layout show` 的 `symbol` enum 中发现的品牌图形：`mountain`、`concentric-circles`、`nested-diamonds`、`four-petals`、`lens`、`orbits`、`archway`、`rounded-seal`、`four-point-star`、`honeycomb`、`mirrored-waves`、`open-book`。原有 12 个经典符号仍可用于 `hero` 的 `masthead`、`section-title` 和 `closing`，但经典符号不会产生新的品牌动效。`hero` 的 `journal`、`seal`、`orbit` 只选择品牌图形；经典符号在 API 中会回退成固定装饰。
 
-全局有 11 个 motion key，具体模块只暴露适用子集。按 `layout show` 的 `Fields.Optional` 读取 `motion.enum`、`applies_to`、`value_applies_to` 和 `symbol_keys_by_value`：
+全局有 11 个 motion key，具体模块只暴露适用子集。按 `layout show` 的 `Fields.Optional` 中 `Name: "motion"` 对应字段读取 `Enum`、`AppliesTo`、`value_applies_to` 和 `symbol_keys_by_value`：
 
 | 位置 | 可用控制 | 特殊限制 |
 |---|---|---|

@@ -479,7 +479,7 @@ layout 内置 catalog 是唯一事实源，不读取用户目录、项目目录�
 
 默认 `layout list --json` 只返回 recommended lifecycle，其中包括 `gallery`。旧稿迁移时才运行 `layout list --lifecycle compatibility --json`；`dialogue`、`longimage` 不推荐给新稿。复杂正文使用 `layout render <name> --body-file <path>`（或 `--body-file -` 从 stdin 读取），opener 参数用可重复的 `--param KEY=VALUE`，方括号 caption 用 `--caption`。`cover-reveal` 和 `expand` 默认完整静态展示；`first-layer` 是显式点击候选，微信内行为待验证。
 
-品牌符号和动效以 `layout show hero|section-title|closing|author-card --json` 的 `symbol` / `motion` 字段为准。新品牌符号有 12 种；四个位置的 motion enum 与适用范围不同，`value_applies_to` 和 `symbol_keys_by_value` 指明哪些组合实际生效。不要把 API 的静态回退当成动效成功。
+品牌符号和动效以分别运行 `layout show <name> --json`（`<name>` 依次取 `hero`、`section-title`、`closing`、`author-card`）得到的 `symbol` / `motion` 字段为准。新品牌符号有 12 种；四个位置的 motion enum 与适用范围不同，`value_applies_to` 和 `symbol_keys_by_value` 指明哪些组合实际生效。不要把 API 的静态回退当成动效成功。
 
 When the user says "帮我排版这篇文章" without naming a theme or module, run discovery first, then use `layout list`, `layout show`, and `layout render` as primitives. The CLI does not parse `~/.config/md2wechat/brand.md`; Agents should read Brand Profile themselves and choose the final theme/modules. Keep the source Markdown read-only: create a temporary formatted Markdown artifact, validate it with `layout validate`, then pass that temporary file to `convert`. Saving generated Markdown near the source requires explicit user confirmation.
 

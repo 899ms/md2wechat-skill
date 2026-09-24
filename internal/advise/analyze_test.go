@@ -39,6 +39,7 @@ func TestAnalyzeRecommendsTitleWhenTitleMissing(t *testing.T) {
 	action := findAction(result.Actions, ToolTitle)
 	if action == nil {
 		t.Fatalf("missing title action in %#v", result.Actions)
+		return
 	}
 	if action.State != ActionStateRecommended {
 		t.Fatalf("title state = %q", action.State)
@@ -72,6 +73,7 @@ func TestAnalyzeRecommendsTitleWhenOnlyH2Exists(t *testing.T) {
 	action := findAction(result.Actions, ToolTitle)
 	if action == nil {
 		t.Fatalf("missing title action in %#v", result.Actions)
+		return
 	}
 	if !hasSignal(result.Article.Uncertainties, "title_missing") {
 		t.Fatalf("uncertainties = %#v", result.Article.Uncertainties)
@@ -93,6 +95,7 @@ func TestAnalyzeCoverCommandHintIncludesCLIName(t *testing.T) {
 	action := findAction(result.Actions, ToolCover)
 	if action == nil {
 		t.Fatalf("missing cover action in %#v", result.Actions)
+		return
 	}
 	if action.CommandHint != "md2wechat generate_cover --article "+shellQuote(source)+" --plan --json" {
 		t.Fatalf("command_hint = %q", action.CommandHint)
@@ -122,6 +125,7 @@ func TestAnalyzeRecommendsBoundedLayoutModules(t *testing.T) {
 		module := findModule(result.Layout.Recommended, name)
 		if module == nil {
 			t.Fatalf("missing %s recommendation: %#v", name, result.Layout.Recommended)
+			return
 		}
 		if module.State != ActionStateRecommended {
 			t.Fatalf("%s state = %q", name, module.State)
@@ -133,6 +137,7 @@ func TestAnalyzeRecommendsBoundedLayoutModules(t *testing.T) {
 	action := findAction(result.Actions, ToolLayout)
 	if action == nil {
 		t.Fatalf("missing layout action in %#v", result.Actions)
+		return
 	}
 	wantArgs := []string{"md2wechat", "layout", "list", "--json"}
 	if !reflect.DeepEqual(action.CommandArgs, wantArgs) {
@@ -198,6 +203,7 @@ func TestAnalyzeCTAAllowsNoRegistrationCopy(t *testing.T) {
 	module := findModule(result.Layout.Recommended, "cta")
 	if module == nil {
 		t.Fatalf("missing cta recommendation: %#v", result.Layout.Recommended)
+		return
 	}
 	if module.State != ActionStateRecommended {
 		t.Fatalf("cta state = %q", module.State)
@@ -216,6 +222,7 @@ func TestAnalyzeOmitsBodyRelativeEvidenceLineNumbersAfterFrontmatter(t *testing.
 	module := findModule(result.Layout.Recommended, "toc")
 	if module == nil {
 		t.Fatalf("missing toc recommendation: %#v", result.Layout.Recommended)
+		return
 	}
 	if len(module.Evidence) == 0 {
 		t.Fatalf("toc evidence = %#v", module.Evidence)

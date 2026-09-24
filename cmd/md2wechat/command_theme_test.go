@@ -42,6 +42,7 @@ func TestApplyEffectiveCommandThemeMatrix(t *testing.T) {
 			flag := command.cmd.Flags().Lookup("theme")
 			if flag == nil {
 				t.Fatal("theme flag is missing")
+				return
 			}
 			oldChanged := flag.Changed
 			t.Cleanup(func() { flag.Changed = oldChanged })
