@@ -32,6 +32,7 @@ func TestValidBodyFormats(t *testing.T) {
 		BodyFormatJSONArray,
 		BodyFormatMarkdownImages,
 		BodyFormatMarkdownFields,
+		BodyFormatFieldsMarkdown,
 		BodyFormatSplit,
 		BodyFormatLines,
 		BodyFormatDialogue,

@@ -52,7 +52,7 @@ func TestLayoutDocumentationCountContract(t *testing.T) {
 		}
 		counts = append(counts, value)
 	}
-	if want := []int{77, 56, 3, 4, 63}; !equalInts(counts, want) {
+	if want := []int{83, 59, 2, 4, 65}; !equalInts(counts, want) {
 		t.Fatalf("layout count contract = %v, want %v", counts, want)
 	}
 	if counts[1]+counts[2]+counts[3] != counts[4] {
@@ -64,11 +64,11 @@ func TestLayoutDocumentationCountContract(t *testing.T) {
 
 	discoveryText := readDocumentationFile(t, "../../docs/DISCOVERY.md")
 	semanticCounts := map[string]int{
-		"recommended_scenario_count": 77,
-		"recommended_syntax_count":   56,
-		"compatibility_module_count": 3,
+		"recommended_scenario_count": 83,
+		"recommended_syntax_count":   59,
+		"compatibility_module_count": 2,
 		"base_enhancement_count":     4,
-		"render_syntax_count":        63,
+		"render_syntax_count":        65,
 	}
 	for key, value := range semanticCounts {
 		pattern := regexp.MustCompile(`"` + regexp.QuoteMeta(key) + `"\s*:\s*` + strconv.Itoa(value) + `\b`)
@@ -96,6 +96,52 @@ func TestLayoutDocumentationCountContract(t *testing.T) {
 	}
 }
 
+func TestLayoutDocumentationReadmeCurrentReleaseTip(t *testing.T) {
+	version := strings.TrimSpace(readDocumentationFile(t, "../../VERSION"))
+	readme := readDocumentationFile(t, "../../README.md")
+	start := strings.Index(readme, "> [!TIP]\n")
+	if start < 0 {
+		t.Fatal("README top TIP missing")
+	}
+	tip := readme[start:]
+	if end := strings.Index(tip, "\n\n"); end >= 0 {
+		tip = tip[:end]
+	}
+	for _, required := range []string{"v" + version, "docs/LAYOUT.md", "docs/INSTALL.md", "微信内", "待验证"} {
+		if !strings.Contains(tip, required) {
+			t.Errorf("README top TIP missing %q", required)
+		}
+	}
+	for _, required := range []string{"83 个", "59 个", "2 个兼容", "4 个基础", "65 项"} {
+		if !strings.Contains(readme, required) {
+			t.Errorf("README current layout entry missing %q", required)
+		}
+	}
+}
+
+func TestLayoutDocumentationMilestoneSyntaxExamples(t *testing.T) {
+	text := readDocumentationFile(t, "../../docs/LAYOUT.md")
+	catalog := layoutcatalog.NewCatalog()
+	if err := catalog.Load(); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"cover-reveal", "expand", "gallery"} {
+		spec, ok := catalog.Get(name)
+		if !ok || spec.Lifecycle != layoutcatalog.LifecycleRecommended {
+			t.Errorf("%s is not recommended", name)
+		}
+		if !strings.Contains(text, ":::"+name) {
+			t.Errorf("layout guide missing %s syntax", name)
+		}
+		if report := catalog.Validate(spec.Example); len(report.Errors) != 0 {
+			t.Errorf("%s example invalid: %+v", name, report.Errors)
+		}
+	}
+	if strings.Contains(text, "`dialogue`、`gallery`、`longimage`") {
+		t.Fatal("gallery still presented as compatibility")
+	}
+}
+
 func TestLayoutDocumentationBodyFormatTroubleshootingContract(t *testing.T) {
 	text := readDocumentationFile(t, "../../docs/LAYOUT.md")
 	start := strings.Index(text, "### 错误 5：")
@@ -106,7 +152,7 @@ func TestLayoutDocumentationBodyFormatTroubleshootingContract(t *testing.T) {
 	if end := strings.Index(section, "\n---"); end >= 0 {
 		section = section[:end]
 	}
-	for _, format := range []string{"fields", "rows", "json_object", "json_array", "markdown_images", "markdown_fields", "split", "lines", "dialogue"} {
+	for _, format := range []string{"fields", "rows", "json_object", "json_array", "markdown_images", "markdown_fields", "fields_markdown", "split", "lines", "dialogue"} {
 		if !strings.Contains(section, "`"+format+"`") {
 			t.Errorf("body-format troubleshooting must cover %q", format)
 		}

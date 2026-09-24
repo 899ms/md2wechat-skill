@@ -24,6 +24,7 @@ type e2eWitness struct {
 	Module           string
 	Variant          string
 	EffectiveVariant string
+	Params           map[string]string
 	Markdown         string
 	Probe            string
 	ProbeInImageAlt  bool
@@ -46,7 +47,7 @@ type e2eSettings struct {
 
 const layoutConformanceRequestTimeout = 30 * time.Second
 
-const pinnedUpstreamFieldContractSHA = "0e7027616dd1654802cf11615f6ba8bd23e539ae"
+const pinnedUpstreamFieldContractSHA = "984d557651625ceac5b6aed60a373b541777d0e2a8a792fc3cf4812728d6b30b"
 
 func layoutConformanceCatalog() (*layoutcatalog.Catalog, error) {
 	catalog := layoutcatalog.NewCatalog()
@@ -287,6 +288,31 @@ func TestSemanticConformanceRules(t *testing.T) {
 	}
 }
 
+func TestMilestoneBranchConformanceRejectsWrongRemoteDOM(t *testing.T) {
+	for _, tt := range []struct {
+		name, module, markdown, html, wrong string
+	}{
+		{"cover static", "cover-reveal", ":::cover-reveal\ntitle: Probe\n:::", `<section data-mpa-action-id="cover-reveal" data-cover-mode="static">Probe</section>`, `<section data-mpa-action-id="cover-reveal" data-cover-mode="svg-once">Probe</section>`},
+		{"cover candidate", "cover-reveal", ":::cover-reveal{svg_fallback=first-layer}\ntitle: Probe\n:::", `<section data-mpa-action-id="cover-reveal" data-cover-mode="svg-once">Probe</section>`, `<section data-mpa-action-id="cover-reveal" data-cover-mode="static">Probe</section>`},
+		{"cover strict", "cover-reveal", ":::cover-reveal{svg_fallback=first-layer wechat_safe_level=strict}\ntitle: Probe\n:::", `<section data-mpa-action-id="cover-reveal" data-cover-mode="static">Probe</section>`, `<section data-mpa-action-id="cover-reveal" data-cover-mode="svg-once">Probe</section>`},
+		{"expand static", "expand", ":::expand\ntitle: Probe\n---\nBody\n:::", `<section data-mpa-action-id="expand" data-expand-mode="static">Probe Body</section>`, `<details data-mpa-action-id="expand" data-expand-mode="native-disclosure">Probe Body</details>`},
+		{"expand candidate", "expand", ":::expand{svg_fallback=first-layer}\ntitle: Probe\n---\nBody\n:::", `<details data-mpa-action-id="expand" data-expand-mode="native-disclosure">Probe Body</details>`, `<section data-mpa-action-id="expand" data-expand-mode="static">Probe Body</section>`},
+		{"expand strict", "expand", ":::expand{svg_fallback=first-layer wechat_safe_level=strict}\ntitle: Probe\n---\nBody\n:::", `<section data-mpa-action-id="expand" data-expand-mode="static">Probe Body</section>`, `<details data-mpa-action-id="expand" data-expand-mode="native-disclosure">Probe Body</details>`},
+		{"gallery one", "gallery", ":::gallery\n![Probe](https://example.com/a.jpg)\n:::", `<section data-mpa-action-id="gallery"><img alt="Probe"></section>`, `<section data-mpa-action-id="gallery"><section tabindex="0"><img alt="Probe"></section></section>`},
+		{"gallery two", "gallery", ":::gallery\n![Probe](https://example.com/a.jpg)\n![Two](https://example.com/b.jpg)\n:::", `<section data-mpa-action-id="gallery"><section tabindex="0"><img alt="Probe"><img alt="Two"></section></section>`, `<section data-mpa-action-id="gallery"><img alt="Probe"><img alt="Two"></section>`},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			witness := e2eWitness{Module: tt.module, Markdown: tt.markdown, Probe: "Probe", Params: witnessParams(tt.markdown, tt.module), ProbeInImageAlt: tt.module == "gallery"}
+			if err := checkConformanceHTML(witness, tt.html); err != nil {
+				t.Fatalf("valid branch: %v", err)
+			}
+			if err := checkConformanceHTML(witness, tt.wrong); err == nil {
+				t.Fatal("wrong branch accepted")
+			}
+		})
+	}
+}
+
 func TestSemanticConformanceEnforcesHeroMastheadAndExactCTAVariantStructures(t *testing.T) {
 	if err := checkSemanticConformance(e2eWitness{Module: "hero", Variant: "masthead"}, `<section></section>`); err == nil {
 		t.Fatal("masthead without its structural part must fail")
@@ -429,8 +455,8 @@ func TestCompactPR1BoundaryAndThemeProbeConstructionIsCatalogBacked(t *testing.T
 			symbols = field.Enum
 		}
 	}
-	if len(symbols) != 12 {
-		t.Fatalf("symbol enum count = %d, want 12", len(symbols))
+	if len(symbols) != 24 {
+		t.Fatalf("symbol enum count = %d, want 24", len(symbols))
 	}
 	for _, symbol := range symbols {
 		assertValid(":::hero\nvariant: masthead\ntitle: Probe\nsymbol: " + symbol + "\n:::\n")
@@ -491,7 +517,7 @@ func TestSVGGallerySemanticConformanceCountsSVGImageElements(t *testing.T) {
 }
 
 func TestImageWitnessRetainsStableAltContent(t *testing.T) {
-	witness := e2eWitness{Module: "gallery", Probe: "图一", ProbeInImageAlt: true}
+	witness := e2eWitness{Module: "gallery", Markdown: ":::gallery\n![图一](https://example.com/one.jpg)\n:::", Probe: "图一", ProbeInImageAlt: true}
 	if err := checkConformanceHTML(witness, `<section data-mpa-action-id="gallery"><img alt="图一"></section>`); err != nil {
 		t.Fatal(err)
 	}
@@ -889,6 +915,7 @@ func TestDeterministicWitnessProbe(t *testing.T) {
 	}{
 		{name: "fields skip variant control", format: layoutcatalog.BodyFormatFields, markdown: ":::demo\nvariant: compact\ntitle: Field probe\n:::\n", want: "Field probe"},
 		{name: "markdown fields", format: layoutcatalog.BodyFormatMarkdownFields, markdown: ":::demo\nvariant: compact\ntitle: Markdown field probe\n:::\n", want: "Markdown field probe"},
+		{name: "fields markdown", format: layoutcatalog.BodyFormatFieldsMarkdown, markdown: ":::demo\ntitle: Heading\n---\nMarkdown body probe\n:::\n", want: "Markdown body probe"},
 		{name: "JSON object", format: layoutcatalog.BodyFormatJSONObject, markdown: ":::demo\n{\"type\":\"compact\",\"title\":\"JSON probe\"}\n:::\n", want: "JSON probe"},
 		{name: "JSON array", format: layoutcatalog.BodyFormatJSONArray, markdown: ":::demo\n[{\"title\":\"Array probe\"}]\n:::\n", want: "Array probe"},
 		{name: "rows", format: layoutcatalog.BodyFormatRows, markdown: ":::demo\n Row probe | second\n:::\n", want: "Row probe"},
@@ -1190,7 +1217,7 @@ func collectAllE2EWitnesses(c *layoutcatalog.Catalog) ([]e2eWitnessGroup, error)
 	return groups, nil
 }
 
-func TestCollectAllE2EWitnessesHasStable84WitnessContract(t *testing.T) {
+func TestCollectAllE2EWitnessesHasStable93WitnessContract(t *testing.T) {
 	c, err := layoutConformanceCatalog()
 	if err != nil {
 		t.Fatal(err)
@@ -1202,20 +1229,20 @@ func TestCollectAllE2EWitnessesHasStable84WitnessContract(t *testing.T) {
 	if len(groups) != 2 || groups[0].Lifecycle != layoutcatalog.LifecycleRecommended || groups[1].Lifecycle != layoutcatalog.LifecycleCompatibility {
 		t.Fatalf("lifecycle groups = %+v", groups)
 	}
-	if got := len(groups[0].Witnesses) + len(groups[1].Witnesses); got != 84 {
-		t.Fatalf("witness count = %d, want 84", got)
+	if got := len(groups[0].Witnesses) + len(groups[1].Witnesses); got != 93 {
+		t.Fatalf("witness count = %d, want 93", got)
 	}
-	if got := len(groups[0].Witnesses); got != 81 {
-		t.Fatalf("recommended witness count = %d, want 81 (56 canonical + 25 non-default branches)", got)
+	if got := len(groups[0].Witnesses); got != 91 {
+		t.Fatalf("recommended witness count = %d, want 91 (59 canonical + 32 non-default branches)", got)
 	}
-	if got := len(c.ListFiltered(layoutcatalog.ListFilter{Lifecycle: layoutcatalog.LifecycleRecommended})); got != 56 {
-		t.Fatalf("recommended canonical witness count = %d, want 56", got)
+	if got := len(c.ListFiltered(layoutcatalog.ListFilter{Lifecycle: layoutcatalog.LifecycleRecommended})); got != 59 {
+		t.Fatalf("recommended canonical witness count = %d, want 59", got)
 	}
-	if got := len(groups[0].Witnesses) - len(c.ListFiltered(layoutcatalog.ListFilter{Lifecycle: layoutcatalog.LifecycleRecommended})); got != 25 {
-		t.Fatalf("recommended non-default branch witness count = %d, want 25", got)
+	if got := len(groups[0].Witnesses) - len(c.ListFiltered(layoutcatalog.ListFilter{Lifecycle: layoutcatalog.LifecycleRecommended})); got != 32 {
+		t.Fatalf("recommended non-default branch witness count = %d, want 32", got)
 	}
-	if got := len(groups[1].Witnesses); got != 3 {
-		t.Fatalf("compatibility witness count = %d, want 3", got)
+	if got := len(groups[1].Witnesses); got != 2 {
+		t.Fatalf("compatibility witness count = %d, want 2", got)
 	}
 }
 
@@ -1565,6 +1592,50 @@ func checkSemanticConformance(witness e2eWitness, rendered string) error {
 }
 
 func checkSemanticConformanceNode(witness e2eWitness, node *html.Node) error {
+	if witness.Module == "author-card" {
+		images := countDOMElements(node, "img")
+		if witness.Variant == "avatar" && images == 0 {
+			return fmt.Errorf("author-card/avatar response missing avatar image")
+		}
+		if witness.Variant == "" && images != 0 {
+			return fmt.Errorf("author-card/initials unexpectedly rendered an avatar image")
+		}
+	}
+	if witness.Module == "cover-reveal" || witness.Module == "expand" {
+		modeAttribute, expected := "data-cover-mode", "static"
+		if witness.Module == "expand" {
+			modeAttribute = "data-expand-mode"
+		}
+		if witness.Params["svg_fallback"] == "first-layer" && witness.Params["wechat_safe_level"] != "strict" {
+			if witness.Module == "cover-reveal" {
+				expected = "svg-once"
+			} else {
+				expected = "native-disclosure"
+			}
+		}
+		if !hasDOMAttributeValue(node, modeAttribute, expected) {
+			return fmt.Errorf("%s response missing %s=%q", witness.Module, modeAttribute, expected)
+		}
+	}
+	if witness.Module == "gallery" {
+		body, err := firstWitnessBody(witness.Markdown)
+		if err != nil {
+			return err
+		}
+		images := 0
+		for _, line := range body {
+			if witnessImageRE.MatchString(line) {
+				images++
+			}
+		}
+		if images == 0 || countDOMElements(node, "img") < images {
+			return fmt.Errorf("gallery response missing %d image(s)", images)
+		}
+		manualScroll := hasDOMAttributeValue(node, "tabindex", "0")
+		if manualScroll != (images > 1) {
+			return fmt.Errorf("gallery response manual-scroll marker mismatch for %d images", images)
+		}
+	}
 	if witness.Module == "hero" && witness.Variant == "masthead" && !hasDOMAttributeValue(node, "data-module-part", "hero-masthead") {
 		return fmt.Errorf("hero/masthead response missing data-module-part=%q", "hero-masthead")
 	}
@@ -1849,10 +1920,16 @@ func witnessesForSpec(c *layoutcatalog.Catalog, spec *layoutcatalog.LayoutSpec) 
 	declared := make([]struct {
 		variant, markdown, assertion string
 		aliases                      []string
+		selectorParam                string
+		selectorFieldPresent         string
+		selectorBodyImages           int
 	}, 0, 1+len(spec.Variants))
 	declared = append(declared, struct {
 		variant, markdown, assertion string
 		aliases                      []string
+		selectorParam                string
+		selectorFieldPresent         string
+		selectorBodyImages           int
 	}{markdown: spec.Example, assertion: spec.ExampleAssertContains})
 	for _, variant := range spec.Variants {
 		// Only structural branches with executable examples receive separate
@@ -1863,13 +1940,16 @@ func witnessesForSpec(c *layoutcatalog.Catalog, spec *layoutcatalog.LayoutSpec) 
 		declared = append(declared, struct {
 			variant, markdown, assertion string
 			aliases                      []string
-		}{variant: variant.Name, aliases: variant.Aliases, markdown: variant.Example, assertion: variant.AssertContains})
+			selectorParam                string
+			selectorFieldPresent         string
+			selectorBodyImages           int
+		}{variant: variant.Name, aliases: variant.Aliases, selectorParam: variant.SelectorParam, selectorFieldPresent: variant.SelectorFieldPresent, selectorBodyImages: variant.SelectorBodyImages, markdown: variant.Example, assertion: variant.AssertContains})
 	}
 
 	witnesses := make([]e2eWitness, 0, len(declared))
 	for _, item := range declared {
 		if err := c.ValidateWitness(layoutcatalog.WitnessContract{
-			Module: spec.Name, Variant: item.variant, VariantAliases: item.aliases,
+			Module: spec.Name, Variant: item.variant, VariantAliases: item.aliases, SelectorParam: item.selectorParam, SelectorFieldPresent: item.selectorFieldPresent, SelectorBodyImages: item.selectorBodyImages,
 			Example: item.markdown, AssertContains: item.assertion,
 		}); err != nil {
 			return nil, err
@@ -1896,10 +1976,20 @@ func witnessesForSpec(c *layoutcatalog.Catalog, spec *layoutcatalog.LayoutSpec) 
 		}
 		witnesses = append(witnesses, e2eWitness{
 			Module: spec.Name, Variant: item.variant, EffectiveVariant: canonicalSelectorDefault(spec, item.variant), Markdown: rendered,
-			Probe: probe, ProbeInImageAlt: probeInImageAlt, RowDelimiter: rowsDelimiter(spec),
+			Probe: probe, ProbeInImageAlt: probeInImageAlt, RowDelimiter: rowsDelimiter(spec), Params: witnessParams(rendered, spec.Name),
 		})
 	}
 	return witnesses, nil
+}
+
+func witnessParams(markdown, module string) map[string]string {
+	line, _, _ := strings.Cut(markdown, "\n")
+	suffix := strings.TrimSpace(strings.TrimPrefix(line, ":::"+module))
+	if strings.HasPrefix(suffix, "{") && strings.HasSuffix(suffix, "}") {
+		suffix = suffix[1 : len(suffix)-1]
+	}
+	params, _ := witnessOpenerParams(suffix)
+	return params
 }
 
 func rowsDelimiter(spec *layoutcatalog.LayoutSpec) string {
@@ -1992,6 +2082,20 @@ func deterministicWitnessProbe(spec *layoutcatalog.LayoutSpec, markdown string) 
 			}
 			if value = strings.TrimSpace(value); value != "" {
 				return value, nil
+			}
+		}
+	case layoutcatalog.BodyFormatFieldsMarkdown:
+		inBody := false
+		for _, line := range body {
+			line = strings.TrimSpace(strings.TrimRight(line, "\r"))
+			if !inBody {
+				if line == "---" {
+					inBody = true
+				}
+				continue
+			}
+			if line != "" && line != "---" && !strings.HasPrefix(line, "```") && !strings.HasPrefix(line, "~~~") && !strings.HasPrefix(line, ":::") {
+				return line, nil
 			}
 		}
 	case layoutcatalog.BodyFormatJSONObject, layoutcatalog.BodyFormatJSONArray:

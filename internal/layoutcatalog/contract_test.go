@@ -45,8 +45,8 @@ type upstreamAgentContractProjection struct {
 	Applicability map[string][]string `yaml:"applicability"`
 }
 
-const upstreamAgentContractContentSHA256 = "c6ca6d8a26b1bc694a8cef72ff6c7d517366f4331bb7ee978dbdae5556636fbd"
-const upstreamAgentContractProjectionSHA256 = "463c181d4def8a4c88ac4361febc5c26ae3b39f56acc388cdb7828beb67f92bb"
+const upstreamAgentContractContentSHA256 = "730048f5e1038616ae5254d1d135ae483cdeb9bb47bfeb6a783bfa3bd5b99c41"
+const upstreamAgentContractProjectionSHA256 = "7c36bbbf540eb1a7b2f13f31c5c382513431d5e6c9418c22d72dc21642db4c5c"
 
 func TestUpstreamAgentContractProjectionOracle(t *testing.T) {
 	data, err := os.ReadFile("testdata/upstream_agent_contract_projections.yaml")
@@ -60,14 +60,14 @@ func TestUpstreamAgentContractProjectionOracle(t *testing.T) {
 	if got := fmt.Sprintf("%x", sha256.Sum256(data)); got != upstreamAgentContractProjectionSHA256 {
 		t.Fatalf("projection fixture digest = %q, want %q", got, upstreamAgentContractProjectionSHA256)
 	}
-	if oracle.SourceCommit != "0e7027616dd1654802cf11615f6ba8bd23e539ae" {
+	if oracle.SourceCommit != "2795cf552383fa6883733b7dec56dc7b3bda8aa1" {
 		t.Fatalf("upstream source commit = %q", oracle.SourceCommit)
 	}
-	if want := []string{"__tests__/fixtures/advanced-layout-agent-contract.ts", "advanced-layout-modules-guide.md"}; !slices.Equal(oracle.SourceFiles, want) {
+	if want := []string{"__tests__/fixtures/advanced-layout-agent-contract.ts", "docs/advanced-layout-modules-guide.md"}; !slices.Equal(oracle.SourceFiles, want) {
 		t.Fatalf("projection source files = %v, want %v", oracle.SourceFiles, want)
 	}
-	if len(oracle.Projections) != 56 {
-		t.Fatalf("projection count = %d, want 56", len(oracle.Projections))
+	if len(oracle.Projections) != 59 {
+		t.Fatalf("projection count = %d, want 59", len(oracle.Projections))
 	}
 	seen := make(map[string]bool, len(oracle.Projections))
 	for _, projection := range oracle.Projections {
@@ -93,17 +93,17 @@ func TestUpstreamAgentContractProjectionOracle(t *testing.T) {
 
 func TestUpstreamAgentContractOracle(t *testing.T) {
 	oracle := readUpstreamAgentContracts(t)
-	if oracle.SourceCommit != "0e7027616dd1654802cf11615f6ba8bd23e539ae" {
+	if oracle.SourceCommit != "2795cf552383fa6883733b7dec56dc7b3bda8aa1" {
 		t.Fatalf("upstream source commit = %q", oracle.SourceCommit)
 	}
 	if oracle.SourceFile != "__tests__/fixtures/advanced-layout-agent-contract.ts" {
 		t.Fatalf("upstream source file = %q", oracle.SourceFile)
 	}
-	if oracle.SourceSHA256 != "265b50ae88d3688614273423df1d5de7fddfb899fc7d496a6c88d37ec66ff1d3" {
+	if oracle.SourceSHA256 != "984d557651625ceac5b6aed60a373b541777d0e2a8a792fc3cf4812728d6b30b" {
 		t.Fatalf("upstream source digest = %q", oracle.SourceSHA256)
 	}
-	if len(oracle.Contracts) != 56 {
-		t.Fatalf("contract count = %d, want 56", len(oracle.Contracts))
+	if len(oracle.Contracts) != 59 {
+		t.Fatalf("contract count = %d, want 59", len(oracle.Contracts))
 	}
 
 	seen := make(map[string]bool, len(oracle.Contracts))
@@ -361,6 +361,9 @@ func directlyRepresentableContractControl(spec *LayoutSpec, want upstreamAgentCo
 }
 
 func abstractSemanticRequirement(syntax, name string) bool {
+	if syntax == "expand" && (name == "markdown-body" || name == "separator") {
+		return true
+	}
 	if name == "image" || name == "fit-or-avoid" || name == "title-or-body-or-next" ||
 		name == "title-or-body" || name == "left-body" || name == "right-body" ||
 		name == "nodes" || name == "rows" || name == "Q" || name == "A" ||
@@ -439,6 +442,8 @@ func abstractRequirementRepresented(spec *LayoutSpec, want upstreamAgentContract
 		return spec.Body != nil && spec.Body.MinImages > 0
 	case "left-body", "right-body":
 		return spec.BodyFormat == BodyFormatSplit && spec.Body != nil && spec.Body.Separator != "" && spec.Body.MinItems >= 2
+	case "markdown-body", "separator":
+		return want.Syntax == "expand" && spec.BodyFormat == BodyFormatFieldsMarkdown && spec.Body != nil && spec.Body.Separator == "---" && spec.Body.MinItems >= 1
 	case "nodes":
 		return spec.Body != nil && spec.Body.MinItems > 0
 	case "rows":
@@ -527,7 +532,7 @@ func comparePublicDefaults(t *testing.T, spec *LayoutSpec, want upstreamAgentCon
 }
 
 func abstractOracleDefault(name string) bool {
-	return name == "caps" || strings.HasPrefix(name, "max-") || strings.HasPrefix(name, "unknown-") ||
+	return name == "caps" || name == "single-image" || name == "multi-image" || strings.HasPrefix(name, "max-") || strings.HasPrefix(name, "unknown-") ||
 		strings.HasPrefix(name, "omitted-") || strings.HasSuffix(name, "-out-of-range") || name == "proof-without-source"
 }
 
@@ -1002,7 +1007,6 @@ func TestNewImageModuleContracts(t *testing.T) {
 				{name: "caption_style", enum: []string{"none", "minimal", "numbered", "label"}, defaultValue: "minimal"},
 				{name: "accent", enum: []string{"brand", "muted", "contrast"}, defaultValue: "brand"},
 				{name: "wechat_safe_level", enum: []string{"strict", "normal"}, defaultValue: "normal"},
-				{name: "title"}, {name: "description"},
 			},
 			metadata: LayoutMetadata{Author: "md2wechat", Provenance: "builtin", InspiredBy: "advanced-layout-modules-guide.md#gallery-grid"},
 			example:  galleryGridGuideSnippet,
@@ -1239,7 +1243,7 @@ var recommendedModuleNames = []string{
 	"audience-fit", "author-card", "bridge", "callout", "cards", "cases",
 	"changelog", "checklist", "compare", "comparison-table", "cta", "definition",
 	"dialogue-pair", "faq", "figure-caption", "flow", "gallery-grid", "gallery-story",
-	"hero", "image-annotate", "image-compare", "image-phone-shot", "image-steps", "closing",
+	"hero", "cover-reveal", "expand", "gallery", "image-annotate", "image-compare", "image-phone-shot", "image-steps", "closing",
 	"image-text", "infographic", "label-title", "logos", "manifesto", "matrix",
 	"metrics", "myth-fact", "notice", "part", "people", "pricing", "question",
 	"quote", "quote-card", "resource-list", "series", "specs", "split", "stat-row",
@@ -1247,11 +1251,30 @@ var recommendedModuleNames = []string{
 	"toc", "toolbox", "tweet", "verdict",
 }
 
-var compatibilityModuleNames = []string{"dialogue", "gallery", "longimage"}
+var compatibilityModuleNames = []string{"dialogue", "longimage"}
 
 func TestRecommendedSyntaxInventoryHasExactCount(t *testing.T) {
-	if got := len(recommendedModuleNames); got != 56 {
-		t.Fatalf("recommended syntax inventory = %d, want 56", got)
+	if got := len(recommendedModuleNames); got != 59 {
+		t.Fatalf("recommended syntax inventory = %d, want 59", got)
+	}
+}
+
+func TestMilestoneLayoutInventory(t *testing.T) {
+	c := NewCatalog()
+	if err := c.Load(); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(c.ListFiltered(ListFilter{})); got != 59 {
+		t.Fatalf("recommended syntax count = %d, want 59", got)
+	}
+	if got := len(c.ListFiltered(ListFilter{Lifecycle: LifecycleCompatibility})); got != 2 {
+		t.Fatalf("compatibility syntax count = %d, want 2", got)
+	}
+	for _, name := range []string{"cover-reveal", "expand", "gallery"} {
+		spec, ok := c.Get(name)
+		if !ok || spec.Lifecycle != LifecycleRecommended {
+			t.Errorf("%s is not recommended", name)
+		}
 	}
 }
 
@@ -1304,11 +1327,6 @@ func TestBuiltinCompatibilityModuleSetMatchesUpstream(t *testing.T) {
 
 func TestCompatibilityModuleContracts(t *testing.T) {
 	contracts := map[string]compatibilityLayoutContract{
-		"gallery": {
-			format: BodyFormatMarkdownImages, replacement: "gallery-grid",
-			opener: &OpenerSpec{Caption: true}, body: &BodySpec{MinImages: 1},
-			example: galleryCompatibilityGuideSnippet,
-		},
 		"dialogue": {
 			format: BodyFormatDialogue, replacement: "dialogue-pair",
 			opener: &OpenerSpec{Caption: true}, body: &BodySpec{MinItems: 1, AllowNamedSpeakers: true},
@@ -1321,7 +1339,6 @@ func TestCompatibilityModuleContracts(t *testing.T) {
 		},
 	}
 	wantAssertions := map[string]string{
-		"gallery":   "",
 		"dialogue":  "你好",
 		"longimage": "",
 	}
@@ -1421,12 +1438,6 @@ func TestCompatibilityModuleRejectedCases(t *testing.T) {
 	}
 }
 
-const galleryCompatibilityGuideSnippet = `:::gallery[主题画廊]
-![图一](https://example.com/1.png)
-![图二](https://example.com/2.png)
-:::
-`
-
 const dialogueCompatibilityGuideSnippet = `:::dialogue[主题对话]
 甲：你好
 乙：你好
@@ -1500,14 +1511,15 @@ func TestKnownDriftContractsAreCalibrated(t *testing.T) {
 }
 
 func TestTitleAndClosureCatalogContracts(t *testing.T) {
-	const sharedSymbols = "spark-solid,spark-outline,diamond-solid,diamond-outline,reference-mark,asterism,double-circle,circle,square-solid,square-outline,star,infinity"
+	const classicSymbols = "spark-solid,spark-outline,diamond-solid,diamond-outline,reference-mark,asterism,double-circle,circle,square-solid,square-outline,star,infinity"
+	const brandSymbols = ",mountain,concentric-circles,nested-diamonds,four-petals,lens,orbits,archway,rounded-seal,four-point-star,honeycomb,mirrored-waves,open-book"
 	type contract struct {
 		category, defaultVariant, defaultSymbol string
 		variants                                []string
 		inputPositions                          []AgentInputPosition
 	}
 	contracts := map[string]contract{
-		"hero":          {category: "opening", defaultVariant: "editorial", variants: []string{"editorial", "briefing", "story", "masthead"}, inputPositions: []AgentInputPosition{InputBodyKV}},
+		"hero":          {category: "opening", defaultVariant: "editorial", variants: []string{"editorial", "briefing", "story", "masthead", "journal", "seal", "orbit"}, inputPositions: []AgentInputPosition{InputBodyKV}},
 		"section-title": {category: "opening", defaultVariant: "marker", variants: []string{"marker", "divider", "numbered", "frame", "focus", "vertical"}, inputPositions: []AgentInputPosition{InputBodyKV}},
 		"epilogue":      {category: "opening", defaultSymbol: "infinity", inputPositions: []AgentInputPosition{InputBodyKV}},
 		"closing":       {category: "conversion", defaultSymbol: "asterism", inputPositions: []AgentInputPosition{InputBodyKV}},
@@ -1541,13 +1553,17 @@ func TestTitleAndClosureCatalogContracts(t *testing.T) {
 				}
 			}
 			if name == "hero" || name == "section-title" || name == "epilogue" || name == "closing" {
-				if got := strings.Join(fieldByName(spec.Fields.Optional, "symbol").Enum, ","); got != sharedSymbols {
-					t.Fatalf("symbol enum = %q, want %q", got, sharedSymbols)
+				wantSymbols := classicSymbols
+				if name != "epilogue" {
+					wantSymbols += brandSymbols
+				}
+				if got := strings.Join(fieldByName(spec.Fields.Optional, "symbol").Enum, ","); got != wantSymbols {
+					t.Fatalf("symbol enum = %q, want %q", got, wantSymbols)
 				}
 			}
 			switch name {
 			case "hero":
-				if got := fieldByName(spec.Fields.Optional, "symbol"); !slices.Equal(got.AppliesTo, []string{"masthead"}) || got.Default != "" {
+				if got := fieldByName(spec.Fields.Optional, "symbol"); !slices.Equal(got.AppliesTo, []string{"masthead", "journal", "seal", "orbit"}) || got.Default != "" {
 					t.Fatalf("masthead symbol = %#v", got)
 				}
 				if got := variantDefaults(spec.Variants, "masthead"); !reflect.DeepEqual(got, map[string]string{"symbol": "spark-solid"}) {

@@ -27,6 +27,10 @@ hero-editorial|hero|editorial
 hero-briefing|hero|briefing
 hero-story|hero|story
 hero-masthead|hero|masthead
+hero-journal|hero|journal
+hero-seal|hero|seal
+hero-orbit|hero|orbit
+cover-reveal|cover-reveal|
 cards|cards|
 part|part|
 epilogue|epilogue|
@@ -54,6 +58,7 @@ infographic-anatomy|infographic|anatomy
 infographic-tradeoff|infographic|tradeoff
 infographic-evidence-chain|infographic|evidence-chain
 infographic-micro-case|infographic|micro-case
+expand|expand|
 metrics|metrics|
 compare|compare|
 steps|steps|
@@ -61,6 +66,7 @@ timeline|timeline|
 quote-light|quote|light
 quote-brand|quote|brand
 quote-proof|quote|proof
+gallery|gallery|
 image-text|image-text|
 image-compare|image-compare|
 image-annotate|image-annotate|
@@ -104,13 +110,13 @@ dialogue-pair|dialogue-pair|
 
 func TestRecommendedScenarioMappingMatchesPinnedSources(t *testing.T) {
 	m := readRecommendedScenarioMap(t)
-	if m.SourceCommit != "0e7027616dd1654802cf11615f6ba8bd23e539ae" || m.SourceFile != "lib/advanced-module-groups.ts" {
+	if m.SourceCommit != "2795cf552383fa6883733b7dec56dc7b3bda8aa1" || m.SourceFile != "lib/advanced-module-groups.ts" {
 		t.Fatalf("source = %q:%q", m.SourceCommit, m.SourceFile)
 	}
-	if m.SourceSHA256 != "ca78e6c32617ef380fa665f5817049bc9d6d6b502bfd841d42977050dd707756" {
+	if m.SourceSHA256 != "9c2e13209bbcd1bb1e5730102c0134fd095dcfd7db5f7c1e53dd2ea601257828" {
 		t.Fatalf("source digest = %q", m.SourceSHA256)
 	}
-	if len(m.Scenarios) != 77 {
+	if len(m.Scenarios) != 83 {
 		t.Fatalf("scenario count = %d", len(m.Scenarios))
 	}
 	if err := comparePinnedScenarioTuples(m); err != nil {
@@ -125,8 +131,8 @@ func TestRecommendedScenarioMappingMatchesPinnedSources(t *testing.T) {
 		seenIDs[scenario.ID] = true
 		coveredModules[scenario.Module] = true
 	}
-	if len(coveredModules) != 51 {
-		t.Fatalf("covered module count = %d, want 51", len(coveredModules))
+	if len(coveredModules) != 54 {
+		t.Fatalf("covered module count = %d, want 54", len(coveredModules))
 	}
 	wantGuideOnly := []string{
 		"figure-caption", "gallery-grid", "gallery-story", "svg-reveal", "svg-swipe-gallery",
@@ -217,7 +223,7 @@ func assertScenarioHasWitness(t *testing.T, spec *LayoutSpec, variant string) {
 			return
 		}
 		if err := c.ValidateWitness(WitnessContract{
-			Module: spec.Name, Variant: candidate.Name, VariantAliases: candidate.Aliases,
+			Module: spec.Name, Variant: candidate.Name, VariantAliases: candidate.Aliases, SelectorParam: candidate.SelectorParam, SelectorFieldPresent: candidate.SelectorFieldPresent, SelectorBodyImages: candidate.SelectorBodyImages,
 			Example: candidate.Example, AssertContains: candidate.AssertContains,
 		}); err != nil {
 			t.Fatal(err)
@@ -375,7 +381,7 @@ func TestBuiltinVariantWitnesses(t *testing.T) {
 			}
 			t.Run(spec.Name+"/"+variant.Name, func(t *testing.T) {
 				if err := c.ValidateWitness(WitnessContract{
-					Module: spec.Name, Variant: variant.Name, VariantAliases: variant.Aliases,
+					Module: spec.Name, Variant: variant.Name, VariantAliases: variant.Aliases, SelectorParam: variant.SelectorParam, SelectorFieldPresent: variant.SelectorFieldPresent, SelectorBodyImages: variant.SelectorBodyImages,
 					Example: variant.Example, AssertContains: variant.AssertContains,
 				}); err != nil {
 					t.Fatal(err)
@@ -406,7 +412,7 @@ func TestBuiltinExecutableWitnessesAreComplete(t *testing.T) {
 					t.Fatal("variant use_when is required")
 				}
 				if err := c.ValidateWitness(WitnessContract{
-					Module: spec.Name, Variant: variant.Name, VariantAliases: variant.Aliases,
+					Module: spec.Name, Variant: variant.Name, VariantAliases: variant.Aliases, SelectorParam: variant.SelectorParam, SelectorFieldPresent: variant.SelectorFieldPresent, SelectorBodyImages: variant.SelectorBodyImages,
 					Example: variant.Example, AssertContains: variant.AssertContains,
 				}); err != nil {
 					t.Fatal(err)
@@ -436,13 +442,13 @@ func TestBuiltinRemoteWitnessInventory(t *testing.T) {
 		}
 	}
 	const (
-		recommendedCanonicalWitnessCount = 56
-		structuralVariantWitnessCount    = 25
-		compatibilityWitnessCount        = 3
+		recommendedCanonicalWitnessCount = 59
+		structuralVariantWitnessCount    = 32
+		compatibilityWitnessCount        = 2
 	)
 	wantTotal := recommendedCanonicalWitnessCount + structuralVariantWitnessCount + compatibilityWitnessCount
 	if canonical != recommendedCanonicalWitnessCount || variants != structuralVariantWitnessCount || compatibility != compatibilityWitnessCount || canonical+variants+compatibility != wantTotal {
-		t.Fatalf("witness inventory = canonical:%d variants:%d compatibility:%d total:%d, want 56/25/3/%d", canonical, variants, compatibility, canonical+variants+compatibility, wantTotal)
+		t.Fatalf("witness inventory = canonical:%d variants:%d compatibility:%d total:%d, want 59/32/2/%d", canonical, variants, compatibility, canonical+variants+compatibility, wantTotal)
 	}
 }
 

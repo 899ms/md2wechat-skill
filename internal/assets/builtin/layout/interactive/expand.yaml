@@ -1,0 +1,81 @@
+schema_version: "1"
+name: expand
+lifecycle: recommended
+body_format: fields_markdown
+version: "1.0.0"
+since: "3.8.0"
+category: interactive
+input_positions: [body-kv, markdown-body, header-attrs]
+serves: [readability, attention]
+content_types: [tutorial, report, opinion]
+industry: [general]
+tags: [interactive, disclosure, long-read]
+position: body
+when_to_use: |
+  保留完整正文，同时提供按需阅读的可选点击候选。
+when_not_to_use: |
+  短正文直接使用普通 Markdown；微信内点击行为仍待验证。
+anti_pattern: |
+  title、独立 --- 分隔行和非空 Markdown 正文都必须存在。
+opener:
+  param_style: braces
+  params:
+    - name: wechat_safe_level
+      enum: [strict, normal]
+      default: normal
+    - name: svg_fallback
+      enum: [static, first-layer]
+      default: static
+fields:
+  required:
+    - name: title
+      example: 查看完整方法
+  optional:
+    - name: summary
+      example: 先看结论，再读过程。
+    - name: label
+      default: 展开完整内容
+      example: 展开完整内容
+body:
+  separator: "---"
+  min_items: 1
+example: |
+  :::expand
+  title: 查看完整方法
+  summary: 先看结论，再读过程。
+  ---
+  第一步，明确读者的问题。
+
+  第二步，整理证据。
+  :::
+example_assert_contains: 第一步，明确读者的问题。
+variants:
+  - name: first-layer
+    selector_param: svg_fallback
+    use_when: 显式试用原生折叠候选，微信内仍需验证
+    example: |
+      :::expand{svg_fallback=first-layer}
+      title: 完整方法
+      ---
+      第一步，明确问题。
+      :::
+    assert_contains: 第一步，明确问题。
+agent_contract:
+  body_format: fields_markdown
+  required: [title, markdown-body, separator]
+  optional: [summary, label, wechat_safe_level, svg_fallback]
+  enums:
+    wechat_safe_level: [strict, normal]
+    svg_fallback: [static, first-layer]
+  defaults:
+    label: 展开完整内容
+    wechat_safe_level: normal
+    svg_fallback: static
+  invalid: [missing-separator, blank-title, blank-body]
+  ignored: [unknown-fields]
+  legacy: []
+  applicability: {}
+metadata:
+  author: md2wechat
+  provenance: builtin
+  inspired_by: advanced-layout-modules-guide.md#expand

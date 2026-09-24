@@ -2,6 +2,7 @@ schema_version: "1"
 name: author-card
 lifecycle: recommended
 body_format: fields
+compatible_body_formats: [json_object]
 version: "1.0.0"
 since: "1.5.0"
 category: brand
@@ -44,10 +45,27 @@ fields:
     - name: link
       description: 展示链接（纯文字，不渲染成按钮）
       example: "md2wechat.com"
-  compatibility:
     - name: avatar
       description: 头像图片 URL
       example: "https://example.com/avatar.png"
+    - name: avatar_alt
+      description: 头像替代文字
+      example: 作者头像
+    - name: symbol
+      description: 作者卡装饰符号
+      enum: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+      example: open-book
+    - name: motion
+      description: 装饰动效；微信内效果待验证
+      enum: [none, draw, draw-stagger, draw-reverse, draw-fill, scale-in, rotate-in]
+      symbol_keys_by_value:
+        draw: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-stagger: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-reverse: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-fill: [mountain, nested-diamonds, four-petals, rounded-seal, four-point-star, honeycomb, open-book]
+        scale-in: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        rotate-in: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+      example: none
 example: |
   :::author-card
   name: 极客旅程
@@ -57,27 +75,62 @@ example: |
   note: 关注我，持续看产品和内容系统的真实打磨过程
   link: md2wechat.com
   :::
+variants:
+  - name: avatar
+    selector_field_present: avatar
+    use_when: 有可用头像图片时展示头像分支
+    example: |
+      :::author-card
+      name: 极客旅程
+      avatar: https://example.com/avatar.png
+      avatar_alt: 作者头像
+      :::
 agent_contract:
   body_format: fields
   required:
-    - name
+  - name
   optional:
-    - role
-    - bio
-    - tags
-    - note
-    - link
-  enums: {}
+  - role
+  - bio
+  - tags
+  - note
+  - link
+  - avatar
+  - avatar_alt
+  - symbol
+  - motion
+  enums:
+    symbol:
+    - mountain
+    - concentric-circles
+    - nested-diamonds
+    - four-petals
+    - lens
+    - orbits
+    - archway
+    - rounded-seal
+    - four-point-star
+    - honeycomb
+    - mirrored-waves
+    - open-book
+    motion:
+    - none
+    - draw
+    - draw-stagger
+    - draw-reverse
+    - draw-fill
+    - scale-in
+    - rotate-in
   defaults:
-    max-tags: "4"
+    max-tags: '4'
     link: plain-text
   invalid:
-    - blank-name
+  - blank-name
   ignored:
-    - tags-after-4
-    - unknown-fields
+  - tags-after-4
+  - unknown-fields
   legacy:
-    - json-object
+  - json-object
   applicability: {}
 metadata:
   author: md2wechat

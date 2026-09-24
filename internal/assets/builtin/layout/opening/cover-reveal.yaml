@@ -1,0 +1,83 @@
+schema_version: "1"
+name: cover-reveal
+lifecycle: recommended
+body_format: fields
+version: "1.0.0"
+since: "3.8.0"
+category: opening
+input_positions: [body-kv, header-attrs]
+serves: [attention, memorability]
+content_types: [announcement, brand, product-launch]
+industry: [general]
+tags: [opening, brand, reveal]
+position: opening
+when_to_use: |
+  品牌开场需要完整静态展示，并可显式试用单次揭幕候选时使用。
+when_not_to_use: |
+  只需要普通标题时使用 hero；不要假设微信阅读器已支持点击揭幕。
+anti_pattern: |
+  缺少 title 会令内容无效；first-layer 是待验证的点击候选，strict 始终静态。
+opener:
+  param_style: braces
+  params:
+    - name: wechat_safe_level
+      enum: [strict, normal]
+      default: normal
+    - name: svg_fallback
+      enum: [static, first-layer]
+      default: static
+fields:
+  required:
+    - name: title
+      description: 完整可见的开场标题
+      example: 给认真创造的你
+  optional:
+    - name: label
+      default: 打开这封邀请
+      example: 打开这封邀请
+    - name: subtitle
+      example: 关于耐心与开始
+    - name: image
+      example: https://example.com/opening.jpg
+    - name: alt
+      example: 开场配图
+    - name: symbol
+      enum: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+      default: archway
+      example: archway
+example: |
+  :::cover-reveal
+  title: 给认真创造的你
+  subtitle: 关于耐心与开始
+  symbol: archway
+  :::
+variants:
+  - name: first-layer
+    selector_param: svg_fallback
+    use_when: 显式试用点击候选，微信内仍需验证
+    example: |
+      :::cover-reveal{svg_fallback=first-layer}
+      title: 本期来信
+      label: 轻触揭幕
+      :::
+agent_contract:
+  body_format: fields
+  required: [title]
+  optional: [label, subtitle, image, alt, symbol, wechat_safe_level, svg_fallback]
+  enums:
+    symbol: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+    wechat_safe_level: [strict, normal]
+    svg_fallback: [static, first-layer]
+  defaults:
+    label: 打开这封邀请
+    symbol: archway
+    wechat_safe_level: normal
+    svg_fallback: static
+  invalid: [blank-title]
+  ignored: [unknown-fields]
+  legacy: []
+  applicability: {}
+metadata:
+  author: md2wechat
+  provenance: builtin
+  inspired_by: advanced-layout-modules-guide.md#cover-reveal

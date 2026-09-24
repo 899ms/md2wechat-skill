@@ -1,0 +1,96 @@
+source_commit: 2795cf552383fa6883733b7dec56dc7b3bda8aa1
+source_file: lib/renderer/extensions/brand-symbols.ts
+source_sha256: 25c5654a295e31b554588ba909cb538781421aebaa713f406f8558f4727c5759
+symbols:
+  mountain:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  - draw-fill
+  concentric-circles:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  nested-diamonds:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  - draw-fill
+  four-petals:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  - draw-fill
+  lens:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  orbits:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  archway:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  rounded-seal:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  - draw-fill
+  - stamp-in
+  four-point-star:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  - draw-fill
+  honeycomb:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  - draw-fill
+  mirrored-waves:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  open-book:
+  - none
+  - draw
+  - draw-stagger
+  - draw-reverse
+  - scale-in
+  - rotate-in
+  - draw-fill

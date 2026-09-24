@@ -174,7 +174,7 @@ func renderOpenerVars(spec *LayoutSpec, input RenderInput) (map[string]any, erro
 
 func isStructuredBodyFormat(format string) bool {
 	switch format {
-	case BodyFormatFields, BodyFormatMarkdownFields, BodyFormatRows, BodyFormatJSONObject, BodyFormatJSONArray, "":
+	case BodyFormatFields, BodyFormatMarkdownFields, BodyFormatFieldsMarkdown, BodyFormatRows, BodyFormatJSONObject, BodyFormatJSONArray, "":
 		return true
 	default:
 		return false

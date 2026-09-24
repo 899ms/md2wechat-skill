@@ -375,6 +375,8 @@ func validateLoadedWitnesses(spec *LayoutSpec) error {
 		}
 		if err := temporary.ValidateWitness(WitnessContract{
 			Module: spec.Name, Variant: variant.Name, VariantAliases: variant.Aliases,
+			SelectorParam:        variant.SelectorParam,
+			SelectorFieldPresent: variant.SelectorFieldPresent, SelectorBodyImages: variant.SelectorBodyImages,
 			Example: variant.Example, AssertContains: variant.AssertContains,
 		}); err != nil {
 			return fmt.Errorf("variant %q example: %w", variant.Name, err)
@@ -443,6 +445,26 @@ func validateWitnessSpecs(spec *LayoutSpec, declaredFields map[string]bool) erro
 	identities := make(map[string]string)
 	for _, variant := range spec.Variants {
 		name := strings.TrimSpace(variant.Name)
+		if variant.SelectorParam != "" {
+			found := false
+			if spec.Opener != nil {
+				for _, param := range spec.Opener.Params {
+					if param.Name == variant.SelectorParam {
+						found = true
+						break
+					}
+				}
+			}
+			if !found {
+				return fmt.Errorf("variant %q selector_param %q is not a declared opener parameter", name, variant.SelectorParam)
+			}
+		}
+		if variant.SelectorFieldPresent != "" && !declaredFields[variant.SelectorFieldPresent] {
+			return fmt.Errorf("variant %q selector_field_present %q is not declared", name, variant.SelectorFieldPresent)
+		}
+		if variant.SelectorBodyImages < 0 || (variant.SelectorBodyImages > 0 && spec.BodyFormat != BodyFormatMarkdownImages) {
+			return fmt.Errorf("variant %q selector_body_images requires markdown_images body", name)
+		}
 		if name == "" {
 			return fmt.Errorf("variant name must not be empty")
 		}
@@ -601,6 +623,23 @@ func validateFieldApplicability(spec *LayoutSpec) error {
 				return fmt.Errorf("field %q has duplicate applies_to variant %q", field.Name, variant)
 			}
 			seen[variant] = true
+		}
+		for value, variants := range field.ValueAppliesTo {
+			if !containsString(field.Enum, value) || len(variants) == 0 {
+				return fmt.Errorf("field %q value_applies_to %q must name an enum value and at least one variant", field.Name, value)
+			}
+			seenValue := map[string]bool{}
+			for _, variant := range variants {
+				if !identities[variant] || seenValue[variant] || (len(field.AppliesTo) > 0 && !containsString(field.AppliesTo, variant)) {
+					return fmt.Errorf("field %q value %q has invalid variant %q", field.Name, value, variant)
+				}
+				seenValue[variant] = true
+			}
+		}
+		for value, symbols := range field.SymbolKeysByValue {
+			if field.Name != "motion" || !containsString(field.Enum, value) || len(symbols) == 0 {
+				return fmt.Errorf("field %q symbol_keys_by_value %q is invalid", field.Name, value)
+			}
 		}
 		if (field.Name == "variant" || field.Name == "type") && field.Default != "" && len(spec.Variants) > 0 && !identities[field.Default] {
 			return fmt.Errorf("field %q default variant %q is not declared", field.Name, field.Default)

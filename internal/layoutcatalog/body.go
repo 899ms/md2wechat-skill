@@ -72,6 +72,8 @@ func parseBodyFacts(spec *LayoutSpec, format string, body []string) (bodyFacts, 
 		return parseFieldsBody(spec.Fields, body)
 	case BodyFormatMarkdownFields:
 		return parseMarkdownFieldsBody(spec.Fields, body)
+	case BodyFormatFieldsMarkdown:
+		return parseFieldsMarkdownBody(spec, body)
 	case BodyFormatJSONObject, BodyFormatJSONArray:
 		fields, types, items, err := parseJSONBodyData(body, format)
 		if err != nil {
@@ -100,6 +102,50 @@ func parseBodyFacts(spec *LayoutSpec, format string, body []string) (bodyFacts, 
 	default:
 		return facts, []bodyValidationIssue{{message: fmt.Sprintf("unsupported body_format %q", format)}}
 	}
+}
+
+func parseFieldsMarkdownBody(spec *LayoutSpec, body []string) (bodyFacts, []bodyValidationIssue) {
+	separator := "---"
+	if spec.Body != nil && spec.Body.Separator != "" {
+		separator = spec.Body.Separator
+	}
+	boundary := -1
+	var fence markdownFence
+	for i, raw := range body {
+		line := strings.TrimRight(raw, "\r")
+		if fence.consume(line) {
+			continue
+		}
+		if strings.TrimSpace(line) == separator {
+			boundary = i
+			break
+		}
+	}
+	if boundary < 0 {
+		return newBodyFacts(), []bodyValidationIssue{{message: "fields_markdown body requires a standalone separator", cause: ErrInvalidFieldValue}}
+	}
+	facts, issues := parseFieldsBody(spec.Fields, body[:boundary])
+	if len(issues) > 0 {
+		return facts, issues
+	}
+	if !hasNonEmptyLine(body[boundary+1:]) {
+		return facts, []bodyValidationIssue{{message: "fields_markdown body requires non-empty Markdown after separator", cause: ErrInvalidFieldValue}}
+	}
+	fence = markdownFence{}
+	for _, raw := range body[boundary+1:] {
+		line := strings.TrimRight(raw, "\r")
+		if fence.consume(line) {
+			continue
+		}
+		if nestedLayoutOpener(strings.TrimSpace(line)) {
+			return facts, []bodyValidationIssue{{message: "fields_markdown body does not support nested directives", cause: ErrInvalidFieldValue}}
+		}
+	}
+	if fence.length > 0 {
+		return facts, []bodyValidationIssue{{message: "fields_markdown body has an unterminated Markdown code fence", cause: ErrInvalidFieldValue}}
+	}
+	facts.itemCount = 1
+	return facts, nil
 }
 
 func parseMarkdownFieldsBody(fields *FieldsSpec, body []string) (bodyFacts, []bodyValidationIssue) {
@@ -416,7 +462,53 @@ func validateStructuredFields(spec *LayoutSpec, values, types map[string][]strin
 	if len(selectorIssues) == 0 && active != nil {
 		issues = append(issues, validateVariantFields(*active, values)...)
 	}
+	if len(selectorIssues) == 0 {
+		issues = append(issues, validateSymbolMotion(spec, values, active)...)
+	}
 	return issues
+}
+
+func validateSymbolMotion(spec *LayoutSpec, values map[string][]string, active *VariantSpec) []bodyValidationIssue {
+	if spec.Fields == nil {
+		return nil
+	}
+	field := FieldSpec{}
+	for _, candidate := range spec.Fields.Optional {
+		if candidate.Name == "motion" {
+			field = candidate
+			break
+		}
+	}
+	if len(field.SymbolKeysByValue) == 0 {
+		return nil
+	}
+	motion := lastNonEmptyValue(values["motion"])
+	if motion == "focus-in" || motion == "wipe-in" {
+		title := strings.TrimSpace(lastNonEmptyValue(values["title"]))
+		if title == "" || utf8.RuneCountInString(title) > 9 || strings.ContainsAny(title, "[*_`<>|\r\n") {
+			return []bodyValidationIssue{{field: "motion", message: fmt.Sprintf("motion %q requires a plain title of at most 9 characters", motion), cause: ErrInvalidFieldValue}}
+		}
+	}
+	allowed, constrained := field.SymbolKeysByValue[motion]
+	if !constrained {
+		return nil
+	}
+	symbol := lastNonEmptyValue(values["symbol"])
+	if symbol == "" && active != nil {
+		symbol = active.Defaults["symbol"]
+	}
+	if symbol == "" {
+		for _, candidate := range spec.Fields.Optional {
+			if candidate.Name == "symbol" {
+				symbol = candidate.Default
+				break
+			}
+		}
+	}
+	if !containsString(allowed, symbol) {
+		return []bodyValidationIssue{{field: "motion", message: fmt.Sprintf("motion %q is not effective with symbol %q", motion, symbol), cause: ErrInvalidFieldValue}}
+	}
+	return nil
 }
 
 func validateRowSchema(spec *LayoutSpec, rows [][]string, values map[string][]string) []bodyValidationIssue {
@@ -560,7 +652,7 @@ func resolveVariant(variants []VariantSpec, values map[string][]string) (*Varian
 
 func formatSupportsDeclaredFields(format string) bool {
 	switch format {
-	case BodyFormatFields, BodyFormatMarkdownFields, BodyFormatJSONObject, BodyFormatJSONArray, BodyFormatRows, "":
+	case BodyFormatFields, BodyFormatMarkdownFields, BodyFormatFieldsMarkdown, BodyFormatJSONObject, BodyFormatJSONArray, BodyFormatRows, "":
 		return true
 	default:
 		return false
@@ -729,6 +821,9 @@ func validateFieldValue(field FieldSpec, variants []VariantSpec, value, actualTy
 	}
 	if err := checkFieldEnum(field, variants, value); err != nil {
 		issues = append(issues, bodyValidationIssue{field: field.Name, message: err.Error()})
+	}
+	if allowedVariants, constrained := field.ValueAppliesTo[value]; constrained && active != nil && !containsString(allowedVariants, active.Name) {
+		issues = append(issues, bodyValidationIssue{field: field.Name, message: fmt.Sprintf("field %s value %q does not apply to variant %s", field.Name, value, active.Name), cause: ErrInvalidFieldValue})
 	}
 	if field.ValueType == "string" {
 		if actualType == "" {

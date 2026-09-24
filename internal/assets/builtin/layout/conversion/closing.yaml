@@ -30,10 +30,22 @@ fields:
       example: "下一篇从一份真实草稿开始。"
     - name: symbol
       description: 结尾装饰符号
-      enum: [spark-solid, spark-outline, diamond-solid, diamond-outline, reference-mark, asterism, double-circle, circle, square-solid, square-outline, star, infinity]
+      enum: [spark-solid, spark-outline, diamond-solid, diamond-outline, reference-mark, asterism, double-circle, circle, square-solid, square-outline, star, infinity, mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
       default: asterism
       example: asterism
-  output_order: [symbol, title, subtitle]
+    - name: motion
+      description: 结尾装饰动效；微信内效果待验证
+      enum: [none, draw, draw-stagger, draw-reverse, draw-fill, scale-in, rotate-in]
+      default: none
+      symbol_keys_by_value:
+        draw: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-stagger: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-reverse: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-fill: [mountain, nested-diamonds, four-petals, rounded-seal, four-point-star, honeycomb, open-book]
+        scale-in: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        rotate-in: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+      example: none
+  output_order: [symbol, motion, title, subtitle]
 example: |
   :::closing
   title: 先把结构做成可信的，读者才会愿意继续。
@@ -43,35 +55,57 @@ example: |
 agent_contract:
   body_format: fields
   required:
-    - title
+  - title
   optional:
-    - symbol
-    - subtitle
+  - symbol
+  - subtitle
+  - motion
   enums:
     symbol:
-      - spark-solid
-      - spark-outline
-      - diamond-solid
-      - diamond-outline
-      - reference-mark
-      - asterism
-      - double-circle
-      - circle
-      - square-solid
-      - square-outline
-      - star
-      - infinity
+    - spark-solid
+    - spark-outline
+    - diamond-solid
+    - diamond-outline
+    - reference-mark
+    - asterism
+    - double-circle
+    - circle
+    - square-solid
+    - square-outline
+    - star
+    - infinity
+    - mountain
+    - concentric-circles
+    - nested-diamonds
+    - four-petals
+    - lens
+    - orbits
+    - archway
+    - rounded-seal
+    - four-point-star
+    - honeycomb
+    - mirrored-waves
+    - open-book
+    motion:
+    - none
+    - draw
+    - draw-stagger
+    - draw-reverse
+    - draw-fill
+    - scale-in
+    - rotate-in
   defaults:
     symbol: asterism
     unknown-or-raw-symbol: asterism
+    motion: none
   invalid:
-    - blank-title
+  - blank-title
   ignored:
-    - action
-    - link
-    - image
-    - variant
-    - unknown-fields
+  - action
+  - link
+  - image
+  - variant
+  - unknown-fields
   legacy: []
   applicability: {}
 metadata:

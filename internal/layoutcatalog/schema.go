@@ -11,6 +11,7 @@ const (
 	BodyFormatJSONArray      = "json_array"
 	BodyFormatMarkdownImages = "markdown_images"
 	BodyFormatMarkdownFields = "markdown_fields"
+	BodyFormatFieldsMarkdown = "fields_markdown"
 	BodyFormatSplit          = "split"
 	BodyFormatLines          = "lines"
 	BodyFormatDialogue       = "dialogue"
@@ -62,6 +63,7 @@ var ValidBodyFormats = map[string]bool{
 	BodyFormatJSONArray:      true,
 	BodyFormatMarkdownImages: true,
 	BodyFormatMarkdownFields: true,
+	BodyFormatFieldsMarkdown: true,
 	BodyFormatSplit:          true,
 	BodyFormatLines:          true,
 	BodyFormatDialogue:       true,
@@ -73,15 +75,17 @@ var ValidLifecycles = map[string]bool{
 }
 
 type FieldSpec struct {
-	Name        string   `yaml:"name"`
-	Description string   `yaml:"description,omitempty"`
-	Enum        []string `yaml:"enum,omitempty"`
-	Default     string   `yaml:"default,omitempty"`
-	Example     string   `yaml:"example,omitempty"`
-	ValueType   string   `yaml:"value_type,omitempty"`
-	MinRunes    int      `yaml:"min_runes,omitempty"`
-	MaxRunes    int      `yaml:"max_runes,omitempty"`
-	AppliesTo   []string `yaml:"applies_to,omitempty"`
+	Name              string              `yaml:"name"`
+	Description       string              `yaml:"description,omitempty"`
+	Enum              []string            `yaml:"enum,omitempty"`
+	Default           string              `yaml:"default,omitempty"`
+	Example           string              `yaml:"example,omitempty"`
+	ValueType         string              `yaml:"value_type,omitempty"`
+	MinRunes          int                 `yaml:"min_runes,omitempty"`
+	MaxRunes          int                 `yaml:"max_runes,omitempty"`
+	AppliesTo         []string            `yaml:"applies_to,omitempty"`
+	ValueAppliesTo    map[string][]string `yaml:"value_applies_to,omitempty" json:"value_applies_to,omitempty"`
+	SymbolKeysByValue map[string][]string `yaml:"symbol_keys_by_value,omitempty" json:"symbol_keys_by_value,omitempty"`
 }
 
 type RowsSpec struct {
@@ -164,6 +168,9 @@ type AgentContractSpec struct {
 
 type VariantSpec struct {
 	Name                     string            `yaml:"name"`
+	SelectorParam            string            `yaml:"selector_param,omitempty"`
+	SelectorFieldPresent     string            `yaml:"selector_field_present,omitempty"`
+	SelectorBodyImages       int               `yaml:"selector_body_images,omitempty"`
 	Aliases                  []string          `yaml:"aliases,omitempty"`
 	Description              string            `yaml:"description,omitempty"`
 	UseWhen                  string            `yaml:"use_when"`

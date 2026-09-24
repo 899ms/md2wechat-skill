@@ -38,7 +38,7 @@ fields:
       example: "让选择和执行遵守同一份事实"
     - name: symbol
       description: 可使用装饰符号的标题变体；默认 marker 使用 diamond-outline
-      enum: [spark-solid, spark-outline, diamond-solid, diamond-outline, reference-mark, asterism, double-circle, circle, square-solid, square-outline, star, infinity]
+      enum: [spark-solid, spark-outline, diamond-solid, diamond-outline, reference-mark, asterism, double-circle, circle, square-solid, square-outline, star, infinity, mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
       applies_to: [marker, divider, focus, vertical]
       example: diamond-outline
     - name: index
@@ -47,7 +47,22 @@ fields:
       max_runes: 4
       applies_to: [numbered]
       example: "01"
-  output_order: [variant, symbol, index, title, subtitle]
+    - name: motion
+      description: 标题装饰动效；draw-center 仅适用于 divider，微信内动效待验证
+      enum: [none, draw, draw-stagger, draw-reverse, draw-fill, scale-in, rotate-in, draw-center]
+      default: none
+      applies_to: [marker, divider, focus, vertical]
+      value_applies_to:
+        draw-center: [divider]
+      symbol_keys_by_value:
+        draw: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-stagger: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-reverse: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-fill: [mountain, nested-diamonds, four-petals, rounded-seal, four-point-star, honeycomb, open-book]
+        scale-in: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        rotate-in: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+      example: none
+  output_order: [variant, symbol, motion, index, title, subtitle]
 variants:
   - name: marker
     use_when: 用轻量标记开始一个正文主题
@@ -113,33 +128,55 @@ example: |
 agent_contract:
   body_format: fields
   required:
-    - title
+  - title
   optional:
-    - variant
-    - subtitle
-    - symbol
-    - index
+  - variant
+  - subtitle
+  - symbol
+  - index
+  - motion
   enums:
     variant:
-      - marker
-      - divider
-      - numbered
-      - frame
-      - focus
-      - vertical
+    - marker
+    - divider
+    - numbered
+    - frame
+    - focus
+    - vertical
     symbol:
-      - spark-solid
-      - spark-outline
-      - diamond-solid
-      - diamond-outline
-      - reference-mark
-      - asterism
-      - double-circle
-      - circle
-      - square-solid
-      - square-outline
-      - star
-      - infinity
+    - spark-solid
+    - spark-outline
+    - diamond-solid
+    - diamond-outline
+    - reference-mark
+    - asterism
+    - double-circle
+    - circle
+    - square-solid
+    - square-outline
+    - star
+    - infinity
+    - mountain
+    - concentric-circles
+    - nested-diamonds
+    - four-petals
+    - lens
+    - orbits
+    - archway
+    - rounded-seal
+    - four-point-star
+    - honeycomb
+    - mirrored-waves
+    - open-book
+    motion:
+    - none
+    - draw
+    - draw-stagger
+    - draw-reverse
+    - draw-fill
+    - scale-in
+    - rotate-in
+    - draw-center
   defaults:
     variant: marker
     unknown-variant: marker
@@ -148,19 +185,30 @@ agent_contract:
     focus.symbol: double-circle
     vertical.symbol: diamond-solid
     unknown-or-raw-symbol: location-default
+    motion: none
   invalid:
-    - blank-title
-    - numbered-missing-index
-    - numbered-index-over-4
+  - blank-title
+  - numbered-missing-index
+  - numbered-index-over-4
   ignored:
-    - numbered.symbol
-    - frame.symbol
-    - non-numbered.index
+  - numbered.symbol
+  - frame.symbol
+  - non-numbered.index
   legacy:
-    - case-folded-variant
+  - case-folded-variant
   applicability:
-    symbol: [marker, divider, focus, vertical]
-    index: [numbered]
+    index:
+    - numbered
+    symbol:
+    - marker
+    - divider
+    - focus
+    - vertical
+    motion:
+    - marker
+    - divider
+    - focus
+    - vertical
 metadata:
   author: md2wechat
   provenance: builtin

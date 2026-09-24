@@ -8,11 +8,14 @@ import (
 // WitnessContract describes one canonical or variant example that must be
 // structurally bound to a catalog module.
 type WitnessContract struct {
-	Module         string
-	Variant        string
-	VariantAliases []string
-	Example        string
-	AssertContains string
+	Module               string
+	Variant              string
+	VariantAliases       []string
+	SelectorParam        string
+	SelectorFieldPresent string
+	SelectorBodyImages   int
+	Example              string
+	AssertContains       string
 }
 
 // ValidateWitness checks an example using the same opener and body parsers as
@@ -49,8 +52,16 @@ func (c *Catalog) ValidateWitness(contract WitnessContract) error {
 		return fmt.Errorf("parse %s witness facts: %v", contract.Module, issues)
 	}
 	addWitnessControlFacts(&facts, spec.BodyFormat, body)
-	if contract.Variant != "" && !witnessSelectsVariant(validatedOpener, facts, contract.Variant, contract.VariantAliases) {
-		return fmt.Errorf("%s witness does not select variant %q or a declared alias", contract.Module, contract.Variant)
+	if contract.Variant != "" && !witnessSelectsVariant(validatedOpener, facts, contract.Variant, contract.VariantAliases, contract.SelectorParam) {
+		if contract.SelectorFieldPresent == "" && contract.SelectorBodyImages == 0 {
+			return fmt.Errorf("%s witness does not select variant %q or a declared alias", contract.Module, contract.Variant)
+		}
+	}
+	if contract.SelectorFieldPresent != "" && !hasNonEmptyValue(facts.fieldValues[contract.SelectorFieldPresent]) {
+		return fmt.Errorf("%s witness does not contain selector field %q", contract.Module, contract.SelectorFieldPresent)
+	}
+	if contract.SelectorBodyImages > 0 && facts.imageCount != contract.SelectorBodyImages {
+		return fmt.Errorf("%s witness has %d images, want %d", contract.Module, facts.imageCount, contract.SelectorBodyImages)
 	}
 	if contract.AssertContains != "" && !strings.Contains(contract.Example, contract.AssertContains) {
 		return fmt.Errorf("%s witness does not contain assertion %q", contract.Module, contract.AssertContains)
@@ -59,9 +70,21 @@ func (c *Catalog) ValidateWitness(contract WitnessContract) error {
 }
 
 func witnessBody(lines []string) ([]string, error) {
+	var fence markdownFence
+	depth := 0
 	for i := 1; i < len(lines); i++ {
-		if strings.TrimSpace(strings.TrimRight(lines[i], "\r")) == ":::" {
-			return lines[1:i], nil
+		line := strings.TrimRight(lines[i], "\r")
+		if fence.consume(line) {
+			continue
+		}
+		trimmed := strings.TrimSpace(line)
+		if trimmed == ":::" {
+			if depth == 0 {
+				return lines[1:i], nil
+			}
+			depth--
+		} else if nestedLayoutOpener(trimmed) {
+			depth++
 		}
 	}
 	return nil, fmt.Errorf("missing closing fence")
@@ -80,11 +103,14 @@ func addWitnessControlFacts(facts *bodyFacts, format string, body []string) {
 	}
 }
 
-func witnessSelectsVariant(opener ParsedOpener, facts bodyFacts, name string, aliases []string) bool {
+func witnessSelectsVariant(opener ParsedOpener, facts bodyFacts, name string, aliases []string, selectorParam string) bool {
 	accepted := make(map[string]bool, 1+len(aliases))
 	accepted[name] = true
 	for _, alias := range aliases {
 		accepted[alias] = true
+	}
+	if selectorParam != "" {
+		return accepted[strings.TrimSpace(opener.Params[selectorParam])]
 	}
 	selector := lastNonEmptyValue(facts.fieldValues["type"])
 	if selector == "" {

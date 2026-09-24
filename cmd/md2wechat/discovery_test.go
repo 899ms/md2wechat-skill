@@ -1072,19 +1072,19 @@ func TestBuildCapabilitiesDataIncludesLayoutWithoutUnreleasedFormat(t *testing.T
 	if layout["module_count"] != wantModuleCount {
 		t.Fatalf("layout module_count = %#v, want %d", layout["module_count"], wantModuleCount)
 	}
-	if layout["module_count"] != 56 {
-		t.Fatalf("layout module_count = %#v, want 56", layout["module_count"])
+	if layout["module_count"] != 59 {
+		t.Fatalf("layout module_count = %#v, want 59", layout["module_count"])
 	}
-	if layout["recommended_syntax_count"] != 56 {
+	if layout["recommended_syntax_count"] != 59 {
 		t.Fatalf("recommended_syntax_count = %#v", layout)
 	}
-	if layout["recommended_scenario_count"] != 77 {
+	if layout["recommended_scenario_count"] != 83 {
 		t.Fatalf("recommended_scenario_count = %#v", layout)
 	}
-	if layout["compatibility_module_count"] != 3 {
+	if layout["compatibility_module_count"] != 2 {
 		t.Fatalf("compatibility_module_count = %#v", layout)
 	}
-	if layout["base_enhancement_count"] != 4 || layout["render_syntax_count"] != 63 {
+	if layout["base_enhancement_count"] != 4 || layout["render_syntax_count"] != 65 {
 		t.Fatalf("render count contract = %#v", layout)
 	}
 	if got, want := layout["render_syntax_count"], layout["recommended_syntax_count"].(int)+layout["compatibility_module_count"].(int)+layout["base_enhancement_count"].(int); got != want {
@@ -1107,7 +1107,7 @@ func TestBuildCapabilitiesDataIncludesLayoutWithoutUnreleasedFormat(t *testing.T
 
 func TestLayoutCapabilitiesExposeSingleCatalogCounts(t *testing.T) {
 	layout := buildLayoutCapabilityData()
-	if layout["recommended_syntax_count"] != 56 || layout["render_syntax_count"] != 63 {
+	if layout["recommended_syntax_count"] != 59 || layout["render_syntax_count"] != 65 {
 		t.Fatalf("layout capability counts drifted: %#v", layout)
 	}
 	if layout["render_syntax_count"] != layout["recommended_syntax_count"].(int)+layout["compatibility_module_count"].(int)+layout["base_enhancement_count"].(int) {

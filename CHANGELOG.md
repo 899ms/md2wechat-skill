@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.0] - 2026-09-24
+
+### Added
+- Added `cover-reveal` and `expand` to advanced layout discovery. Their canonical output is complete and static; explicit `svg_fallback=first-layer` requests an interaction candidate, while `wechat_safe_level=strict` keeps static output.
+- Added three `hero` brand structures (`journal`, `seal`, `orbit`), twelve brand symbols, and placement-aware motion controls. Added avatar and alternate text guidance to `author-card`.
+
+### Changed
+- Recalibrated layout discovery to 83 recommended source scenarios, 59 recommended syntax names, 2 compatibility names (`dialogue`, `longimage`), 4 base enhancements, and 65 render syntax capabilities. `gallery` is recommended and its existing `:::gallery[...]` syntax remains valid.
+- Added `fields_markdown` for `expand` with header fields, a standalone `---`, and nonempty Markdown body. Local validation handles delimiters inside fenced code and rejects malformed or nested directives.
+- Aligned CLI discovery, 93 structural conformance witnesses, README, Agent guidance, and versioned installation paths for v3.8.0.
+
+### Limitations
+- WeChat reader click behavior for the new interaction candidates remains unverified. A local `layout validate` result does not prove the target API has deployed the renderer; release conformance must be run against a reachable target before tagging.
+
 ## [3.7.0] - 2026-09-23
 
 ### Added

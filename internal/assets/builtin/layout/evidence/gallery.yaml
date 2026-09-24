@@ -1,0 +1,53 @@
+schema_version: "1"
+name: gallery
+lifecycle: recommended
+body_format: markdown_images
+version: "1.0.0"
+since: "1.5.0"
+category: evidence
+input_positions: [markdown-body]
+serves: [readability]
+content_types: [tutorial, report, announcement]
+industry: [general]
+tags: [evidence, image, gallery, scroll]
+position: body
+when_to_use: |
+  一张图片静态展示，多张图片手动横向滑动；旧稿的 :::gallery[...] 语法继续可用。
+when_not_to_use: |
+  需要等宽平铺时使用 gallery-grid，有叙事顺序时使用 gallery-story，
+  操作演示使用 image-steps，对照内容使用 image-compare。
+anti_pattern: |
+  没有有效 Markdown 图片会导致校验失败。
+opener:
+  caption: true
+body:
+  min_images: 1
+example: |
+  :::gallery[主题画廊]
+  ![图一](https://example.com/1.png)
+  ![图二](https://example.com/2.png)
+  :::
+variants:
+  - name: single-image
+    selector_body_images: 1
+    use_when: 只有一张图片时静态展示
+    example: |
+      :::gallery
+      ![单张作品](https://example.com/one.png)
+      :::
+agent_contract:
+  body_format: markdown_images
+  required: [image]
+  optional: [header-title]
+  enums: {}
+  defaults:
+    single-image: static
+    multi-image: manual-scroll
+  invalid: [zero-valid-images]
+  ignored: [unsafe-images]
+  legacy: [existing-gallery-syntax]
+  applicability: {}
+metadata:
+  author: md2wechat
+  provenance: builtin
+  inspired_by: "advanced-layout-modules-guide.md#gallery"

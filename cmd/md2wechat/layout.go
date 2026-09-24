@@ -18,7 +18,7 @@ const (
 	codeLayoutRendered  = "LAYOUT_RENDERED"
 	codeLayoutValidated = "LAYOUT_VALIDATED"
 
-	recommendedLayoutScenarioCount = 77
+	recommendedLayoutScenarioCount = 83
 )
 
 // baseLayoutEnhancements is the exact non-module inventory from

@@ -3,8 +3,42 @@ package layoutcatalog
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 )
+
+var nestedLayoutOpenerRE = regexp.MustCompile(`^:::[a-z][a-z0-9-]*(?:\s|\{|\[|$)`)
+
+func nestedLayoutOpener(line string) bool { return nestedLayoutOpenerRE.MatchString(line) }
+
+type markdownFence struct {
+	char   byte
+	length int
+}
+
+// consume returns true for every line that belongs to a Markdown code fence.
+func (f *markdownFence) consume(line string) bool {
+	trimmed := strings.TrimSpace(line)
+	indent := len(line) - len(strings.TrimLeft(line, " "))
+	if indent > 3 || len(trimmed) < 3 || (trimmed[0] != '`' && trimmed[0] != '~') {
+		return f.length > 0
+	}
+	count := 0
+	for count < len(trimmed) && trimmed[count] == trimmed[0] {
+		count++
+	}
+	if f.length > 0 {
+		if trimmed[0] == f.char && count >= f.length && strings.TrimSpace(trimmed[count:]) == "" {
+			*f = markdownFence{}
+		}
+		return true
+	}
+	if count >= 3 {
+		f.char, f.length = trimmed[0], count
+		return true
+	}
+	return false
+}
 
 type ValidationIssue struct {
 	Module  string `json:"module"`
@@ -22,8 +56,13 @@ func (c *Catalog) Validate(markdown string) ValidationReport {
 	var r ValidationReport
 	lines := strings.Split(markdown, "\n")
 	i := 0
+	var outsideFence markdownFence
 	for i < len(lines) {
 		line := strings.TrimRight(lines[i], "\r")
+		if outsideFence.consume(line) {
+			i++
+			continue
+		}
 		opener, err := parseBlockOpener(line)
 		if err != nil {
 			if strings.HasPrefix(strings.TrimSpace(line), ":::") && strings.TrimSpace(line) != ":::" {
@@ -39,7 +78,24 @@ func (c *Catalog) Validate(markdown string) ValidationReport {
 		startLine := i + 1
 		j := i + 1
 		body := []string{}
-		for j < len(lines) && strings.TrimRight(lines[j], "\r") != ":::" {
+		var bodyFence markdownFence
+		depth := 0
+		for j < len(lines) {
+			content := strings.TrimRight(lines[j], "\r")
+			if bodyFence.consume(content) {
+				body = append(body, lines[j])
+				j++
+				continue
+			}
+			trimmed := strings.TrimSpace(content)
+			if trimmed == ":::" {
+				if depth == 0 {
+					break
+				}
+				depth--
+			} else if nestedLayoutOpener(trimmed) {
+				depth++
+			}
 			body = append(body, lines[j])
 			j++
 		}

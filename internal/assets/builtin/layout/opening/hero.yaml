@@ -31,7 +31,7 @@ fields:
   optional:
     - name: variant
       description: 结构变体
-      enum: [editorial, briefing, story, masthead]
+      enum: [editorial, briefing, story, masthead, journal, seal, orbit]
       default: editorial
       example: editorial
     - name: eyebrow
@@ -63,11 +63,27 @@ fields:
       applies_to: [editorial, briefing, story]
       example: "开场 | 判断"
     - name: symbol
-      description: masthead 标题装饰符号
-      enum: [spark-solid, spark-outline, diamond-solid, diamond-outline, reference-mark, asterism, double-circle, circle, square-solid, square-outline, star, infinity]
-      applies_to: [masthead]
+      description: 品牌开场标题装饰符号
+      enum: [spark-solid, spark-outline, diamond-solid, diamond-outline, reference-mark, asterism, double-circle, circle, square-solid, square-outline, star, infinity, mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+      applies_to: [masthead, journal, seal, orbit]
       example: spark-solid
-  output_order: [variant, eyebrow, meta, kicker, title, subtitle, points, image, symbol, brand, tags]
+    - name: motion
+      description: 品牌开场装饰动效；不支持的符号组合回退静态，微信内动效待验证
+      enum: [none, draw, draw-stagger, draw-reverse, draw-fill, scale-in, rotate-in, focus-in, wipe-in, stamp-in]
+      default: none
+      applies_to: [masthead, journal, seal, orbit]
+      value_applies_to:
+        stamp-in: [seal]
+      symbol_keys_by_value:
+        draw: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-stagger: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-reverse: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        draw-fill: [mountain, nested-diamonds, four-petals, rounded-seal, four-point-star, honeycomb, open-book]
+        scale-in: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        rotate-in: [mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
+        stamp-in: [rounded-seal]
+      example: none
+  output_order: [variant, eyebrow, meta, kicker, title, subtitle, points, image, symbol, motion, brand, tags]
 variants:
   - name: editorial
     use_when: 观点文开场先给出判断
@@ -101,6 +117,39 @@ variants:
       title: 先让读者看见这篇文章的主判断
       symbol: spark-solid
       :::
+  - name: journal
+    use_when: 使用刊物式品牌开场
+    defaults:
+      symbol: rounded-seal
+    required: [title]
+    example: |
+      :::hero
+      variant: journal
+      title: 本期品牌刊头
+      symbol: rounded-seal
+      :::
+  - name: seal
+    use_when: 使用印章式品牌开场
+    defaults:
+      symbol: rounded-seal
+    required: [title]
+    example: |
+      :::hero
+      variant: seal
+      title: 这一期的主题
+      symbol: rounded-seal
+      :::
+  - name: orbit
+    use_when: 使用轨道式品牌开场
+    defaults:
+      symbol: orbits
+    required: [title]
+    example: |
+      :::hero
+      variant: orbit
+      title: 围绕真正的问题
+      symbol: orbits
+      :::
 example: |
   :::hero
   eyebrow: 深度观察
@@ -114,56 +163,108 @@ example: |
 agent_contract:
   body_format: fields
   required:
-    - title
+  - title
   optional:
-    - variant
-    - eyebrow
-    - meta
-    - subtitle
-    - brand
-    - kicker
-    - points
-    - image
-    - tags
-    - symbol
+  - variant
+  - eyebrow
+  - meta
+  - subtitle
+  - brand
+  - kicker
+  - points
+  - image
+  - tags
+  - symbol
+  - motion
   enums:
     variant:
-      - editorial
-      - briefing
-      - story
-      - masthead
+    - editorial
+    - briefing
+    - story
+    - masthead
+    - journal
+    - seal
+    - orbit
     symbol:
-      - spark-solid
-      - spark-outline
-      - diamond-solid
-      - diamond-outline
-      - reference-mark
-      - asterism
-      - double-circle
-      - circle
-      - square-solid
-      - square-outline
-      - star
-      - infinity
+    - spark-solid
+    - spark-outline
+    - diamond-solid
+    - diamond-outline
+    - reference-mark
+    - asterism
+    - double-circle
+    - circle
+    - square-solid
+    - square-outline
+    - star
+    - infinity
+    - mountain
+    - concentric-circles
+    - nested-diamonds
+    - four-petals
+    - lens
+    - orbits
+    - archway
+    - rounded-seal
+    - four-point-star
+    - honeycomb
+    - mirrored-waves
+    - open-book
+    motion:
+    - none
+    - draw
+    - draw-stagger
+    - draw-reverse
+    - draw-fill
+    - scale-in
+    - rotate-in
+    - focus-in
+    - wipe-in
+    - stamp-in
   defaults:
     variant: editorial
     masthead.symbol: spark-solid
+    journal.symbol: rounded-seal
+    seal.symbol: rounded-seal
+    orbit.symbol: orbits
+    motion: none
   invalid:
-    - blank-title
+  - blank-title
   ignored:
-    - masthead.kicker
-    - masthead.points
-    - masthead.image
-    - masthead.tags
-    - non-masthead.symbol
+  - masthead.kicker
+  - masthead.points
+  - masthead.image
+  - masthead.tags
+  - non-brand.symbol
   legacy:
-    - case-folded-variant
+  - case-folded-variant
   applicability:
-    kicker: [editorial, briefing, story]
-    points: [editorial, briefing, story]
-    image: [editorial, briefing, story]
-    tags: [editorial, briefing, story]
-    symbol: [masthead]
+    image:
+    - editorial
+    - briefing
+    - story
+    kicker:
+    - editorial
+    - briefing
+    - story
+    points:
+    - editorial
+    - briefing
+    - story
+    symbol:
+    - masthead
+    - journal
+    - seal
+    - orbit
+    tags:
+    - editorial
+    - briefing
+    - story
+    motion:
+    - masthead
+    - journal
+    - seal
+    - orbit
 metadata:
   author: md2wechat
   provenance: builtin

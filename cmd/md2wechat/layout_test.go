@@ -375,24 +375,24 @@ func TestLayoutListCompatibilityIsolation(t *testing.T) {
 	}
 
 	defaultNames := listNames("")
-	if len(defaultNames) != 56 {
-		t.Fatalf("default count = %d, want 56", len(defaultNames))
+	if len(defaultNames) != 59 {
+		t.Fatalf("default count = %d, want 59", len(defaultNames))
 	}
-	if got := buildLayoutCapabilityData()["module_count"]; got != 56 {
-		t.Fatalf("capability module_count = %#v, want 56", got)
+	if got := buildLayoutCapabilityData()["module_count"]; got != 59 {
+		t.Fatalf("capability module_count = %#v, want 59", got)
 	}
-	for _, legacy := range []string{"dialogue", "gallery", "longimage"} {
+	for _, legacy := range []string{"dialogue", "longimage"} {
 		if slices.Contains(defaultNames, legacy) {
 			t.Fatalf("default list includes compatibility module %q", legacy)
 		}
 	}
 	compatibilityNames := listNames(layoutcatalog.LifecycleCompatibility)
-	if want := []string{"dialogue", "gallery", "longimage"}; !slices.Equal(compatibilityNames, want) {
+	if want := []string{"dialogue", "longimage"}; !slices.Equal(compatibilityNames, want) {
 		t.Fatalf("compatibility modules = %v, want %v", compatibilityNames, want)
 	}
 }
 
-func TestLayoutShowCompatibilityGallery(t *testing.T) {
+func TestLayoutShowRecommendedGallery(t *testing.T) {
 	oldJSON := jsonOutput
 	t.Cleanup(func() {
 		jsonOutput = oldJSON
@@ -412,7 +412,7 @@ func TestLayoutShowCompatibilityGallery(t *testing.T) {
 	}
 	data, _ := response["data"].(map[string]any)
 	spec, _ := data["spec"].(map[string]any)
-	if spec["Name"] != "gallery" || spec["Lifecycle"] != layoutcatalog.LifecycleCompatibility {
+	if spec["Name"] != "gallery" || spec["Lifecycle"] != layoutcatalog.LifecycleRecommended {
 		t.Fatalf("gallery spec = %#v", spec)
 	}
 }

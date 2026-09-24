@@ -1,87 +1,209 @@
-source_commit: 0e7027616dd1654802cf11615f6ba8bd23e539ae
+source_commit: 2795cf552383fa6883733b7dec56dc7b3bda8aa1
 source_file: lib/advanced-module-groups.ts
-source_sha256: ca78e6c32617ef380fa665f5817049bc9d6d6b502bfd841d42977050dd707756
+source_sha256: 9c2e13209bbcd1bb1e5730102c0134fd095dcfd7db5f7c1e53dd2ea601257828
 guide_only_recommended_syntax:
-  - figure-caption
-  - gallery-grid
-  - gallery-story
-  - svg-reveal
-  - svg-swipe-gallery
+- figure-caption
+- gallery-grid
+- gallery-story
+- svg-reveal
+- svg-swipe-gallery
 scenarios:
-  - {id: hero-editorial, module: hero, variant: editorial}
-  - {id: hero-briefing, module: hero, variant: briefing}
-  - {id: hero-story, module: hero, variant: story}
-  - {id: hero-masthead, module: hero, variant: masthead}
-  - {id: cards, module: cards}
-  - {id: part, module: part}
-  - {id: epilogue, module: epilogue}
-  - {id: section-title-marker, module: section-title, variant: marker}
-  - {id: section-title-divider, module: section-title, variant: divider}
-  - {id: section-title-numbered, module: section-title, variant: numbered}
-  - {id: section-title-frame, module: section-title, variant: frame}
-  - {id: section-title-focus, module: section-title, variant: focus}
-  - {id: section-title-vertical, module: section-title, variant: vertical}
-  - {id: toc, module: toc}
-  - {id: label-title, module: label-title}
-  - {id: audience-fit, module: audience-fit}
-  - {id: verdict, module: verdict}
-  - {id: myth-fact, module: myth-fact}
-  - {id: bridge, module: bridge}
-  - {id: manifesto, module: manifesto}
-  - {id: infographic-thesis, module: infographic, variant: thesis}
-  - {id: infographic-formula, module: infographic, variant: formula}
-  - {id: infographic-pullquote, module: infographic, variant: pullquote}
-  - {id: infographic-contrast, module: infographic, variant: contrast}
-  - {id: infographic-diagnosis, module: infographic, variant: diagnosis}
-  - {id: infographic-number, module: infographic, variant: number}
-  - {id: infographic-path, module: infographic, variant: path}
-  - {id: infographic-anatomy, module: infographic, variant: anatomy}
-  - {id: infographic-tradeoff, module: infographic, variant: tradeoff}
-  - {id: infographic-evidence-chain, module: infographic, variant: evidence-chain}
-  - {id: infographic-micro-case, module: infographic, variant: micro-case}
-  - {id: metrics, module: metrics}
-  - {id: compare, module: compare}
-  - {id: steps, module: steps}
-  - {id: timeline, module: timeline}
-  - {id: quote-light, module: quote, variant: light}
-  - {id: quote-brand, module: quote, variant: brand}
-  - {id: quote-proof, module: quote, variant: proof}
-  - {id: image-text, module: image-text}
-  - {id: image-compare, module: image-compare}
-  - {id: image-annotate, module: image-annotate}
-  - {id: image-steps, module: image-steps}
-  - {id: image-phone-shot, module: image-phone-shot}
-  - {id: author-card, module: author-card}
-  - {id: series, module: series}
-  - {id: subscribe, module: subscribe}
-  - {id: people, module: people}
-  - {id: cases, module: cases}
-  - {id: pricing, module: pricing}
-  - {id: faq, module: faq}
-  - {id: logos, module: logos}
-  - {id: checklist, module: checklist}
-  - {id: toolbox, module: toolbox}
-  - {id: specs, module: specs}
-  - {id: notice, module: notice}
-  - {id: summary-one-line, module: summary}
-  - {id: summary-three, module: summary, variant: three}
-  - {id: summary-decision, module: summary, variant: decision}
-  - {id: summary-save, module: summary, variant: save}
-  - {id: closing, module: closing}
-  - {id: cta-save-follow, module: cta, variant: save-follow}
-  - {id: cta-consult, module: cta, variant: consult}
-  - {id: cta-trial, module: cta, variant: trial}
-  - {id: callout, module: callout}
-  - {id: callout-warning, module: callout}
-  - {id: quote-card, module: quote-card}
-  - {id: stat-row, module: stat-row}
-  - {id: definition, module: definition}
-  - {id: tweet, module: tweet}
-  - {id: question, module: question}
-  - {id: comparison-table, module: comparison-table}
-  - {id: changelog, module: changelog}
-  - {id: resource-list, module: resource-list}
-  - {id: split, module: split}
-  - {id: flow, module: flow}
-  - {id: matrix, module: matrix}
-  - {id: dialogue-pair, module: dialogue-pair}
+- id: hero-editorial
+  module: hero
+  variant: editorial
+- id: hero-briefing
+  module: hero
+  variant: briefing
+- id: hero-story
+  module: hero
+  variant: story
+- id: hero-masthead
+  module: hero
+  variant: masthead
+- id: hero-journal
+  module: hero
+  variant: journal
+- id: hero-seal
+  module: hero
+  variant: seal
+- id: hero-orbit
+  module: hero
+  variant: orbit
+- id: cover-reveal
+  module: cover-reveal
+- id: cards
+  module: cards
+- id: part
+  module: part
+- id: epilogue
+  module: epilogue
+- id: section-title-marker
+  module: section-title
+  variant: marker
+- id: section-title-divider
+  module: section-title
+  variant: divider
+- id: section-title-numbered
+  module: section-title
+  variant: numbered
+- id: section-title-frame
+  module: section-title
+  variant: frame
+- id: section-title-focus
+  module: section-title
+  variant: focus
+- id: section-title-vertical
+  module: section-title
+  variant: vertical
+- id: toc
+  module: toc
+- id: label-title
+  module: label-title
+- id: audience-fit
+  module: audience-fit
+- id: verdict
+  module: verdict
+- id: myth-fact
+  module: myth-fact
+- id: bridge
+  module: bridge
+- id: manifesto
+  module: manifesto
+- id: infographic-thesis
+  module: infographic
+  variant: thesis
+- id: infographic-formula
+  module: infographic
+  variant: formula
+- id: infographic-pullquote
+  module: infographic
+  variant: pullquote
+- id: infographic-contrast
+  module: infographic
+  variant: contrast
+- id: infographic-diagnosis
+  module: infographic
+  variant: diagnosis
+- id: infographic-number
+  module: infographic
+  variant: number
+- id: infographic-path
+  module: infographic
+  variant: path
+- id: infographic-anatomy
+  module: infographic
+  variant: anatomy
+- id: infographic-tradeoff
+  module: infographic
+  variant: tradeoff
+- id: infographic-evidence-chain
+  module: infographic
+  variant: evidence-chain
+- id: infographic-micro-case
+  module: infographic
+  variant: micro-case
+- id: expand
+  module: expand
+- id: metrics
+  module: metrics
+- id: compare
+  module: compare
+- id: steps
+  module: steps
+- id: timeline
+  module: timeline
+- id: quote-light
+  module: quote
+  variant: light
+- id: quote-brand
+  module: quote
+  variant: brand
+- id: quote-proof
+  module: quote
+  variant: proof
+- id: gallery
+  module: gallery
+- id: image-text
+  module: image-text
+- id: image-compare
+  module: image-compare
+- id: image-annotate
+  module: image-annotate
+- id: image-steps
+  module: image-steps
+- id: image-phone-shot
+  module: image-phone-shot
+- id: author-card
+  module: author-card
+- id: series
+  module: series
+- id: subscribe
+  module: subscribe
+- id: people
+  module: people
+- id: cases
+  module: cases
+- id: pricing
+  module: pricing
+- id: faq
+  module: faq
+- id: logos
+  module: logos
+- id: checklist
+  module: checklist
+- id: toolbox
+  module: toolbox
+- id: specs
+  module: specs
+- id: notice
+  module: notice
+- id: summary-one-line
+  module: summary
+- id: summary-three
+  module: summary
+  variant: three
+- id: summary-decision
+  module: summary
+  variant: decision
+- id: summary-save
+  module: summary
+  variant: save
+- id: closing
+  module: closing
+- id: cta-save-follow
+  module: cta
+  variant: save-follow
+- id: cta-consult
+  module: cta
+  variant: consult
+- id: cta-trial
+  module: cta
+  variant: trial
+- id: callout
+  module: callout
+- id: callout-warning
+  module: callout
+- id: quote-card
+  module: quote-card
+- id: stat-row
+  module: stat-row
+- id: definition
+  module: definition
+- id: tweet
+  module: tweet
+- id: question
+  module: question
+- id: comparison-table
+  module: comparison-table
+- id: changelog
+  module: changelog
+- id: resource-list
+  module: resource-list
+- id: split
+  module: split
+- id: flow
+  module: flow
+- id: matrix
+  module: matrix
+- id: dialogue-pair
+  module: dialogue-pair

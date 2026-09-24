@@ -57,12 +57,12 @@ md2wechat capabilities --json
   },
   "layout": {
     "available": true,
-    "module_count": 56,
-    "recommended_syntax_count": 56,
-    "recommended_scenario_count": 77,
-    "compatibility_module_count": 3,
+    "module_count": 59,
+    "recommended_syntax_count": 59,
+    "recommended_scenario_count": 83,
+    "compatibility_module_count": 2,
     "base_enhancement_count": 4,
-    "render_syntax_count": 63,
+    "render_syntax_count": 65,
     "supports_validate": true,
     "api_mode_only": true,
     "schema_version": "1"
@@ -446,7 +446,7 @@ Prompt catalog 的加载优先级为：
 
 ## Layout Module Discovery (:::module Syntax)
 
-The `layout` subcommand exposes 56 个主推 advanced WeChat layout syntax names (`:::module`) by default. Capability discovery separately reports 77 个主推高级排版场景条目, 3 个兼容模块, 4 个基础增强能力, and 63 项渲染层语法能力; these counts are not interchangeable. The 77 scenarios are source-use-case mappings, while the 56 names are the default CLI discovery objects. The CLI does not publish the test-only scenario mapping.
+The `layout` subcommand exposes 59 个主推 advanced WeChat layout syntax names (`:::module`) by default. Capability discovery separately reports 83 个主推高级排版场景条目, 2 个兼容模块, 4 个基础增强能力, and 65 项渲染层语法能力; these counts are not interchangeable. The 83 scenarios are source-use-case mappings, while the 59 names are the default CLI discovery objects. The CLI does not publish the test-only scenario mapping.
 
 ### Commands
 
@@ -473,11 +473,13 @@ md2wechat layout validate --file article.md --json
 md2wechat layout validate --stdin --json < article.md
 ```
 
-layout 内置 catalog 是唯一事实源，不读取用户目录、项目目录或环境变量中的模块 YAML。`layout list --json` 会在模块摘要中显示 `body_format`；`layout show --json` 会显示完整 schema、canonical `Example` 和结构不同的 `Variants[].Example`。Schema 定义合法输入；Example 是经过验证的可执行 witness，应复用而不是手猜语法。正文格式共有 `fields` / `rows` / `json_object` / `json_array` / `markdown_images` / `markdown_fields` / `split` / `lines` / `dialogue` 九种；`compatible_body_formats` 只表示模块仍接受的旧正文格式。
+layout 内置 catalog 是唯一事实源，不读取用户目录、项目目录或环境变量中的模块 YAML。`layout list --json` 会在模块摘要中显示 `body_format`；`layout show --json` 会显示完整 schema、canonical `Example` 和结构不同的 `Variants[].Example`。Schema 定义合法输入；Example 是经过验证的可执行 witness，应复用而不是手猜语法。正文格式共有 `fields` / `rows` / `json_object` / `json_array` / `markdown_images` / `markdown_fields` / `fields_markdown` / `split` / `lines` / `dialogue` 十种；`fields_markdown` 用于 `expand` 的头部字段、独立 `---` 和非空 Markdown 正文，围栏代码中的分隔符保持原样；`compatible_body_formats` 只表示模块仍接受的旧正文格式。
 
 新内容的固定读取顺序是：`input_positions` → primary `body_format` 与对应 `Opener`、`Fields` / `Rows` / `Body` → canonical `Variants[].Name` → canonical `Example`。`compatible_body_formats` 和 `Variants[].Aliases` 都是只读 compatibility facts，只用于理解旧稿，不能作为新内容的选择项。
 
-默认 `layout list --json` 只返回 recommended lifecycle。旧稿迁移时才运行 `layout list --lifecycle compatibility --json`；不要把 `dialogue`、`gallery`、`longimage` 推荐给新稿。复杂正文使用 `layout render <name> --body-file <path>`（或 `--body-file -` 从 stdin 读取），opener 参数用可重复的 `--param KEY=VALUE`，方括号 caption 用 `--caption`。
+默认 `layout list --json` 只返回 recommended lifecycle，其中包括 `gallery`。旧稿迁移时才运行 `layout list --lifecycle compatibility --json`；`dialogue`、`longimage` 不推荐给新稿。复杂正文使用 `layout render <name> --body-file <path>`（或 `--body-file -` 从 stdin 读取），opener 参数用可重复的 `--param KEY=VALUE`，方括号 caption 用 `--caption`。`cover-reveal` 和 `expand` 默认完整静态展示；`first-layer` 是显式点击候选，微信内行为待验证。
+
+品牌符号和动效以 `layout show hero|section-title|closing|author-card --json` 的 `symbol` / `motion` 字段为准。新品牌符号有 12 种；四个位置的 motion enum 与适用范围不同，`value_applies_to` 和 `symbol_keys_by_value` 指明哪些组合实际生效。不要把 API 的静态回退当成动效成功。
 
 When the user says "帮我排版这篇文章" without naming a theme or module, run discovery first, then use `layout list`, `layout show`, and `layout render` as primitives. The CLI does not parse `~/.config/md2wechat/brand.md`; Agents should read Brand Profile themselves and choose the final theme/modules. Keep the source Markdown read-only: create a temporary formatted Markdown artifact, validate it with `layout validate`, then pass that temporary file to `convert`. Saving generated Markdown near the source requires explicit user confirmation.
 
@@ -514,7 +516,7 @@ When the user says "帮我排版这篇文章" without naming a theme or module, 
 - 当前是否存在某个 theme / prompt
 - 当前 theme 是否可直接选择，是否匹配 `api` / `ai` 模式
 - 高级排版模块 catalog 是否可用
-- 每个高级排版模块的 `body_format` 和 `compatible_body_formats`，即正文应采用九种受支持格式中的哪一种
+- 每个高级排版模块的 `body_format` 和 `compatible_body_formats`，即正文应采用十种受支持格式中的哪一种
 - 尚未发布的工作流是否只是声明为 `available: false`
 
 配置主路径仍然是：

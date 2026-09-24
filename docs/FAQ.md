@@ -49,19 +49,19 @@ brew install geekjourneyx/tap/md2wechat
 如果你已经有稳定可用的 Node/npm 环境，也可以：
 
 ```bash
-npm install -g @geekjourneyx/md2wechat
+npm install -g @geekjourneyx/md2wechat@3.8.0
 ```
 
 如果你已经有稳定可用的 Go 环境，也可以：
 
 ```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.7.0
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.8.0
 ```
 
 如果以上都不适合，再走固定版本安装脚本：
 
 ```bash
-curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.7.0/install.sh | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.8.0/install.sh | bash
 ```
 
 安装脚本默认会把 CLI 放到：
@@ -80,7 +80,7 @@ md2wechat version --json
 
 ---
 
-### Q1.1：`npm install -g @geekjourneyx/md2wechat` 提示 `npmmirror` tarball `404`
+### Q1.1：`npm install -g @geekjourneyx/md2wechat@3.8.0` 提示 `npmmirror` tarball `404`
 
 这通常不是包没发布，而是你的 npm 当前走的是：
 
@@ -99,7 +99,7 @@ npm config get registry
 如果输出是 `https://registry.npmmirror.com/`，直接改用官方源安装：
 
 ```bash
-npm install -g @geekjourneyx/md2wechat --registry=https://registry.npmjs.org/
+npm install -g @geekjourneyx/md2wechat@3.8.0 --registry=https://registry.npmjs.org/
 ```
 
 如果你想把默认源切回官方 npm：
@@ -145,20 +145,20 @@ md2wechat skills read md2wechat --json
 推荐先安装 CLI，再安装 skill：
 
 ```bash
-npm install -g @geekjourneyx/md2wechat
+npm install -g @geekjourneyx/md2wechat@3.8.0
 npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 ```
 
 如果你已经有 Go 环境，再把第一步改成：
 
 ```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.7.0
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.8.0
 ```
 
 如果以上都不适合，再把第一步改成：
 
 ```bash
-curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.7.0/install.sh | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.8.0/install.sh | bash
 ```
 
 如果你懒得自己操作，也可以直接把下面的话发给 Claude Code / Codex / OpenCode：
@@ -167,8 +167,8 @@ curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.
 请先安装 md2wechat CLI，再安装 md2wechat skill，并验证版本和能力发现都正常。
 执行：
 1. 如果我是 mac 用户，先运行：brew install geekjourneyx/tap/md2wechat
-2. 如果我已经有稳定可用的 Go 环境，也可以改成：go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.7.0
-3. 如果以上两种都不适合，再运行：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.7.0/install.sh | bash
+2. 如果我已经有稳定可用的 Go 环境，也可以改成：go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.8.0
+3. 如果以上两种都不适合，再运行：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.8.0/install.sh | bash
 4. 运行：npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 5. 如果我是通过 install.sh 安装的，再执行：export PATH="$HOME/.local/bin:$PATH"
 6. md2wechat version --json
@@ -182,7 +182,7 @@ curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.
 ```text
 请帮我安装 OpenClaw 版 md2wechat，并验证 skill 和 CLI 都可用。
 执行：
-1. npm install -g @geekjourneyx/md2wechat
+1. npm install -g @geekjourneyx/md2wechat@3.8.0
 2. openclaw skills install @geekjourneyx/md2wechat
 3. openclaw skills info md2wechat
 4. md2wechat version --json
@@ -205,7 +205,7 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 如果你更习惯 npm，也可以把第一步改成：
 
 ```bash
-npm install -g @geekjourneyx/md2wechat
+npm install -g @geekjourneyx/md2wechat@3.8.0
 md2wechat version --json
 npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 ```
@@ -213,7 +213,7 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 如果你已经有 Go 环境，再改成：
 
 ```bash
-go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.7.0
+go install github.com/geekjourneyx/md2wechat-skill/cmd/md2wechat@v3.8.0
 md2wechat version --json
 npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 ```
@@ -221,7 +221,7 @@ npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
 如果以上都不适合，再改成：
 
 ```bash
-curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.7.0/install.sh | bash
+curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/v3.8.0/install.sh | bash
 export PATH="$HOME/.local/bin:$PATH"
 md2wechat version --json
 npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
@@ -922,13 +922,13 @@ md2wechat doctor --json
 ### How do I discover layout modules supported in API mode?
 
 ```bash
-md2wechat layout list --json           # 56 recommended modules (default lifecycle)
-md2wechat layout list --lifecycle compatibility --json  # 3 legacy compatibility modules
+md2wechat layout list --json           # 59 recommended modules (default lifecycle)
+md2wechat layout list --lifecycle compatibility --json  # 2 legacy compatibility modules
 md2wechat layout list --serves attention --json   # attention-grabbing modules
 md2wechat layout show hero --json      # full spec with fields and example
 ```
 
-计数口径分别是 77 个场景条目、56 个默认推荐语法名、3 个兼容模块、4 个基础增强能力和 63 项渲染层语法能力。77 不是 `layout list` 的条目数：同一语法名可承载多个场景或结构变体。`layout show --json` 的 schema 定义合法性，canonical example 和结构不同的 variant examples 是可执行参考。
+计数口径分别是 83 个场景条目、59 个默认推荐语法名、2 个兼容模块、4 个基础增强能力和 65 项渲染层语法能力。83 不是 `layout list` 的条目数：同一语法名可承载多个场景或结构变体。`layout show --json` 的 schema 定义合法性，canonical example 和结构不同的 variant examples 是可执行参考。
 
 新内容按 `input_positions` → primary `body_format` 与 `Opener` / `Fields` / `Rows` / `Body` → canonical `Variants[].Name` → canonical `Example` 的顺序读取。`compatible_body_formats` 与 `Variants[].Aliases` 只用于旧稿兼容，不能作为新内容选择。
 

@@ -3,7 +3,7 @@
 > **前提**：高级排版模块是 **API 模式**专属功能。`convert` 命令默认即 API 模式，无需额外参数。  
 > 如需 API 访问权限，请联系作者咨询。
 
-本教程讲解微信公众号高级排版模块的核心用法。当前数量与完整规格以 `md2wechat capabilities --json`、`layout list --json` 和 `layout show` 为准；默认 discovery 返回 56 个推荐语法。
+本教程讲解微信公众号高级排版模块的核心用法。当前数量与完整规格以 `md2wechat capabilities --json`、`layout list --json` 和 `layout show` 为准；默认 discovery 返回 59 个推荐语法。
 
 ---
 
@@ -95,7 +95,7 @@ subtitle: 不是好不好看，是读者读不读得完
 :::
 ```
 
-完整的九种正文格式如下：
+完整的十种正文格式如下：
 
 | `body_format` | 正文形态 | 典型模块 |
 |---|---|---|
@@ -103,8 +103,9 @@ subtitle: 不是好不好看，是读者读不读得完
 | `rows` | 每行一条、列用 `|` 分隔 | `toc`、`metrics` |
 | `json_object` | 一个 JSON 对象 | `definition`、`tweet` |
 | `json_array` | 一个 JSON 数组 | `stat-row`、`resource-list` |
-| `markdown_images` | Markdown 图片列表，可夹带允许的文本 | `gallery-grid`、`svg-swipe-gallery` |
+| `markdown_images` | Markdown 图片列表，可夹带允许的文本 | `gallery`、`gallery-grid`、`svg-swipe-gallery` |
 | `markdown_fields` | `key: value` 字段行，可按 schema 允许 Markdown 图片或重复组 | `callout`、`image-steps` |
+| `fields_markdown` | `title` 等头部字段、独立 `---`、非空 Markdown 正文 | `expand` |
 | `split` | 两段正文由模块 schema 指定的分隔线隔开 | `split` |
 | `lines` | 逐行条目，分隔符或前缀由 schema 约束 | `flow` |
 | `dialogue` | 成对前缀或具名说话人行 | `question`、`dialogue-pair` |
@@ -113,14 +114,14 @@ subtitle: 不是好不好看，是读者读不读得完
 
 ### Catalog 计数与 lifecycle
 
-<!-- layout-count-contract: recommended_scenarios=77 recommended_syntaxes=56 compatibility_modules=3 base_enhancements=4 render_syntaxes=63 -->
+<!-- layout-count-contract: recommended_scenarios=83 recommended_syntaxes=59 compatibility_modules=2 base_enhancements=4 render_syntaxes=65 -->
 
-- 77 个主推高级排版场景条目是上游使用场景维度。
-- 56 个主推 `:::` 语法名是 `layout list --json` 默认返回的 CLI 对象。
-- 3 个 compatibility 模块是 `dialogue`、`gallery`、`longimage`，只用于旧稿迁移。
-- 4 个基础增强能力与上述语法合计为 63 项渲染层语法能力。
+- 83 个主推高级排版场景条目是上游使用场景维度。
+- 59 个主推 `:::` 语法名是 `layout list --json` 默认返回的 CLI 对象。
+- 2 个 compatibility 模块是 `dialogue`、`longimage`，只用于旧稿迁移；`gallery` 已是推荐语法。
+- 4 个基础增强能力与上述语法合计为 65 项渲染层语法能力。
 
-77 与 56 不能互换：一个语法名可以承载多个场景或结构变体。场景映射只用于维护测试，不会通过 CLI discovery 输出。
+83 与 59 不能互换：一个语法名可以承载多个场景或结构变体。场景映射只用于维护测试，不会通过 CLI discovery 输出。
 
 具体 opener、body、schema、canonical witness 和结构 variant 以 `layout show <name> --json` 为准。生产渲染状态以发布时保存的目标 API conformance 证据为准，不在常青教程中固化单次运行结果。
 
@@ -258,6 +259,31 @@ md2wechat layout validate --file article.md --json
 ### opening 开场类
 
 **目的**：在读者决定读还是划走的 3 秒内，先给出判断。
+
+`cover-reveal` 是品牌揭幕开场：
+
+```markdown
+:::cover-reveal
+title: 给认真创造的你
+subtitle: 关于耐心与开始
+:::
+```
+
+默认显示完整静态内容。只有明确要试用点击候选时，才在 opener 写 `svg_fallback=first-layer`；`wechat_safe_level=strict` 始终使用静态展示，微信内点击效果尚未验证。
+
+### 品牌图形符号与动效
+
+新增 12 个可在 `layout show` 的 `symbol` enum 中发现的品牌图形：`mountain`、`concentric-circles`、`nested-diamonds`、`four-petals`、`lens`、`orbits`、`archway`、`rounded-seal`、`four-point-star`、`honeycomb`、`mirrored-waves`、`open-book`。原有 12 个经典符号仍可用于 `hero`、`section-title` 和 `closing`，但经典符号不会产生新的品牌动效。
+
+全局有 11 个 motion key，具体模块只暴露适用子集。按 `layout show` 的 `Fields.Optional` 读取 `motion.enum`、`applies_to`、`value_applies_to` 和 `symbol_keys_by_value`：
+
+| 位置 | 可用控制 | 特殊限制 |
+|---|---|---|
+| `hero` 的 `masthead`、`journal`、`seal`、`orbit` | 基础绘制、缩放、旋转；`focus-in`、`wipe-in` 标题效果 | `stamp-in` 只在 `seal` 且 `symbol: rounded-seal` 时有效；标题效果要求纯文本且最多 9 字符 |
+| `section-title` 的 `marker`、`divider`、`focus`、`vertical` | 基础绘制、缩放、旋转 | `draw-center` 只在 `divider` 的分隔线生效 |
+| `closing`、`author-card` | 基础绘制、缩放、旋转 | 必须指定支持该 motion 的品牌符号；不支持的组合在 API 中回退静态 |
+
+例如 `:::hero` 的 `variant: seal`、`symbol: rounded-seal`、`motion: stamp-in` 是有效组合。CLI 对已知不会生效的组合给出校验错误，以免 Agent 把静态回退当成动效成功。动效在微信阅读器内的表现仍待验证。
 
 ---
 
@@ -581,6 +607,15 @@ next: 继续看证据模块
 ### evidence 证据类
 
 **目的**：用数据、案例、图片支撑你的判断，让读者相信你说的是真的。
+
+`gallery` 已进入推荐目录；原有 `:::gallery[标题]` 仍有效。一张图片静态展示，多张图片手动横向滑动：
+
+```markdown
+:::gallery[作品图集]
+![首页](https://example.com/one.jpg)
+![详情](https://example.com/two.jpg)
+:::
+```
 
 ---
 
@@ -1055,19 +1090,48 @@ A: 不需要，照着字段填写就行。
 |---|---|---|
 | `svg-reveal` | `fields` | 单图揭示式交互 |
 | `svg-swipe-gallery` | `markdown_images` | 多图滑动浏览 |
+| `expand` | `fields_markdown` | 默认完整静态正文；显式 `first-layer` 是待验证的原生折叠候选 |
 
-这两个语法只在 API 模式由远端 renderer 转成 HTML。`layout validate` 只证明本地 schema 接受输入，不证明远端已部署对应 renderer。
+这些语法只在 API 模式由远端 renderer 转成 HTML。`layout validate` 只证明本地 schema 接受输入，不证明远端已部署对应 renderer，也不证明微信阅读器支持点击。
+
+`expand` 的 `title` 必填，`summary` 和 `label` 可选。头部字段与正文之间必须有独立的 `---`；代码围栏中的 `---`、`:::` 是正文，不会结束模块。复杂正文保存到文件后执行：
+
+```markdown
+:::expand
+title: 查看完整方法
+---
+第一步，明确问题。
+:::
+```
+
+```bash
+md2wechat layout show expand --json
+md2wechat layout render expand --body-file /tmp/expand-body.md --json
+md2wechat layout validate --file article.md --json
+md2wechat convert article.md --mode api --output /tmp/article.html
+```
+
+`/tmp/expand-body.md` 的内容：
+
+```markdown
+title: 查看完整方法
+summary: 先看结论，再读过程。
+---
+第一步，明确问题。
+
+第二步，整理证据。
+```
 
 ### compatibility 旧稿迁移
 
-默认列表不会返回 `dialogue`、`gallery`、`longimage`。只在迁移已有文章时发现和检查它们：
+默认列表不会返回 `dialogue`、`longimage`。只在迁移已有文章时发现和检查它们：
 
 ```bash
 md2wechat layout list --lifecycle compatibility --json
-md2wechat layout show gallery --json
+md2wechat layout show dialogue --json
 ```
 
-新稿分别使用 `dialogue-pair`、推荐图片模块以及其他当前 recommended 语法。
+新稿使用 `dialogue-pair`、`gallery` 等当前 recommended 语法。
 
 ---
 
@@ -1325,7 +1389,7 @@ md2wechat config show --format json | grep api_key
 
 ### 错误 5：按旧的三种正文格式猜模块语法
 
-不要只在 pipe、JSON object、JSON array 之间猜。当前 `body_format` 有九种，合法输入以 `layout show <name> --json` 返回的 schema 为准：
+不要只在 pipe、JSON object、JSON array 之间猜。当前 `body_format` 有十种，合法输入以 `layout show <name> --json` 返回的 schema 为准：
 
 | `body_format` | 正文结构 | `layout show` 中要检查的 schema |
 |---|---|---|
@@ -1335,6 +1399,7 @@ md2wechat config show --format json | grep api_key
 | `json_array` | JSON 对象数组 | `Fields` 和 `Body` |
 | `markdown_images` | Markdown 图片列表及允许的说明文字 | `Body` 的图片数、条目数和分隔约束 |
 | `markdown_fields` | 可包含 Markdown 图片的重复字段组 | `Fields` 与 `Body.Group` |
+| `fields_markdown` | 头部字段、独立 `---`、非空 Markdown 正文；代码围栏内的 `---` / `:::` 保持原样 | `Fields` 与 `Body.Separator`，复杂正文用 `--body-file` |
 | `split` | 由指定 separator 分开的两段正文 | `Body.Separator` |
 | `lines` | 逐行条目 | `Body` 的 separator、allowed prefixes 和 min items |
 | `dialogue` | 成对前缀或具名说话人行 | `Body.RequiredPairs`、allowed prefixes 和 named-speaker 约束 |
