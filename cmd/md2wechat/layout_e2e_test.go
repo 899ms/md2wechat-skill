@@ -29,6 +29,8 @@ type e2eWitness struct {
 	Probe            string
 	ProbeInImageAlt  bool
 	RowDelimiter     string
+	Symbol           string
+	Motion           string
 }
 
 type roundTripFunc func(*http.Request) (*http.Response, error)
@@ -247,6 +249,9 @@ func TestVariantConformanceRequiresExactRendererBranch(t *testing.T) {
 		module, variant, attribute, value string
 	}{
 		{module: "hero", variant: "editorial", attribute: "data-hero-variant", value: "editorial"},
+		{module: "hero", variant: "journal", attribute: "data-hero-variant", value: "journal"},
+		{module: "hero", variant: "seal", attribute: "data-hero-variant", value: "seal"},
+		{module: "hero", variant: "orbit", attribute: "data-hero-variant", value: "orbit"},
 		{module: "quote", variant: "proof", attribute: "data-quote-variant", value: "proof"},
 		{module: "summary", variant: "decision", attribute: "data-summary-variant", value: "decision"},
 		{module: "cta", variant: "trial", attribute: "data-cta-variant", value: "trial"},
@@ -310,6 +315,72 @@ func TestMilestoneBranchConformanceRejectsWrongRemoteDOM(t *testing.T) {
 				t.Fatal("wrong branch accepted")
 			}
 		})
+	}
+}
+
+func TestMilestoneDynamicConformanceRejectsMissingEffects(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		witness e2eWitness
+		good    string
+		bad     string
+	}{
+		{"journal draw", e2eWitness{Module: "hero", Variant: "journal", Probe: "Probe", Symbol: "mountain", Motion: "draw"}, `<section data-mpa-action-id="hero" data-hero-variant="journal">Probe<svg data-brand-symbol="mountain"><animate attributeName="stroke-dashoffset"></animate></svg></section>`, `<section data-mpa-action-id="hero" data-hero-variant="journal">Probe<svg data-brand-symbol="mountain"></svg></section>`},
+		{"seal stamp", e2eWitness{Module: "hero", Variant: "seal", Probe: "Probe", Symbol: "rounded-seal", Motion: "stamp-in"}, `<section data-mpa-action-id="hero" data-hero-variant="seal">Probe<svg data-brand-symbol="rounded-seal"><animateTransform type="scale" values="1.14;1"></animateTransform></svg></section>`, `<section data-mpa-action-id="hero" data-hero-variant="seal">Probe<svg data-brand-symbol="rounded-seal"></svg></section>`},
+		{"orbit rotate", e2eWitness{Module: "hero", Variant: "orbit", Probe: "Probe", Symbol: "orbits", Motion: "rotate-in"}, `<section data-mpa-action-id="hero" data-hero-variant="orbit">Probe<svg data-brand-symbol="orbits"><animateTransform type="rotate"></animateTransform></svg></section>`, `<section data-mpa-action-id="hero" data-hero-variant="orbit">Probe<svg data-brand-symbol="orbits"></svg></section>`},
+		{"section divider rule", e2eWitness{Module: "section-title", Variant: "divider", Probe: "Probe", Motion: "draw-center"}, `<section data-mpa-action-id="section-title" data-section-title-variant="divider">Probe<svg data-brand-rule="center"></svg></section>`, `<section data-mpa-action-id="section-title" data-section-title-variant="divider">Probe</section>`},
+		{"closing fill", e2eWitness{Module: "closing", Probe: "Probe", Symbol: "nested-diamonds", Motion: "draw-fill"}, `<section data-mpa-action-id="closing">Probe<svg data-brand-symbol="nested-diamonds"><animate attributeName="stroke-dashoffset"></animate><animate attributeName="opacity"></animate></svg></section>`, `<section data-mpa-action-id="closing">Probe<svg data-brand-symbol="nested-diamonds"><animate attributeName="stroke-dashoffset"></animate></svg></section>`},
+		{"title focus", e2eWitness{Module: "hero", Variant: "journal", Probe: "Probe", Motion: "focus-in"}, `<section data-mpa-action-id="hero" data-hero-variant="journal"><svg data-brand-title-motion="focus-in" aria-label="Probe"></svg>Probe</section>`, `<section data-mpa-action-id="hero" data-hero-variant="journal">Probe</section>`},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := checkConformanceHTML(tt.witness, tt.good); err != nil {
+				t.Fatalf("valid effect: %v", err)
+			}
+			if err := checkConformanceHTML(tt.witness, tt.bad); err == nil {
+				t.Fatal("missing effect accepted")
+			}
+		})
+	}
+}
+
+func TestExpandConformanceRequiresTitleAndBody(t *testing.T) {
+	witness := e2eWitness{Module: "expand", Markdown: ":::expand\ntitle: Details\n---\nBody probe\n:::", Probe: "Body probe"}
+	good := `<section data-mpa-action-id="expand" data-expand-mode="static"><strong>Details</strong><p>Body probe</p></section>`
+	if err := checkConformanceHTML(witness, good); err != nil {
+		t.Fatal(err)
+	}
+	bad := `<section data-mpa-action-id="expand" data-expand-mode="static"><p>Body probe</p></section>`
+	if err := checkConformanceHTML(witness, bad); err == nil {
+		t.Fatal("expand without title accepted")
+	}
+}
+
+func TestMilestoneBoundaryProbesAreExecutableAndComplete(t *testing.T) {
+	c, err := layoutConformanceCatalog()
+	if err != nil {
+		t.Fatal(err)
+	}
+	probes := milestoneBoundaryProbes()
+	if len(probes) != 9 {
+		t.Fatalf("boundary probes = %d, want 9", len(probes))
+	}
+	for _, probe := range probes {
+		if report := c.Validate(probe.Markdown); len(report.Errors) != 0 {
+			t.Errorf("%s/%s: %+v", probe.Module, probe.Motion, report.Errors)
+		}
+	}
+	strict := 0
+	animated := 0
+	for _, probe := range probes {
+		if probe.Params["wechat_safe_level"] == "strict" && probe.Params["svg_fallback"] == "first-layer" {
+			strict++
+		}
+		if probe.Motion != "" {
+			animated++
+		}
+	}
+	if strict != 2 || animated != 7 {
+		t.Fatalf("boundary coverage strict=%d animated=%d, want 2/7", strict, animated)
 	}
 }
 
@@ -1306,6 +1377,38 @@ func TestE2ELayoutConformance(t *testing.T) {
 	}
 }
 
+func milestoneBoundaryProbes() []e2eWitness {
+	probes := []e2eWitness{
+		{Module: "hero", Variant: "journal", Probe: "Journal", Symbol: "mountain", Motion: "draw", Markdown: ":::hero\nvariant: journal\ntitle: Journal\nsymbol: mountain\nmotion: draw\n:::"},
+		{Module: "hero", Variant: "seal", Probe: "Seal", Symbol: "rounded-seal", Motion: "stamp-in", Markdown: ":::hero\nvariant: seal\ntitle: Seal\nsymbol: rounded-seal\nmotion: stamp-in\n:::"},
+		{Module: "hero", Variant: "orbit", Probe: "Orbit", Symbol: "orbits", Motion: "rotate-in", Markdown: ":::hero\nvariant: orbit\ntitle: Orbit\nsymbol: orbits\nmotion: rotate-in\n:::"},
+		{Module: "section-title", Variant: "divider", Probe: "Section", Motion: "draw-center", Markdown: ":::section-title\nvariant: divider\ntitle: Section\nmotion: draw-center\n:::"},
+		{Module: "closing", Probe: "Closing", Symbol: "nested-diamonds", Motion: "draw-fill", Markdown: ":::closing\ntitle: Closing\nsymbol: nested-diamonds\nmotion: draw-fill\n:::"},
+		{Module: "author-card", Probe: "Author", Symbol: "mountain", Motion: "scale-in", Markdown: ":::author-card\nname: Author\nsymbol: mountain\nmotion: scale-in\n:::"},
+		{Module: "hero", Variant: "journal", Probe: "Focus", Motion: "focus-in", Markdown: ":::hero\nvariant: journal\ntitle: Focus\nmotion: focus-in\n:::"},
+		{Module: "cover-reveal", Probe: "Strict cover", Markdown: ":::cover-reveal{svg_fallback=first-layer wechat_safe_level=strict}\ntitle: Strict cover\n:::"},
+		{Module: "expand", Probe: "Full body", Markdown: ":::expand{svg_fallback=first-layer wechat_safe_level=strict}\ntitle: Strict expand\n---\nFull body\n:::"},
+	}
+	for i := range probes {
+		probes[i].Params = witnessParams(probes[i].Markdown, probes[i].Module)
+	}
+	return probes
+}
+
+func TestE2EMilestoneBoundaryProbes(t *testing.T) {
+	settings := e2eGate(t)
+	client := layoutConformanceHTTPClient()
+	for _, probe := range milestoneBoundaryProbes() {
+		t.Run(probe.Module+"/"+probe.Variant+"/"+probe.Motion+"/"+probe.Params["wechat_safe_level"], func(t *testing.T) {
+			identity, received, err := runConformanceRequest(client, settings.BaseURL, settings.APIKey, probe)
+			if err := validateConformanceResult(identity, received, err, settings.ExpectedBuildID, ""); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+	t.Logf("boundary_target=%s cli_commit=%s", settings.BaseURL, settings.CLICommit)
+}
+
 func TestE2EOpinionPieceFixture(t *testing.T) {
 	settings := e2eGate(t)
 	data, err := os.ReadFile("../../internal/layoutcatalog/testdata/integration/opinion-piece.md")
@@ -1592,6 +1695,39 @@ func checkSemanticConformance(witness e2eWitness, rendered string) error {
 }
 
 func checkSemanticConformanceNode(witness e2eWitness, node *html.Node) error {
+	if witness.Symbol != "" && !hasDOMAttributeValue(node, "data-brand-symbol", witness.Symbol) {
+		return fmt.Errorf("%s response missing data-brand-symbol=%q", witness.Module, witness.Symbol)
+	}
+	switch witness.Motion {
+	case "draw", "draw-stagger", "draw-reverse":
+		if !hasDOMAttributeValue(node, "attributeName", "stroke-dashoffset") {
+			return fmt.Errorf("%s response missing %s animation", witness.Module, witness.Motion)
+		}
+	case "draw-fill":
+		if !hasDOMAttributeValue(node, "attributeName", "stroke-dashoffset") || !hasDOMAttributeValue(node, "attributeName", "opacity") {
+			return fmt.Errorf("%s response missing draw-fill animation", witness.Module)
+		}
+	case "scale-in", "stamp-in":
+		values := "0.88;1"
+		if witness.Motion == "stamp-in" {
+			values = "1.14;1"
+		}
+		if !hasDOMAttributeValue(node, "type", "scale") || !hasDOMAttributeValue(node, "values", values) {
+			return fmt.Errorf("%s response missing %s animation", witness.Module, witness.Motion)
+		}
+	case "rotate-in":
+		if !hasDOMAttributeValue(node, "type", "rotate") {
+			return fmt.Errorf("%s response missing rotate-in animation", witness.Module)
+		}
+	case "draw-center":
+		if !hasDOMAttributeValue(node, "data-brand-rule", "center") {
+			return fmt.Errorf("%s response missing draw-center rule", witness.Module)
+		}
+	case "focus-in", "wipe-in":
+		if !hasDOMAttributeValue(node, "data-brand-title-motion", witness.Motion) {
+			return fmt.Errorf("%s response missing %s title effect", witness.Module, witness.Motion)
+		}
+	}
 	if witness.Module == "author-card" {
 		images := countDOMElements(node, "img")
 		if witness.Variant == "avatar" && images == 0 {
@@ -1615,6 +1751,20 @@ func checkSemanticConformanceNode(witness e2eWitness, node *html.Node) error {
 		}
 		if !hasDOMAttributeValue(node, modeAttribute, expected) {
 			return fmt.Errorf("%s response missing %s=%q", witness.Module, modeAttribute, expected)
+		}
+		if witness.Module == "expand" {
+			body, err := firstWitnessBody(witness.Markdown)
+			if err != nil {
+				return err
+			}
+			for _, line := range body {
+				if title, ok := strings.CutPrefix(strings.TrimSpace(line), "title:"); ok {
+					if !strings.Contains(visibleDOMText(node), strings.TrimSpace(title)) {
+						return fmt.Errorf("expand response missing title %q", strings.TrimSpace(title))
+					}
+					break
+				}
+			}
 		}
 	}
 	if witness.Module == "gallery" {

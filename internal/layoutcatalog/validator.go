@@ -8,8 +8,10 @@ import (
 )
 
 var nestedLayoutOpenerRE = regexp.MustCompile(`^:::[a-z][a-z0-9-]*(?:\s|\{|\[|$)`)
+var nestedExpandDirectiveRE = regexp.MustCompile(`^:::[a-z][a-z0-9-]*`)
 
-func nestedLayoutOpener(line string) bool { return nestedLayoutOpenerRE.MatchString(line) }
+func nestedLayoutOpener(line string) bool    { return nestedLayoutOpenerRE.MatchString(line) }
+func nestedExpandDirective(line string) bool { return nestedExpandDirectiveRE.MatchString(line) }
 
 type markdownFence struct {
 	char   byte

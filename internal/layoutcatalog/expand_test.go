@@ -31,6 +31,8 @@ func TestExpandBodyValidationMatrix(t *testing.T) {
 		{"blank title", "title: \n---\nBody", "title", false},
 		{"blank body", "title: Details\n---\n  ", "", false},
 		{"nested directive", "title: Details\n---\n:::hero\ntitle: Nested\n:::", "", false},
+		{"nested directive punctuation", "title: Details\n---\n:::hero!", "", false},
+		{"fenced directive punctuation", "title: Details\n---\n```md\n:::hero!\n```", "", true},
 		{"invalid header", "title: Details\nunknown: Bad\n---\nBody", "unknown", false},
 	}
 	for _, tt := range tests {

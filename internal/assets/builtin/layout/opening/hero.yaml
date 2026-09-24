@@ -66,6 +66,19 @@ fields:
       description: 品牌开场标题装饰符号
       enum: [spark-solid, spark-outline, diamond-solid, diamond-outline, reference-mark, asterism, double-circle, circle, square-solid, square-outline, star, infinity, mountain, concentric-circles, nested-diamonds, four-petals, lens, orbits, archway, rounded-seal, four-point-star, honeycomb, mirrored-waves, open-book]
       applies_to: [masthead, journal, seal, orbit]
+      value_applies_to:
+        spark-solid: [masthead]
+        spark-outline: [masthead]
+        diamond-solid: [masthead]
+        diamond-outline: [masthead]
+        reference-mark: [masthead]
+        asterism: [masthead]
+        double-circle: [masthead]
+        circle: [masthead]
+        square-solid: [masthead]
+        square-outline: [masthead]
+        star: [masthead]
+        infinity: [masthead]
       example: spark-solid
     - name: motion
       description: 品牌开场装饰动效；不支持的符号组合回退静态，微信内动效待验证

@@ -137,7 +137,7 @@ func parseFieldsMarkdownBody(spec *LayoutSpec, body []string) (bodyFacts, []body
 		if fence.consume(line) {
 			continue
 		}
-		if nestedLayoutOpener(strings.TrimSpace(line)) {
+		if nestedExpandDirective(strings.TrimSpace(line)) {
 			return facts, []bodyValidationIssue{{message: "fields_markdown body does not support nested directives", cause: ErrInvalidFieldValue}}
 		}
 	}

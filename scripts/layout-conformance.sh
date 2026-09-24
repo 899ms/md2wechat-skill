@@ -23,7 +23,7 @@ MD2WECHAT_LAYOUT_CONFORMANCE_MODE="$mode" \
 MD2WECHAT_UPSTREAM_FIELD_CONTRACT_SHA="${MD2WECHAT_UPSTREAM_FIELD_CONTRACT_SHA:-}" \
 MD2WECHAT_UPSTREAM_FIELD_CONTRACT_RESULT="${MD2WECHAT_UPSTREAM_FIELD_CONTRACT_RESULT:-}" \
 GOCACHE="${GOCACHE:-/tmp/md2wechat-go-build}" \
-go test -timeout=6m -json ./cmd/md2wechat -run '^(TestE2ELayoutConformance|TestE2ECompactLayoutBoundaryAndThemeProbes)$' -count=1 | tee "$output"
+go test -timeout=6m -json ./cmd/md2wechat -run '^(TestE2ELayoutConformance|TestE2EMilestoneBoundaryProbes|TestE2ECompactLayoutBoundaryAndThemeProbes)$' -count=1 | tee "$output"
 
 printf 'layout conformance normalized target evidence: conformance_target_normalized (emitted by Go test)\n'
 printf 'layout conformance mode: %s\n' "$mode"
