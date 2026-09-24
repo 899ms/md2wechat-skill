@@ -61,6 +61,9 @@ func (c *Catalog) renderBlock(name string, input RenderInput, order openerParamO
 		if err := validateRenderedBody(spec, rawBody); err != nil {
 			return "", err
 		}
+		if report := c.Validate(out); len(report.Errors) != 0 {
+			return "", fmt.Errorf("%w: rendered %s block is not valid: %s", ErrInvalidFieldValue, name, report.Errors[0].Message)
+		}
 		return out, nil
 	}
 

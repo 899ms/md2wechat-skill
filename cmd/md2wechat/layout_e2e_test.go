@@ -328,9 +328,10 @@ func TestMilestoneDynamicConformanceRejectsMissingEffects(t *testing.T) {
 		{"journal draw", e2eWitness{Module: "hero", Variant: "journal", Probe: "Probe", Symbol: "mountain", Motion: "draw"}, `<section data-mpa-action-id="hero" data-hero-variant="journal">Probe<svg data-brand-symbol="mountain"><animate attributeName="stroke-dashoffset"></animate></svg></section>`, `<section data-mpa-action-id="hero" data-hero-variant="journal">Probe<svg data-brand-symbol="mountain"></svg></section>`},
 		{"seal stamp", e2eWitness{Module: "hero", Variant: "seal", Probe: "Probe", Symbol: "rounded-seal", Motion: "stamp-in"}, `<section data-mpa-action-id="hero" data-hero-variant="seal">Probe<svg data-brand-symbol="rounded-seal"><animateTransform type="scale" values="1.14;1"></animateTransform></svg></section>`, `<section data-mpa-action-id="hero" data-hero-variant="seal">Probe<svg data-brand-symbol="rounded-seal"></svg></section>`},
 		{"orbit rotate", e2eWitness{Module: "hero", Variant: "orbit", Probe: "Probe", Symbol: "orbits", Motion: "rotate-in"}, `<section data-mpa-action-id="hero" data-hero-variant="orbit">Probe<svg data-brand-symbol="orbits"><animateTransform type="rotate"></animateTransform></svg></section>`, `<section data-mpa-action-id="hero" data-hero-variant="orbit">Probe<svg data-brand-symbol="orbits"></svg></section>`},
-		{"section divider rule", e2eWitness{Module: "section-title", Variant: "divider", Probe: "Probe", Motion: "draw-center"}, `<section data-mpa-action-id="section-title" data-section-title-variant="divider">Probe<svg data-brand-rule="center"></svg></section>`, `<section data-mpa-action-id="section-title" data-section-title-variant="divider">Probe</section>`},
+		{"section divider rule", e2eWitness{Module: "section-title", Variant: "divider", Probe: "Probe", Motion: "draw-center"}, `<section data-mpa-action-id="section-title" data-section-title-variant="divider">Probe<svg data-brand-rule="center"><path><animate attributeName="stroke-dashoffset"></animate></path></svg></section>`, `<section data-mpa-action-id="section-title" data-section-title-variant="divider">Probe<svg data-brand-rule="center"></svg></section>`},
 		{"closing fill", e2eWitness{Module: "closing", Probe: "Probe", Symbol: "nested-diamonds", Motion: "draw-fill"}, `<section data-mpa-action-id="closing">Probe<svg data-brand-symbol="nested-diamonds"><animate attributeName="stroke-dashoffset"></animate><animate attributeName="opacity"></animate></svg></section>`, `<section data-mpa-action-id="closing">Probe<svg data-brand-symbol="nested-diamonds"><animate attributeName="stroke-dashoffset"></animate></svg></section>`},
-		{"title focus", e2eWitness{Module: "hero", Variant: "journal", Probe: "Probe", Motion: "focus-in"}, `<section data-mpa-action-id="hero" data-hero-variant="journal"><svg data-brand-title-motion="focus-in" aria-label="Probe"></svg>Probe</section>`, `<section data-mpa-action-id="hero" data-hero-variant="journal">Probe</section>`},
+		{"title focus", e2eWitness{Module: "hero", Variant: "journal", Probe: "Probe", Motion: "focus-in"}, `<section data-mpa-action-id="hero" data-hero-variant="journal"><svg data-brand-title-motion="focus-in" aria-label="Probe"><filter><feGaussianBlur><animate attributeName="stdDeviation"></animate></feGaussianBlur></filter></svg>Probe</section>`, `<section data-mpa-action-id="hero" data-hero-variant="journal"><svg data-brand-title-motion="focus-in" aria-label="Probe"></svg>Probe</section>`},
+		{"title wipe", e2eWitness{Module: "hero", Variant: "journal", Probe: "Probe", Motion: "wipe-in"}, `<section data-mpa-action-id="hero" data-hero-variant="journal"><svg data-brand-title-motion="wipe-in" aria-label="Probe"><clipPath><rect><animate attributeName="width"></animate></rect></clipPath></svg>Probe</section>`, `<section data-mpa-action-id="hero" data-hero-variant="journal"><svg data-brand-title-motion="wipe-in" aria-label="Probe"></svg>Probe</section>`},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := checkConformanceHTML(tt.witness, tt.good); err != nil {
@@ -1720,12 +1721,24 @@ func checkSemanticConformanceNode(witness e2eWitness, node *html.Node) error {
 			return fmt.Errorf("%s response missing rotate-in animation", witness.Module)
 		}
 	case "draw-center":
-		if !hasDOMAttributeValue(node, "data-brand-rule", "center") {
-			return fmt.Errorf("%s response missing draw-center rule", witness.Module)
+		animatedRule := false
+		for _, rule := range findDOMAttributeValueNodes(node, "data-brand-rule", "center") {
+			animatedRule = animatedRule || hasDOMAttributeValue(rule, "attributeName", "stroke-dashoffset")
+		}
+		if !animatedRule {
+			return fmt.Errorf("%s response missing animated draw-center rule", witness.Module)
 		}
 	case "focus-in", "wipe-in":
-		if !hasDOMAttributeValue(node, "data-brand-title-motion", witness.Motion) {
-			return fmt.Errorf("%s response missing %s title effect", witness.Module, witness.Motion)
+		attribute := "stdDeviation"
+		if witness.Motion == "wipe-in" {
+			attribute = "width"
+		}
+		animatedTitle := false
+		for _, title := range findDOMAttributeValueNodes(node, "data-brand-title-motion", witness.Motion) {
+			animatedTitle = animatedTitle || hasDOMAttributeValue(title, "attributeName", attribute)
+		}
+		if !animatedTitle {
+			return fmt.Errorf("%s response missing animated %s title effect", witness.Module, witness.Motion)
 		}
 	}
 	if witness.Module == "author-card" {

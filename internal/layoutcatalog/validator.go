@@ -82,20 +82,23 @@ func (c *Catalog) Validate(markdown string) ValidationReport {
 		body := []string{}
 		var bodyFence markdownFence
 		depth := 0
+		// Only expand has an upstream fence-aware, nested-directive scanner.
+		// Other modules use parseDirectiveBlock, which closes at the first :::.
+		fenceAware := moduleName == "expand"
 		for j < len(lines) {
 			content := strings.TrimRight(lines[j], "\r")
-			if bodyFence.consume(content) {
+			if fenceAware && bodyFence.consume(content) {
 				body = append(body, lines[j])
 				j++
 				continue
 			}
 			trimmed := strings.TrimSpace(content)
 			if trimmed == ":::" {
-				if depth == 0 {
+				if !fenceAware || depth == 0 {
 					break
 				}
 				depth--
-			} else if nestedLayoutOpener(trimmed) {
+			} else if fenceAware && nestedLayoutOpener(trimmed) {
 				depth++
 			}
 			body = append(body, lines[j])

@@ -91,6 +91,34 @@ func TestLayoutFenceScannerIgnoresCodeFences(t *testing.T) {
 	}
 }
 
+func TestFenceDelimiterSupportMatchesRendererByModule(t *testing.T) {
+	c := NewCatalog()
+	if err := c.Load(); err != nil {
+		t.Fatal(err)
+	}
+	for _, tt := range []struct {
+		name, module, markdown string
+		valid                  bool
+	}{
+		{"expand keeps fenced close", "expand", ":::expand\ntitle: Details\n---\n```md\n:::\n```\nBody\n:::", true},
+		{"split ordinary body", "split", ":::split\nLeft\n---\nRight\n:::", true},
+		{"split cannot hide close in code", "split", ":::split\n```md\n:::\n```\n---\nRight side\n:::", false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			report := c.Validate(tt.markdown)
+			if (len(report.Errors) == 0) != tt.valid {
+				t.Fatalf("validation errors = %+v, want valid=%v", report.Errors, tt.valid)
+			}
+			if !tt.valid {
+				body := "```md\n:::\n```\n---\nRight side"
+				if _, err := c.RenderBlock(tt.module, RenderInput{Body: body}); err == nil {
+					t.Fatal("render accepted a body the API truncates")
+				}
+			}
+		})
+	}
+}
+
 func TestExpandWitnessWithFencedDirective(t *testing.T) {
 	c := testExpandCatalog()
 	example := ":::expand\ntitle: Details\n---\n```md\n:::hero\n:::\n```\nTail\n:::"
