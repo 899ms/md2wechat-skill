@@ -673,6 +673,18 @@ func TestRepositoryContractAllowsOnlyWechatUnboundedDownload(t *testing.T) {
 	}
 }
 
+func TestRepositoryContractIgnoresNestedWorktrees(t *testing.T) {
+	repoRoot := t.TempDir()
+	source := `package wechat
+import "github.com/geekjourneyx/md2wechat-skill/internal/remotefile"
+func DownloadFile() { remotefile.DownloadUnbounded(nil, "", 0) }`
+	writeRepositorySource(t, repoRoot, "internal/wechat/service.go", source)
+	writeRepositorySource(t, repoRoot, ".worktrees/feature/internal/wechat/service.go", source)
+	if err := verifyOnlyWechatUsesUnboundedDownload(repoRoot); err != nil {
+		t.Fatalf("nested worktree must not count as source in this checkout: %v", err)
+	}
+}
+
 func TestRepositoryContractRejectsUnboundedDownloadOutsideWechat(t *testing.T) {
 	repoRoot := t.TempDir()
 	writeRepositorySource(t, repoRoot, "internal/wechat/service.go", `package wechat
@@ -863,7 +875,7 @@ func verifyOnlyWechatUsesUnboundedDownload(repoRoot string) error {
 			return walkErr
 		}
 		if entry.IsDir() {
-			if entry.Name() == ".git" {
+			if entry.Name() == ".git" || entry.Name() == ".worktrees" {
 				return filepath.SkipDir
 			}
 			return nil
